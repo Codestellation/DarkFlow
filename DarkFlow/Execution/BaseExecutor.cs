@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Threading;
 using Codestellation.DarkFlow.Misc;
 using NLog;
 
 namespace Codestellation.DarkFlow.Execution
 {
-    public abstract class BaseExecutor : Disposable, IExecutor
+    public abstract class BaseExecutor : Disposable, IExecutor, ISupportStart
     {
         private readonly ITaskRepository _taskRepository;
         private readonly ITaskReleaser _releaser;
         protected static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private int _started;
 
         public BaseExecutor(ITaskRepository taskRepository, ITaskReleaser releaser)
         {
@@ -34,6 +36,11 @@ namespace Codestellation.DarkFlow.Execution
         public ITaskReleaser Releaser
         {
             get { return _releaser; }
+        }
+
+        public bool Started
+        {
+            get { return _started == 1; }
         }
 
         public virtual void Execute(ITask task)
@@ -75,5 +82,27 @@ namespace Codestellation.DarkFlow.Execution
         }
 
         protected abstract void StartTask();
+
+        public void Start()
+        {
+            var started = Interlocked.Increment(ref _started);
+
+            if (started == 1)
+            {
+                PerfomStart();
+            }
+            else
+            {
+                Interlocked.Decrement(ref _started);
+            }
+
+        }
+
+        protected abstract void PerfomStart();
+
+        public void Stop()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

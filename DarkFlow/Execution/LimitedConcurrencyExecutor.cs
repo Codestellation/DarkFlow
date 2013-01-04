@@ -26,6 +26,8 @@ namespace Codestellation.DarkFlow.Execution
 
         protected override void StartTask()
         {
+            if(Started == false) return;
+
             var runningThreads = Interlocked.Increment(ref _runningThreads);
             if (runningThreads > _maxThread)
             {
@@ -39,6 +41,14 @@ namespace Codestellation.DarkFlow.Execution
             }
 
             ThreadPool.QueueUserWorkItem(state => RunTasks());
+        }
+
+        protected override void PerfomStart()
+        {
+            for (int i = 0; i < _maxThread; i++)
+            {
+                StartTask();
+            }
         }
 
         protected virtual void RunTasks()

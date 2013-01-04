@@ -7,12 +7,12 @@ Executions:
 + ITaskFactory for restoring persisted tasks.
 + IReleaser to release (container) or dispose (if disposable) executed tasks.
 + Do not use strong assembly qualified names for persisted tasks.
-- Start method for executor
+- Start/Stop methods for executor
 
 Scheduling:
 - Persisted schedules/tasks.
 - More sophisticated timer management.
-- Start method for scheduler
+- Start/Stop methods for scheduler
 
 Windsor
 + Registers Executor. 

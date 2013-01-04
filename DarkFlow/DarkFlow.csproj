@@ -62,6 +62,7 @@
     <Compile Include="Bootstrap\LimitedConcurrencyBuilder.cs" />
     <Compile Include="Bootstrap\QueuedExecutorBuilder.cs" />
     <Compile Include="Bootstrap\Create.cs" />
+    <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="Schedules\Every.cs" />
     <Compile Include="Execution\BaseExecutor.cs" />
     <Compile Include="Execution\DefaultReleaser.cs" />

@@ -34,8 +34,9 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Do_not_exit_dispose_until_running_task_executed()
         {
+            _executor.Start();
             RunAll();
-            _tasks[0].Started.WaitOne();
+            _tasks[0].Started.WaitOne(100);
 
             _executor.Dispose();
 
@@ -52,6 +53,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Shedules_all_tasks()
         {
+            _executor.Start();
             RunAll();
 
             WaitAllTaskFinished(1000);
@@ -61,30 +63,40 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             Assert.That(executedCount, Is.EqualTo(10));
         }
 
-        private void RunAll()
-        {
-            foreach (LongRunningTask task in _tasks)
-            {
-                _executor.Execute(task);
-            }
-        }
-
         [Test]
         public void Shedules_not_more_than_specified_number_of_tasks_simultaneously()
         {
+            _executor.Start();
             RunAll();
 
-            _tasks[0].Started.WaitOne();
-            _tasks[1].Started.WaitOne();
+            _tasks[0].Started.WaitOne(100);
+            _tasks[1].Started.WaitOne(100);
 
             int runningCount = _tasks.Count(x => x.Running);
 
             Assert.That(runningCount, Is.EqualTo(2));
         }
 
+        [Test]
+        public void Do_not_executes_tasks_until_start_is_called()
+        {
+            RunAll();
+            var started = _tasks[0].Started.WaitOne(10);
+
+            Assert.That(started, Is.False);
+        }
+
         private void WaitAllTaskFinished(int timeout = 100)
         {
             WaitHandle.WaitAll(_tasks.Select(x => x.Finished).Cast<WaitHandle>().ToArray(), timeout);
+        }
+
+        private void RunAll()
+        {
+            foreach (LongRunningTask task in _tasks)
+            {
+                _executor.Execute(task);
+            }
         }
     }
 }
