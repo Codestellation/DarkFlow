@@ -2,12 +2,12 @@
 {
     public class SynchronousExecutor : IExecutor
     {
-        public void ExecuteLater(ITask task)
+        public void Execute(ITask task)
         {
             task.Execute();
         }
 
-        public void ExecuteReliably(IPersistentTask task)
+        public void Execute(IPersistentTask task)
         {
             task.Execute();
         }

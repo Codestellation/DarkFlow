@@ -65,7 +65,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             foreach (LongRunningTask task in _tasks)
             {
-                _executor.ExecuteLater(task);
+                _executor.Execute(task);
             }
         }
 

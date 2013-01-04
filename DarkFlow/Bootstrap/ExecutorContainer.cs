@@ -26,14 +26,14 @@ namespace Codestellation.DarkFlow.Bootstrap
         {
             get { return _disposables; }
         }
-        public void ExecuteLater(ITask task)
+        public void Execute(ITask task)
         {
-            _executor.ExecuteLater(task);
+            _executor.Execute(task);
         }
 
-        public void ExecuteReliably(IPersistentTask task)
+        public void Execute(IPersistentTask task)
         {
-            _executor.ExecuteLater(task);
+            _executor.Execute((ITask) task);
         }
     }
 }

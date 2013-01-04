@@ -88,7 +88,7 @@ namespace Codestellation.DarkFlow.Scheduling
 
                 foreach (var scheduledTask in tasksToRun)
                 {
-                    _executor.ExecuteLater(scheduledTask.Task);
+                    _executor.Execute(scheduledTask.Task);
                     scheduledTask.Schedule.StartedAt(now);
                 }
 

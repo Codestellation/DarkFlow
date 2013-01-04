@@ -2,8 +2,8 @@
 {
     public interface IExecutor
     {
-        void ExecuteLater(ITask task);
+        void Execute(ITask task);
 
-        void ExecuteReliably(IPersistentTask task);
+        void Execute(IPersistentTask task);
     }
 }

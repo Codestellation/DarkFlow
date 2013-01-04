@@ -36,7 +36,7 @@ namespace Codestellation.DarkFlow.Execution
             get { return _releaser; }
         }
 
-        public virtual void ExecuteLater(ITask task)
+        public virtual void Execute(ITask task)
         {
             if (ReferenceEquals(task, null))
             {
@@ -55,7 +55,7 @@ namespace Codestellation.DarkFlow.Execution
             StartTask();
         }
 
-        public virtual void ExecuteReliably(IPersistentTask task)
+        public virtual void Execute(IPersistentTask task)
         {
             if (ReferenceEquals(task, null))
             {
