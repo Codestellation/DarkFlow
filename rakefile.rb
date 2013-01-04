@@ -65,5 +65,5 @@ end
 desc "Creating nuspec file project"
 exec :nupack => [:nunit]do |nupack|
   nupack.command = ".nuget/nuget.exe"
-  nupack.parameters "Pack Threading/Threading.csproj -Symbols -Build -Version #{@package_version}"
+  nupack.parameters "Pack DarkFlow/DarkFlow.csproj -Symbols -Build -Version #{@package_version}"
 end

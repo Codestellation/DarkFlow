@@ -1,10 +1,10 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
-[assembly: AssemblyCompany("Jury Soldatenkov")]
-[assembly: AssemblyProduct("Solyutor.Threading")]
-[assembly: AssemblyCopyright("copyright 2012, by Jury Soldatenkov")]
-[assembly: AssemblyVersion("0.2.2")]
-[assembly: AssemblyFileVersion("0.2.2")]
+[assembly: AssemblyCompany("Codestellation")]
+[assembly: AssemblyProduct("Codestellation.DarkFlow")]
+[assembly: AssemblyCopyright("Copyright (c) 2012-2013 Codestellation")]
+[assembly: AssemblyVersion("0.1.1")]
+[assembly: AssemblyFileVersion("0.1.1")]
 
-[assembly: AssemblyInformationalVersionAttribute("0.2.2-g0cdb4b")]
+[assembly: AssemblyInformationalVersionAttribute("0.1.1-g9a3fb1")]
 
