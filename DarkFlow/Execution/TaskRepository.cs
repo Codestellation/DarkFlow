@@ -1,0 +1,85 @@
+﻿using System;
+using System.Collections.Concurrent;
+
+namespace Codestellation.DarkFlow.Execution
+{
+    public class TaskRepository : ITaskRepository
+    {
+        private readonly ConcurrentQueue<TaskEnvelope> _queue;
+        private readonly ISerializer _serializer;
+        private readonly IDatabase _dataBase;
+
+        public TaskRepository(ISerializer serializer,  IDatabase database)
+        {
+            if (database == null)
+            {
+                throw new ArgumentNullException("database");
+            }
+
+            if (serializer == null)
+            {
+                throw new ArgumentNullException("serializer");
+            }
+
+            _queue = new ConcurrentQueue<TaskEnvelope>();
+            _serializer = serializer;
+            _dataBase = database;
+
+            foreach (var serializedEnvelope  in _dataBase.GetAll())
+            {
+                var task = _serializer.Deserialize(serializedEnvelope.Value); 
+                var envelope = new TaskEnvelope(task, serializedEnvelope.Key);
+                _queue.Enqueue(envelope);
+            }
+        }
+
+        public virtual void Add(ITask task)
+        {
+            var envelope = new TaskEnvelope(task);
+            _queue.Enqueue(envelope);
+        }
+
+        public virtual void Add(IPersistentTask task)
+        {
+            var state = _serializer.Serialize(task);
+            var id = _dataBase.Persist(state);
+            var envelope = new TaskEnvelope(task,id);
+            _queue.Enqueue(envelope);
+        }
+
+        public virtual ITask TakeNext()
+        {
+            TaskEnvelope result;
+            _queue.TryDequeue(out result);
+            if (result == null) return null;
+
+            if (result.Persisted)
+            {
+                _dataBase.Remove(result.Id);
+            }
+            return result.Task;
+        }
+
+        private class TaskEnvelope
+        {
+            public TaskEnvelope(ITask task)
+            {
+                Task = task;
+                Persisted = false;
+            }
+
+            public TaskEnvelope(IPersistentTask task, Guid id)
+            {
+                Task = task;
+                Id = id;
+                Persisted = true;
+            }
+
+            public bool Persisted { get; set; }
+
+            public Guid Id { get; set; }
+
+            public ITask Task { get; set; }
+        }
+    }
+}
