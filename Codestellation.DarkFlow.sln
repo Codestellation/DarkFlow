@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Misc", ".Misc", "{F8F82DEF
 	ProjectSection(SolutionItems) = preProject
 		rakefile.rb = rakefile.rb
 		Roadmap.txt = Roadmap.txt
+		skip.bat = skip.bat
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DarkFlow", "DarkFlow\DarkFlow.csproj", "{AD50034B-2073-43D4-B464-2265F900D762}"
