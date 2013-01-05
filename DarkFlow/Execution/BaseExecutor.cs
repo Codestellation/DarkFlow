@@ -85,6 +85,8 @@ namespace Codestellation.DarkFlow.Execution
 
         public void Start()
         {
+            EnsureNotDisposed();
+
             var started = Interlocked.Increment(ref _started);
 
             if (started == 1)
@@ -95,14 +97,24 @@ namespace Codestellation.DarkFlow.Execution
             {
                 Interlocked.Decrement(ref _started);
             }
-
         }
 
         protected abstract void PerfomStart();
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            var started = Interlocked.Decrement(ref _started);
+
+            if (started == 0)
+            {
+                PerfomStop();
+            }
+            else
+            {
+                Interlocked.Increment(ref _started);
+            }
         }
+
+        protected abstract void PerfomStop();
     }
 }

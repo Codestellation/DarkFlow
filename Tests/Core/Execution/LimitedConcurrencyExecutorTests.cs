@@ -85,6 +85,31 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
             Assert.That(started, Is.False);
         }
+        
+        [Test]
+        public void Do_not_executes_tasks_since_stopped()
+        {
+            _executor.Start();
+            _executor.Stop();
+            RunAll();
+            var started = _tasks[0].Started.WaitOne(10);
+
+            Assert.That(started, Is.False);
+        }
+
+        [Test]
+        public void Do_not_executes_new_tasks_since_stopped()
+        {
+            _executor.Start();
+            RunAll();
+            _tasks[0].Started.WaitOne(10);
+            _executor.Stop();
+            _tasks[9].Finished.WaitOne(10000);
+
+            var startedCount = _tasks.Count(x => x.Executed);
+
+            Assert.That(startedCount, Is.LessThan(10));
+        }
 
         private void WaitAllTaskFinished(int timeout = 100)
         {

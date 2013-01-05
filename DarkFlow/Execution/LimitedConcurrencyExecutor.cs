@@ -51,11 +51,23 @@ namespace Codestellation.DarkFlow.Execution
             }
         }
 
+        protected override void PerfomStop()
+        {
+            var finished = _runningTasksFinished;
+
+            if (finished == null) return;
+
+            while (_runningThreads > 0)
+            {
+                finished.WaitOne();
+            }
+        }
+
         protected virtual void RunTasks()
         {
             try
             {
-                while (IsNotDisposed)
+                while (IsNotDisposed && Started)
                 {
                     var next = TaskRepository.TakeNext();
 
@@ -94,17 +106,13 @@ namespace Codestellation.DarkFlow.Execution
         {
             if (Disposed) return;
 
+            PerfomStop();
+
             var finished = _runningTasksFinished;
 
             if(finished == null) return;
-
-            while (_runningThreads > 0)
-            {
-                finished.WaitOne();
-            }
-
+            
             finished.Dispose();
-
             _runningTasksFinished = null;
         }
     }
