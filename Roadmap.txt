@@ -7,7 +7,8 @@ Executions:
 + ITaskFactory for restoring persisted tasks.
 + IReleaser to release (container) or dispose (if disposable) executed tasks.
 + Do not use strong assembly qualified names for persisted tasks.
-- Start/Stop methods for executor
++ Start/Stop methods for executor
+- Manage ExecutionFlow (Execution context) for server/client side.
 
 Scheduling:
 - Persisted schedules/tasks.

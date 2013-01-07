@@ -3,6 +3,7 @@ using System.Threading;
 
 namespace Codestellation.DarkFlow.Tests
 {
+    //TODO: Remove thread sleep completely. Make more intention revealing interface.
     public class LongRunningTask : ITask
     {
         private int _runCount;
@@ -48,10 +49,5 @@ namespace Codestellation.DarkFlow.Tests
     public class PersistentLongRunningTask : LongRunningTask, IPersistentTask
     {
         public object PersistentState { get { return Name; } }
-
-        public Type GetRealType
-        {
-            get { return GetType(); }
-        }
     }
 }

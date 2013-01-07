@@ -25,6 +25,8 @@ namespace Codestellation.DarkFlow.Execution
             _serializer = serializer;
             _dataBase = database;
 
+
+            //TODO: This should be moved to TakeNext method.
             foreach (var serializedEnvelope  in _dataBase.GetAll())
             {
                 var task = _serializer.Deserialize(serializedEnvelope.Value); 
