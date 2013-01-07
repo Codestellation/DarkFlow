@@ -3,24 +3,23 @@ using System.Threading;
 
 namespace Codestellation.DarkFlow.Tests
 {
-    //TODO: Remove thread sleep completely. Make more intention revealing interface.
     public class LongRunningTask : ITask
     {
         private int _runCount;
-        public int SleepTime = 50;
-        public LongRunningTask()
+        private readonly ManualResetEvent _started;
+        private readonly ManualResetEvent _finished;
+        private readonly ManualResetEvent _canFinish;
+
+        public LongRunningTask(bool manualFinish)
         {
-            Started = new ManualResetEvent(false);
-            Finished = new ManualResetEvent(false);
+            _started = new ManualResetEvent(false);
+            _finished = new ManualResetEvent(false);
+            _canFinish = new ManualResetEvent(!manualFinish);
         }
 
-        public ManualResetEvent Started { get; set; }
+        public bool Running { get; private set; }
 
-        public ManualResetEvent Finished { get; set; }
-
-        public bool Running { get; set; }
-
-        public bool Executed { get; set; }
+        public bool Executed { get; private set; }
 
         public string Name { get; set; }
 
@@ -29,25 +28,42 @@ namespace Codestellation.DarkFlow.Tests
             get { return _runCount; }
         }
 
+        public bool WaitForStart(int timeout = 10)
+        {
+            return _started.WaitOne(timeout);
+        }
+
+        public bool WaitForFinish(int timeout = 10)
+        {
+            return _finished.WaitOne(timeout);
+        }
+
+        public void Finilize()
+        {
+            _canFinish.Set();
+        }
+
         public void Execute()
         {
             Running = true;
-            Started.Set();
-            if (SleepTime > 0)
-            {
-                Thread.Sleep(SleepTime);
-            }
-
+            _started.Set();
+            
             Console.WriteLine("Running task {0}, at {1}", Name, DateTime.Now);
+            _canFinish.WaitOne();
+            
             Running = false;
             Executed = true;
             Interlocked.Increment(ref _runCount);
-            Finished.Set();
+            _finished.Set();
         }
     }
 
     public class PersistentLongRunningTask : LongRunningTask, IPersistentTask
     {
+        public PersistentLongRunningTask(bool manualFinish) : base(manualFinish)
+        {
+        }
+
         public object PersistentState { get { return Name; } }
     }
 }

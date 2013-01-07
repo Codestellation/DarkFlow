@@ -16,7 +16,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Do_no_throw_if_task_is_no_disposable()
         {
-            Assert.DoesNotThrow(() => _releaser.Release(new LongRunningTask()));
+            Assert.DoesNotThrow(() => _releaser.Release(new LongRunningTask(false)));
         }   
         
         [Test]

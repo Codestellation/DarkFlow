@@ -53,6 +53,11 @@ namespace Codestellation.DarkFlow.Execution
 
         protected override void PerfomStop()
         {
+            
+        }
+
+        private void WaitForStop()
+        {
             var finished = _runningTasksFinished;
 
             if (finished == null) return;
@@ -106,7 +111,7 @@ namespace Codestellation.DarkFlow.Execution
         {
             if (Disposed) return;
 
-            PerfomStop();
+            WaitForStop();
 
             var finished = _runningTasksFinished;
 

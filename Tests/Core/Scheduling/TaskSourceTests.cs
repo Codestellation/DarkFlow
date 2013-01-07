@@ -21,8 +21,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Scheduling
 
             source.AddTask(new[]
                 {
-                    new ScheduledTask(last, new LongRunningTask()),
-                    new ScheduledTask(mid, new LongRunningTask()),
+                    new ScheduledTask(last, new LongRunningTask(false)),
+                    new ScheduledTask(mid, new LongRunningTask(false)),
                 });
 
             Assert.That(nextStart, Is.EqualTo(mid.StartAt));

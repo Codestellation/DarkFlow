@@ -31,7 +31,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Should_return_added_task()
         {
-            var task = new LongRunningTask();
+            var task = new LongRunningTask(false);
             Repository.Add(task);
 
             var returnedTask = Repository.TakeNext();

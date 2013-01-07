@@ -19,7 +19,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Scheduling
         public void Setup()
         {
             _clock = new TestClock {Now = Constants.FrozenNow};
-            _task = new LongRunningTask{Name = "PeriodicalTask", SleepTime = 0};
+            _task = new LongRunningTask(false) {Name = "PeriodicalTask"};
             _testTimer = new TestTimer();
             _scheduler = new Scheduler(new SynchronousExecutor(), _clock, _testTimer);
         }

@@ -15,7 +15,7 @@ namespace Codestellation.DarkFlow.Misc
             get { return _disposed; }
         }
 
-        protected bool DisposeInProgress
+        public bool DisposeInProgress
         {
             get { return _disposeInProgress; }
         }

@@ -16,7 +16,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             _tasks = new List<LongRunningTask>(10);
             for (int i = 0; i < 10; i++)
             {
-                var task = new LongRunningTask();
+                var task = new LongRunningTask(true);
                 _tasks.Add(task);
             }
         }
@@ -24,7 +24,16 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [TearDown]
         public void TearDown()
         {
+            FinalizeAll();
             _executor.Dispose();
+        }
+
+        private void FinalizeAll()
+        {
+            foreach (var longRunningTask in _tasks)
+            {
+                longRunningTask.Finilize();
+            }
         }
 
         private LimitedConcurrencyExecutor _executor;
@@ -36,14 +45,23 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             _executor.Start();
             RunAll();
-            _tasks[0].Started.WaitOne(100);
+            _tasks[0].WaitForStart(100);
+
+            ThreadPool.QueueUserWorkItem(state =>
+                {
+                    while (_executor.DisposeInProgress == false)
+                    {
+
+                    }
+                    FinalizeAll();
+                });
 
             _executor.Dispose();
 
-            _tasks[0].Finished.WaitOne(100);
-            _tasks[1].Finished.WaitOne(100);
-            
-            WaitAllTaskFinished(200);
+            _tasks[0].WaitForFinish(100);
+            _tasks[1].WaitForFinish(100);
+
+            WaitAllTaskFinished(200, false);
 
             int executedCount = _tasks.Count(x => x.Executed);
 
@@ -54,9 +72,9 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void Shedules_all_tasks()
         {
             _executor.Start();
-            RunAll();
+            RunAll(autofinish: true);
 
-            WaitAllTaskFinished(1000);
+            WaitAllTaskFinished();
 
             int executedCount = _tasks.Count(x => x.Executed);
 
@@ -69,8 +87,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             _executor.Start();
             RunAll();
 
-            _tasks[0].Started.WaitOne(100);
-            _tasks[1].Started.WaitOne(100);
+            _tasks[0].WaitForStart(100);
+            _tasks[1].WaitForStart(100);
 
             int runningCount = _tasks.Count(x => x.Running);
 
@@ -81,18 +99,18 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void Do_not_executes_tasks_until_start_is_called()
         {
             RunAll();
-            var started = _tasks[0].Started.WaitOne(10);
+            var started = _tasks[0].WaitForStart();
 
             Assert.That(started, Is.False);
         }
-        
+
         [Test]
         public void Do_not_executes_tasks_since_stopped()
         {
             _executor.Start();
             _executor.Stop();
             RunAll();
-            var started = _tasks[0].Started.WaitOne(10);
+            var started = _tasks[0].WaitForStart();
 
             Assert.That(started, Is.False);
         }
@@ -102,25 +120,35 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             _executor.Start();
             RunAll();
-            _tasks[0].Started.WaitOne(10);
+            _tasks[0].WaitForStart();
+            _tasks[1].WaitForStart();
             _executor.Stop();
-            _tasks[9].Finished.WaitOne(10000);
+            FinalizeAll();
 
             var startedCount = _tasks.Count(x => x.Executed);
 
-            Assert.That(startedCount, Is.LessThan(10));
+            Assert.That(startedCount, Is.EqualTo(2));
         }
 
-        private void WaitAllTaskFinished(int timeout = 100)
+        private void WaitAllTaskFinished(int timeout = 100, bool ensure = true)
         {
-            WaitHandle.WaitAll(_tasks.Select(x => x.Finished).Cast<WaitHandle>().ToArray(), timeout);
+            var finished = _tasks.Select(x => x.WaitForFinish(timeout)).Aggregate((a, b) => a && b);
+            if (ensure)
+            {
+                Assert.That(finished, Is.True, string.Format("At least one task was not finished within {0} ms.", timeout));
+            }
+
         }
 
-        private void RunAll()
+        private void RunAll(bool autofinish = false)
         {
             foreach (LongRunningTask task in _tasks)
             {
                 _executor.Execute(task);
+                if (autofinish)
+                {
+                    task.Finilize();
+                }
             }
         }
     }
