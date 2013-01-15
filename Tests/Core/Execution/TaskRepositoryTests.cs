@@ -50,7 +50,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Should_reload_persisted_task()
         {
-            var task = new PersistedTask(new State {Id = 1, Name = "Test"});
+            var original = new State {Id = 1, Name = "Test"};
+            var task = new PersistedTask(original);
             Repository.Add(task);
             _database.Dispose();
             _database = new ManagedEsentDatabase();
@@ -60,13 +61,12 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             var reloaded = (PersistedTask)Repository.TakeNext();
 
             Assert.That(reloaded, Is.InstanceOf<PersistedTask>());
-            Assert.That(reloaded.State.Id, Is.EqualTo(1));
-            Assert.That(reloaded.State.Name, Is.EqualTo("Test"));
+            Assert.That(reloaded.State, Is.EqualTo(original));
         }
 
 
         [Test, Explicit]
-        public void Test_perfomance_for_add_method()
+        public void Test_performance_for_add_method()
         {
             var tasks = new List<IPersistentTask>(10000);
             tasks.AddRange(Enumerable.Range(1, 10000).Select(x => new PersistedTask(new State { Id = x, Name = "Task" + x })));

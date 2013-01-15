@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace Codestellation.DarkFlow.Execution
 {
@@ -8,6 +10,7 @@ namespace Codestellation.DarkFlow.Execution
         private readonly ConcurrentQueue<TaskEnvelope> _queue;
         private readonly ISerializer _serializer;
         private readonly IDatabase _dataBase;
+        private int _loaded;
 
         public TaskRepository(ISerializer serializer,  IDatabase database)
         {
@@ -20,19 +23,10 @@ namespace Codestellation.DarkFlow.Execution
             {
                 throw new ArgumentNullException("serializer");
             }
-
+            _loaded = -1;
             _queue = new ConcurrentQueue<TaskEnvelope>();
             _serializer = serializer;
             _dataBase = database;
-
-
-            //TODO: This should be moved to TakeNext method.
-            foreach (var serializedEnvelope  in _dataBase.GetAll())
-            {
-                var task = _serializer.Deserialize(serializedEnvelope.Value); 
-                var envelope = new TaskEnvelope(task, serializedEnvelope.Key);
-                _queue.Enqueue(envelope);
-            }
         }
 
         public virtual void Add(ITask task)
@@ -51,8 +45,19 @@ namespace Codestellation.DarkFlow.Execution
 
         public virtual ITask TakeNext()
         {
+            var loaded = Interlocked.Increment(ref _loaded);
+            
+            if (loaded == 0)
+            {
+                foreach (var task in TasksInDatabase())
+                {
+                    _queue.Enqueue(task);
+                }
+            }
+
             TaskEnvelope result;
             _queue.TryDequeue(out result);
+
             if (result == null) return null;
 
             if (result.Persisted)
@@ -60,6 +65,16 @@ namespace Codestellation.DarkFlow.Execution
                 _dataBase.Remove(result.Id);
             }
             return result.Task;
+        }
+
+        private IEnumerable<TaskEnvelope> TasksInDatabase()
+        {
+            foreach (var serializedEnvelope  in _dataBase.GetAll())
+            {
+                var task = _serializer.Deserialize(serializedEnvelope.Value);
+                yield return new TaskEnvelope(task, serializedEnvelope.Key);
+                
+            }
         }
 
         private class TaskEnvelope
