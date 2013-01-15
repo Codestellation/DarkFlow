@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Codestellation.DarkFlow.Tests.Windsor
 {
     [TestFixture]
-    public class ThreadingFacilityTests
+    public class DarkFlowFacilityTests
     {
         private WindsorContainer _windsor;
 
@@ -13,7 +13,7 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         public void Setup()
         {
             _windsor = new WindsorContainer();
-            _windsor.AddFacility<ThreadingFacility>(x => x.UsingInMemoryPersistence());
+            _windsor.AddFacility<DarkFlowFacility>(x => x.UsingInMemoryPersistence());
         }
 
         [TearDown]

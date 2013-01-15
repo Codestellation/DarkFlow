@@ -19,7 +19,7 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         public void Setup()
         {
             _windsor = new WindsorContainer();
-            _windsor.AddFacility<ThreadingFacility>(x => x.UsingInMemoryPersistence());
+            _windsor.AddFacility<DarkFlowFacility>(x => x.UsingInMemoryPersistence());
 
             _windsor.Register(
                 Component

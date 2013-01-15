@@ -102,7 +102,7 @@
     <Compile Include="Core\Scheduling\TaskSourceTests.cs" />
     <Compile Include="ScratchPad.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Windsor\ThreadingFacilityTests.cs" />
+    <Compile Include="Windsor\DarkFlowFacilityTests.cs" />
     <Compile Include="Windsor\WindsorReleaserTests.cs" />
     <Compile Include="Windsor\WindsorTaskFactoryTests.cs" />
   </ItemGroup>

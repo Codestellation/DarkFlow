@@ -10,7 +10,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
     /// <summary>
     /// 
     /// </summary>
-    public class ThreadingFacility : AbstractFacility
+    public class DarkFlowFacility : AbstractFacility
     {
         private ComponentRegistration<IDatabase> _databaseRegistration;
         private ComponentRegistration<IExecutor> _executorRegistration;
@@ -73,7 +73,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
         /// <summary>
         /// This is useful for testing purposes.
         /// </summary>
-        public ThreadingFacility UsingInMemoryPersistence()
+        public DarkFlowFacility UsingInMemoryPersistence()
         {
             _databaseRegistration = Component.For<IDatabase>()
                                              .ImplementedBy<InMemoryDatabase>()
@@ -85,13 +85,13 @@ namespace Codestellation.DarkFlow.CastleWindsor
         /// Provides custom persistence implementation to register with executor.
         /// </summary>
         /// <param name="databaseRegistration"></param>
-        public ThreadingFacility UsingCustomPersistence(ComponentRegistration<IDatabase> databaseRegistration)
+        public DarkFlowFacility UsingCustomPersistence(ComponentRegistration<IDatabase> databaseRegistration)
         {
             _databaseRegistration = databaseRegistration;
             return this;
         }
 
-        public ThreadingFacility ExecuteSynchronously()
+        public DarkFlowFacility ExecuteSynchronously()
         {
             _executorRegistration = Component
                 .For<IExecutor>()

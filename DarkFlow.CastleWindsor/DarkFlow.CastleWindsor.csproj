@@ -61,7 +61,7 @@
     <Compile Include="Impl\WindsorReleaser.cs" />
     <Compile Include="Impl\WindsorTaskFactory.cs" />
     <Compile Include="TaskInstaller.cs" />
-    <Compile Include="ThreadingFacility.cs" />
+    <Compile Include="DarkFlowFacility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
