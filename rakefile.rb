@@ -9,7 +9,7 @@ require 'fileutils'
 
 @nuget_dir = @build_folder + "/nuget"
 
-task :default => [:nupack]
+task :default => [:all]
 
 
 desc "Generate solution version "
@@ -62,8 +62,18 @@ nunit :nunit => [:msbuild] do |nunit|
 	nunit.options "/nologo"
 end
 
-desc "Creating nuspec file project"
+desc "Packing DarkFlow project"
 exec :nupack => [:nunit]do |nupack|
   nupack.command = ".nuget/nuget.exe"
   nupack.parameters "Pack DarkFlow/DarkFlow.csproj -Symbols -Build -Version #{@package_version}"
+end
+
+
+desc "Packing DarkFlow.Windsor project"
+exec :nupack_windsor => [:nunit]do |nupack|
+  nupack.command = ".nuget/nuget.exe"
+  nupack.parameters "Pack DarkFlow.CastleWindsor/DarkFlow.CastleWindsor.csproj -Symbols -Build -Version #{@package_version}"
+end
+
+task :all => [:nupack, :nupack_windsor] do |task|
 end

@@ -1,4 +1,5 @@
 ﻿using System;
+using Castle.Facilities.Startable;
 using Castle.MicroKernel.Facilities;
 using Castle.MicroKernel.Registration;
 using Codestellation.DarkFlow.CastleWindsor.Impl;
@@ -60,6 +61,8 @@ namespace Codestellation.DarkFlow.CastleWindsor
                 Component
                     .For<IExecutor>()
                     .ImplementedBy<LimitedConcurrencyExecutor>()
+                    .StartUsingMethod("Start")
+                    .StopUsingMethod("Stop")
                     .DependsOn(new {maxThread})
                     .LifestyleSingleton(),
 
