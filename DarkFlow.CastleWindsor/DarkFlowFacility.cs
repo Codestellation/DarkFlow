@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections;
+using System.IO;
 using Castle.Facilities.Startable;
+using Castle.MicroKernel;
+using Castle.MicroKernel.Context;
 using Castle.MicroKernel.Facilities;
+using Castle.MicroKernel.Handlers;
 using Castle.MicroKernel.Registration;
 using Codestellation.DarkFlow.CastleWindsor.Impl;
 using Codestellation.DarkFlow.Execution;
@@ -18,18 +23,58 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
         public string PersistedTaskFolder { get; set; }
 
-        public bool TestMode { get; set; }
-
         public int? MaxThreads { get; set; }
+
+        private string BasePersistedTaskFolder
+        {
+            get { return PersistedTaskFolder ?? ManagedEsentDatabase.DefaultTaskFolder; }
+        }
 
         protected override void Init()
         {
-            int maxThread = MaxThreads ?? Environment.ProcessorCount;
-            var persistedTaskFolder = PersistedTaskFolder ?? ManagedEsentDatabase.DefaultTaskFolder;
             Kernel.AddHandlerSelector(new TaskHandlerSelector(Kernel));
-            
-            Kernel.Register(
 
+            RegisterSharedServices();
+
+            RegisterLimitedExecutor();
+
+            RegisterQueuedExecutor();
+
+            RegisterScheduler();
+        }
+
+        private void RegisterLimitedExecutor()
+        {
+            int maxThread = MaxThreads ?? Environment.ProcessorCount;
+
+            Kernel.Register(
+                _executorRegistration ??
+                Component
+                    .For<IExecutor>()
+                    .ImplementedBy<LimitedConcurrencyExecutor>()
+                    .Named("limited")
+                    .StartUsingMethod("Start")
+                    .StopUsingMethod("Stop")
+                    .DependsOn(new {maxThread})
+                    .LifestyleSingleton());
+        }
+
+        private void RegisterQueuedExecutor()
+        {
+            Kernel.Register(
+                Component
+                    .For<IExecutor>()
+                    .ImplementedBy<QueuedExecutor>()
+                    .Named("fiber")
+                    .StartUsingMethod("Start")
+                    .StopUsingMethod("Stop")
+                    .LifestyleSingleton());
+
+        }
+
+        private void RegisterSharedServices()
+        {
+            Kernel.Register(
                 Component
                     .For<ITaskReleaser>()
                     .ImplementedBy<WindsorReleaser>()
@@ -45,27 +90,35 @@ namespace Codestellation.DarkFlow.CastleWindsor
                     .ImplementedBy<JsonSerializer>()
                     .LifestyleSingleton(),
 
-                _databaseRegistration ?? 
-                Component
+                _databaseRegistration ?? Component
                     .For<IDatabase>()
                     .ImplementedBy<ManagedEsentDatabase>()
-                    .DependsOn(new{persistedTaskFolder})
-                    .LifestyleSingleton(),
+                    .LifestyleBoundTo<IExecutor>()
+                    .DynamicParameters(DefineTaskFolder),
 
                 Component
                     .For<ITaskRepository>()
                     .ImplementedBy<TaskRepository>()
-                    .LifestyleSingleton(),
+                    .LifestyleBoundTo<IExecutor>()
+            );
+        }
 
-                _executorRegistration ?? 
-                Component
-                    .For<IExecutor>()
-                    .ImplementedBy<LimitedConcurrencyExecutor>()
-                    .StartUsingMethod("Start")
-                    .StopUsingMethod("Stop")
-                    .DependsOn(new {maxThread})
-                    .LifestyleSingleton(),
+        private ComponentReleasingDelegate DefineTaskFolder(IKernel kernel, CreationContext creationcontext, IDictionary parameters)
+        {
+            if (creationcontext.Handler.ComponentModel.Implementation == typeof (LimitedConcurrencyExecutor))
+            {
+                parameters.Add("persistFolder", Path.Combine(BasePersistedTaskFolder, "Limit"));
+            }
+            else if (creationcontext.Handler.ComponentModel.Implementation == typeof(QueuedExecutor))
+            {
+                parameters.Add("persistFolder", Path.Combine(BasePersistedTaskFolder, "Fiber"));
+            }
+            return delegate { };
+        }
 
+        private void RegisterScheduler()
+        {
+            Kernel.Register(
                 Component
                     .For<IScheduler>()
                     .ImplementedBy<Scheduler>()
@@ -80,7 +133,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
         {
             _databaseRegistration = Component.For<IDatabase>()
                                              .ImplementedBy<InMemoryDatabase>()
-                                             .LifestyleSingleton();
+                                             .LifestyleBoundTo<IExecutor>();
             return this;
         }
 

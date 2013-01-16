@@ -1,5 +1,6 @@
 ﻿using Castle.Windsor;
 using Codestellation.DarkFlow.CastleWindsor;
+using Codestellation.DarkFlow.Execution;
 using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Windsor
@@ -26,7 +27,17 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         [Test]
         public void Registers_executor_properly()
         {
-            Assert.DoesNotThrow(() => _windsor.Resolve<IExecutor>());
+            var executor = _windsor.Resolve<IExecutor>();
+
+            Assert.That(executor, Is.InstanceOf<LimitedConcurrencyExecutor>());
+            Assert.That(executor, Is.Not.InstanceOf<QueuedExecutor>());
+        }
+
+        [Test]
+        public void Registers_queued_executor_properly()
+        {
+            var executor = _windsor.Resolve<IExecutor>("fiber");
+            Assert.That(executor, Is.InstanceOf<QueuedExecutor>());
         }
 
         [Test]

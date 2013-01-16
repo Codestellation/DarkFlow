@@ -23,6 +23,7 @@ Windsor
 + Disposes (release) tracked and non-tracked tasks
 + Register Scheduler.
 + Integration with startable facility.
+- Installing fiber
 - Support for xml-configuration
 - Builder-like facility
 - Task installer
