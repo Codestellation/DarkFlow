@@ -33,6 +33,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
         protected override void Init()
         {
             Kernel.AddHandlerSelector(new TaskHandlerSelector(Kernel));
+            Kernel.Resolver.AddSubResolver(new ExecutorResolver(Kernel));
 
             RegisterSharedServices();
 
