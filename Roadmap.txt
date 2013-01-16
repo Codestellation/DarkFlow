@@ -22,6 +22,7 @@ Windsor
 + Persist and restore non-registered tasks.
 + Disposes (release) tracked and non-tracked tasks
 + Register Scheduler.
++ Integration with startable facility.
 - Support for xml-configuration
 - Builder-like facility
 - Task installer
