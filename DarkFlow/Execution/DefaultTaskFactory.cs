@@ -39,7 +39,7 @@ namespace Codestellation.DarkFlow.Execution
             {
                 if (Logger.IsDebugEnabled)
                 {
-                    Logger.Debug("Task of type {0} created using parameterized constructor.");
+                    Logger.Debug("Task of type {0} created using parameterized constructor.", type);
                 }
                 return result;
             }
