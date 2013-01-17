@@ -9,6 +9,7 @@ using Castle.MicroKernel.Handlers;
 using Castle.MicroKernel.Registration;
 using Codestellation.DarkFlow.CastleWindsor.Impl;
 using Codestellation.DarkFlow.Execution;
+using Codestellation.DarkFlow.Misc;
 using Codestellation.DarkFlow.Scheduling;
 
 namespace Codestellation.DarkFlow.CastleWindsor
@@ -54,8 +55,8 @@ namespace Codestellation.DarkFlow.CastleWindsor
                     .For<IExecutor>()
                     .ImplementedBy<LimitedConcurrencyExecutor>()
                     .Named("limited")
-                    .StartUsingMethod("Start")
-                    .StopUsingMethod("Stop")
+                    .StartUsingMethod(c => ((ISupportStart)c).Start)
+                    .StopUsingMethod(c => ((ISupportStart)c).Stop)
                     .DependsOn(new {maxThread})
                     .LifestyleSingleton());
         }
@@ -67,10 +68,9 @@ namespace Codestellation.DarkFlow.CastleWindsor
                     .For<IExecutor>()
                     .ImplementedBy<QueuedExecutor>()
                     .Named("fiber")
-                    .StartUsingMethod("Start")
-                    .StopUsingMethod("Stop")
+                    .StartUsingMethod(c => ((ISupportStart)c).Start)
+                    .StopUsingMethod(c => ((ISupportStart)c).Stop)
                     .LifestyleSingleton());
-
         }
 
         private void RegisterSharedServices()
