@@ -1,3 +1,3 @@
 ﻿using System.Reflection;
-[assembly: AssemblyTitle("Solytor.Threading")]
+[assembly: AssemblyTitle("Codestellation.DarkFlow")]
 [assembly: AssemblyDescription("Frictionless threading and scheduling library.")]
