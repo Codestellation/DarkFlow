@@ -22,6 +22,9 @@ namespace Codestellation.DarkFlow.CastleWindsor
         private ComponentRegistration<IDatabase> _databaseRegistration;
         private ComponentRegistration<IExecutor> _executorRegistration;
 
+        public const string OrderedExecutorName = "ordered";
+        public const string LimitedConcurrencyExecutorName = "limited";
+
         public string PersistedTaskFolder { get; set; }
 
         public int? MaxThreads { get; set; }
@@ -54,7 +57,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
                 Component
                     .For<IExecutor>()
                     .ImplementedBy<LimitedConcurrencyExecutor>()
-                    .Named("limited")
+                    .Named(LimitedConcurrencyExecutorName)
                     .StartUsingMethod(c => ((ISupportStart)c).Start)
                     .StopUsingMethod(c => ((ISupportStart)c).Stop)
                     .DependsOn(new {maxThread})
@@ -66,8 +69,8 @@ namespace Codestellation.DarkFlow.CastleWindsor
             Kernel.Register(
                 Component
                     .For<IExecutor>()
-                    .ImplementedBy<QueuedExecutor>()
-                    .Named("fiber")
+                    .ImplementedBy<OrderedExecutor>()
+                    .Named(OrderedExecutorName)
                     .StartUsingMethod(c => ((ISupportStart)c).Start)
                     .StopUsingMethod(c => ((ISupportStart)c).Stop)
                     .LifestyleSingleton());
@@ -108,11 +111,11 @@ namespace Codestellation.DarkFlow.CastleWindsor
         {
             if (creationcontext.Handler.ComponentModel.Implementation == typeof (LimitedConcurrencyExecutor))
             {
-                parameters.Add("persistFolder", Path.Combine(BasePersistedTaskFolder, "Limit"));
+                parameters.Add("persistFolder", Path.Combine(BasePersistedTaskFolder, LimitedConcurrencyExecutorName));
             }
-            else if (creationcontext.Handler.ComponentModel.Implementation == typeof(QueuedExecutor))
+            else if (creationcontext.Handler.ComponentModel.Implementation == typeof(OrderedExecutor))
             {
-                parameters.Add("persistFolder", Path.Combine(BasePersistedTaskFolder, "Fiber"));
+                parameters.Add("persistFolder", Path.Combine(BasePersistedTaskFolder, OrderedExecutorName));
             }
             return delegate { };
         }

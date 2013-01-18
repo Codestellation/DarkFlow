@@ -11,26 +11,26 @@ namespace Codestellation.DarkFlow.Tests.Windsor
     {
         private WindsorContainer _windsor;
 
-        public class CtorFiberTester
+        public class ConstructorOrderedExecutorTester
         {
-            public IExecutor Fiber { get; private set; }
+            public IExecutor OrderedExecutor { get; private set; }
 
-            public CtorFiberTester(IExecutor fiber)
+            public ConstructorOrderedExecutorTester(IExecutor orderedExecutor)
             {
-                Fiber = fiber;
+                OrderedExecutor = orderedExecutor;
             }
         }
 
-        public class PropFiberTester
+        public class PropertyOrderedExecutorTester
         {
-            public IExecutor Fiber { get; set; }
+            public IExecutor OrderedExecutor { get; set; }
         }
 
-        public class LimitTester
+        public class LimitConcurrencyExecutorTester
         {
             public IExecutor Executor { get; set; }
 
-            public LimitTester(IExecutor executor)
+            public LimitConcurrencyExecutorTester(IExecutor executor)
             {
                 Executor = executor;
             }
@@ -57,14 +57,14 @@ namespace Codestellation.DarkFlow.Tests.Windsor
             var executor = _windsor.Resolve<IExecutor>();
 
             Assert.That(executor, Is.InstanceOf<LimitedConcurrencyExecutor>());
-            Assert.That(executor, Is.Not.InstanceOf<QueuedExecutor>());
+            Assert.That(executor, Is.Not.InstanceOf<OrderedExecutor>());
         }
 
         [Test]
-        public void Registers_queued_executor_properly()
+        public void Registers_ordered_executor_properly()
         {
-            var executor = _windsor.Resolve<IExecutor>("fiber");
-            Assert.That(executor, Is.InstanceOf<QueuedExecutor>());
+            var executor = _windsor.Resolve<IExecutor>("ordered");
+            Assert.That(executor, Is.InstanceOf<OrderedExecutor>());
         }
 
         [Test]
@@ -74,33 +74,33 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         }
 
         [Test]
-        public void Resolves_fiber_if_parameter_named_fiber()
+        public void Resolves_ordered_if_parameter_named_ordered()
         {
-            _windsor.Register(Component.For<CtorFiberTester>());
+            _windsor.Register(Component.For<ConstructorOrderedExecutorTester>());
 
-            var tester = _windsor.Resolve<CtorFiberTester>();
+            var tester = _windsor.Resolve<ConstructorOrderedExecutorTester>();
 
-            Assert.That(tester.Fiber, Is.InstanceOf<QueuedExecutor>());
+            Assert.That(tester.OrderedExecutor, Is.InstanceOf<OrderedExecutor>());
         }
 
         [Test]
-        public void Resolves_fiber_if_property_named_fiber()
+        public void Resolves_ordered_if_property_named_ordered()
         {
-            _windsor.Register(Component.For<PropFiberTester>());
+            _windsor.Register(Component.For<PropertyOrderedExecutorTester>());
 
-            var tester = _windsor.Resolve<PropFiberTester>();
+            var tester = _windsor.Resolve<PropertyOrderedExecutorTester>();
 
-            Assert.That(tester.Fiber, Is.InstanceOf<QueuedExecutor>());
+            Assert.That(tester.OrderedExecutor, Is.InstanceOf<OrderedExecutor>()); 
         }
 
         [Test]
         public void Resolves_limit_in_other_cases()
         {
-            _windsor.Register(Component.For<LimitTester>());
+            _windsor.Register(Component.For<LimitConcurrencyExecutorTester>());
 
-            var tester = _windsor.Resolve<LimitTester>();
+            var tester = _windsor.Resolve<LimitConcurrencyExecutorTester>();
 
-            Assert.That(tester.Executor, Is.Not.InstanceOf<QueuedExecutor>());
+            Assert.That(tester.Executor, Is.Not.InstanceOf<OrderedExecutor>());
             Assert.That(tester.Executor, Is.InstanceOf<LimitedConcurrencyExecutor>());
         }
     }

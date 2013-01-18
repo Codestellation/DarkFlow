@@ -20,12 +20,12 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
 
         public bool CanResolve(CreationContext context, ISubDependencyResolver contextHandlerResolver, ComponentModel model, DependencyModel dependency)
         {
-            return dependency.TargetItemType == typeof (IExecutor) && dependency.DependencyKey.Equals("fiber", StringComparison.InvariantCultureIgnoreCase);
+            return dependency.TargetItemType == typeof (IExecutor) && dependency.DependencyKey.StartsWith(DarkFlowFacility.OrderedExecutorName, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public object Resolve(CreationContext context, ISubDependencyResolver contextHandlerResolver, ComponentModel model, DependencyModel dependency)
         {
-            return _kernel.Resolve<IExecutor>("fiber");
+            return _kernel.Resolve<IExecutor>(DarkFlowFacility.OrderedExecutorName);
         }
     }
 }

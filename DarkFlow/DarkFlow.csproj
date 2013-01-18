@@ -76,7 +76,7 @@
     <Compile Include="Execution\JsonSerializer.cs" />
     <Compile Include="Execution\LimitedConcurrencyExecutor.cs" />
     <Compile Include="Execution\ManagedEsentDatabase.cs" />
-    <Compile Include="Execution\QueuedExecutor.cs" />
+    <Compile Include="Execution\OrderedExecutor.cs" />
     <Compile Include="Execution\TaskRepository.cs" />
     <Compile Include="IPersistentTask.cs" />
     <Compile Include="IScheduler.cs" />

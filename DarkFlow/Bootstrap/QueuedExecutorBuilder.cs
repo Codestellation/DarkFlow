@@ -11,7 +11,7 @@ namespace Codestellation.DarkFlow.Bootstrap
 
         protected override ExecutorContainer InstantiateExecutor()
         {
-            Executor = new QueuedExecutor(Repository, Releaser);
+            Executor = new OrderedExecutor(Repository, Releaser);
             return new ExecutorContainer(Executor, Disposables);
         }
     }
