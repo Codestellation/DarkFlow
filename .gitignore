@@ -22,6 +22,8 @@ AssemblyInfo.Version.cs
 *.nupkg
 [Bb]in
 [Dd]ebug*/
+[Bb]uild*/
+[Nn]uget*/
 *.lib
 *.sbr
 obj/
