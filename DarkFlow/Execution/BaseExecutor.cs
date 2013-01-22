@@ -78,6 +78,11 @@ namespace Codestellation.DarkFlow.Execution
                 Logger.Debug("Enqueued Persistent {0}.", task);
             }
 
+            if (!Started && Logger.IsWarnEnabled)
+            {
+                Logger.Warn("Enqueued task, but executor is not started.");
+            }
+
             StartTask();
         }
 
@@ -86,6 +91,11 @@ namespace Codestellation.DarkFlow.Execution
         public void Start()
         {
             EnsureNotDisposed();
+           
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Executor is starting.");
+            }
 
             var started = Interlocked.Increment(ref _started);
 
@@ -97,12 +107,22 @@ namespace Codestellation.DarkFlow.Execution
             {
                 Interlocked.Decrement(ref _started);
             }
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Executor has started.");
+            }
         }
 
         protected abstract void PerfomStart();
 
         public void Stop()
         {
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Executor is stopping.");
+            }
+
             var started = Interlocked.Decrement(ref _started);
 
             if (started == 0)
@@ -112,6 +132,11 @@ namespace Codestellation.DarkFlow.Execution
             else
             {
                 Interlocked.Increment(ref _started);
+            }
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Executor has stopped.");
             }
         }
 
