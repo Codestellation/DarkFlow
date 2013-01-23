@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -10,7 +11,14 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
     public class TaskRepositoryTests
     {
         private ManagedEsentDatabase _database;
+        private Region _region;
         public ITaskRepository Repository { get; set; }
+
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
+        {
+            _region = new Region("test");
+        }
 
         [SetUp]
         public void Setup()
@@ -52,7 +60,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             var original = new State {Id = 1, Name = "Test"};
             var task = new PersistedTask(original);
-            Repository.Add(task);
+            Repository.Add(task, _region);
             _database.Dispose();
             _database = new ManagedEsentDatabase();
 
@@ -72,7 +80,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             tasks.AddRange(Enumerable.Range(1, 10000).Select(x => new PersistedTask(new State { Id = x, Name = "Task" + x })));
             foreach (var task in tasks)
             {
-                Repository.Add(task);
+                Repository.Add(task, _region);
             }
         }
     }

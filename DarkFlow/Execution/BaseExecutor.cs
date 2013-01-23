@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Misc;
 using NLog;
 
@@ -11,6 +12,7 @@ namespace Codestellation.DarkFlow.Execution
         private readonly ITaskReleaser _releaser;
         protected static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private int _started;
+        private Region _region;
 
         public BaseExecutor(ITaskRepository taskRepository, ITaskReleaser releaser)
         {
@@ -26,6 +28,7 @@ namespace Codestellation.DarkFlow.Execution
 
             _taskRepository = taskRepository;
             _releaser = releaser;
+            _region = new Region(GetType().Name);
         }
 
         public ITaskRepository TaskRepository
@@ -71,7 +74,7 @@ namespace Codestellation.DarkFlow.Execution
 
             EnsureNotDisposed();
 
-            TaskRepository.Add(task);
+            TaskRepository.Add(task, _region);
 
             if (Logger.IsDebugEnabled)
             {

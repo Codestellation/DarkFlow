@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using Codestellation.DarkFlow.Database;
 
 namespace Codestellation.DarkFlow.Execution
 {
@@ -35,10 +36,10 @@ namespace Codestellation.DarkFlow.Execution
             _queue.Enqueue(envelope);
         }
 
-        public virtual void Add(IPersistentTask task)
+        public virtual void Add(IPersistentTask task, Region region)
         {
             var state = _serializer.Serialize(task);
-            var id = _dataBase.Persist(state);
+            var id = _dataBase.Persist(region, state);
             var envelope = new TaskEnvelope(task,id);
             _queue.Enqueue(envelope);
         }
@@ -85,7 +86,7 @@ namespace Codestellation.DarkFlow.Execution
                 Persisted = false;
             }
 
-            public TaskEnvelope(IPersistentTask task, Guid id)
+            public TaskEnvelope(IPersistentTask task, Identifier id)
             {
                 Task = task;
                 Id = id;
@@ -94,7 +95,7 @@ namespace Codestellation.DarkFlow.Execution
 
             public bool Persisted { get; set; }
 
-            public Guid Id { get; set; }
+            public Identifier Id { get; set; }
 
             public ITask Task { get; set; }
         }

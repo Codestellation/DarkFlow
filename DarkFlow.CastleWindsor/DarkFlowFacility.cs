@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.IO;
 using Castle.Facilities.Startable;
-using Castle.MicroKernel;
-using Castle.MicroKernel.Context;
 using Castle.MicroKernel.Facilities;
-using Castle.MicroKernel.Handlers;
 using Castle.MicroKernel.Registration;
 using Codestellation.DarkFlow.CastleWindsor.Impl;
+using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
 using Codestellation.DarkFlow.Misc;
 using Codestellation.DarkFlow.Scheduling;
@@ -28,11 +24,6 @@ namespace Codestellation.DarkFlow.CastleWindsor
         public string PersistedTaskFolder { get; set; }
 
         public int? MaxThreads { get; set; }
-
-        private string BasePersistedTaskFolder
-        {
-            get { return PersistedTaskFolder ?? ManagedEsentDatabase.DefaultTaskFolder; }
-        }
 
         protected override void Init()
         {
@@ -78,6 +69,8 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
         private void RegisterSharedServices()
         {
+            var persistedFolder = PersistedTaskFolder ?? ManagedEsentDatabase.DefaultTaskFolder;
+
             Kernel.Register(
                 Component
                     .For<ITaskReleaser>()
@@ -97,27 +90,14 @@ namespace Codestellation.DarkFlow.CastleWindsor
                 _databaseRegistration ?? Component
                     .For<IDatabase>()
                     .ImplementedBy<ManagedEsentDatabase>()
-                    .LifestyleBoundTo<IExecutor>()
-                    .DynamicParameters(DefineTaskFolder),
+                    .DependsOn(new { persistedFolder })
+                    .LifestyleSingleton(),
 
                 Component
                     .For<ITaskRepository>()
                     .ImplementedBy<TaskRepository>()
                     .LifestyleBoundTo<IExecutor>()
             );
-        }
-
-        private ComponentReleasingDelegate DefineTaskFolder(IKernel kernel, CreationContext creationcontext, IDictionary parameters)
-        {
-            if (creationcontext.Handler.ComponentModel.Implementation == typeof (LimitedConcurrencyExecutor))
-            {
-                parameters.Add("persistFolder", Path.Combine(BasePersistedTaskFolder, LimitedConcurrencyExecutorName));
-            }
-            else if (creationcontext.Handler.ComponentModel.Implementation == typeof(OrderedExecutor))
-            {
-                parameters.Add("persistFolder", Path.Combine(BasePersistedTaskFolder, OrderedExecutorName));
-            }
-            return delegate { };
         }
 
         private void RegisterScheduler()
