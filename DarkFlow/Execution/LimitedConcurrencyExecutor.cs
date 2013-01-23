@@ -8,7 +8,7 @@ namespace Codestellation.DarkFlow.Execution
     {
         private readonly int _maxThread;
         private readonly ConcurrentDictionary<Guid, ITask> _runningTasks;
-        private  int _runningThreads;
+        private int _runningThreads;
         private volatile AutoResetEvent _runningTasksFinished;
 
         public LimitedConcurrencyExecutor(ITaskRepository taskRepository, ITaskReleaser releaser, int maxThread) :base(taskRepository, releaser)
@@ -43,7 +43,7 @@ namespace Codestellation.DarkFlow.Execution
             ThreadPool.QueueUserWorkItem(state => RunTasks());
         }
 
-        protected override void PerfomStart()
+        protected override void PerformStart()
         {
             for (int i = 0; i < _maxThread; i++)
             {
@@ -51,7 +51,7 @@ namespace Codestellation.DarkFlow.Execution
             }
         }
 
-        protected override void PerfomStop()
+        protected override void PerformStop()
         {
             
         }
@@ -93,7 +93,7 @@ namespace Codestellation.DarkFlow.Execution
                     finally
                     {
                         
-                        ITask nomatter; // Used only to perfom _runningTasks remove.
+                        ITask nomatter; // Used only to perform _runningTasks remove.
                         _runningTasks.TryRemove(localId, out nomatter);
                         Releaser.Release(next);
                     }

@@ -12,7 +12,7 @@ namespace Codestellation.DarkFlow.Execution
         private readonly ITaskReleaser _releaser;
         protected static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private int _started;
-        private Region _region;
+        private readonly Region _region;
 
         public BaseExecutor(ITaskRepository taskRepository, ITaskReleaser releaser)
         {
@@ -104,7 +104,7 @@ namespace Codestellation.DarkFlow.Execution
 
             if (started == 1)
             {
-                PerfomStart();
+                PerformStart();
             }
             else
             {
@@ -117,7 +117,7 @@ namespace Codestellation.DarkFlow.Execution
             }
         }
 
-        protected abstract void PerfomStart();
+        protected abstract void PerformStart();
 
         public void Stop()
         {
@@ -130,7 +130,7 @@ namespace Codestellation.DarkFlow.Execution
 
             if (started == 0)
             {
-                PerfomStop();
+                PerformStop();
             }
             else
             {
@@ -143,6 +143,6 @@ namespace Codestellation.DarkFlow.Execution
             }
         }
 
-        protected abstract void PerfomStop();
+        protected abstract void PerformStop();
     }
 }
