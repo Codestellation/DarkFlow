@@ -1,5 +1,5 @@
 ﻿using System;
-using Codestellation.DarkFlow.Execution;
+using Codestellation.DarkFlow.Database;
 using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Core.Execution
@@ -10,12 +10,20 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
     {
         private TDatabase _dataBase;
         private string _original;
+        private Region _region;
+
+        [SetUp]
+        public void TestFixtureSetUp()
+        {
+            _original = "Just test";
+            _region = new Region("test");
+        }
 
         [SetUp]
         public void Setup()
         {
             Utils.SafeDeleteDirectory(ManagedEsentDatabase.DefaultTaskFolder);
-            _original = "Just test";
+            
             _dataBase = Activator.CreateInstance<TDatabase>();
         }
 
@@ -31,7 +39,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Can_persist_string_to_database()
         {
-            var id = _dataBase.Persist(_original);
+            var id = _dataBase.Persist(_region, _original);
             var loaded = _dataBase.Get(id);
 
             Assert.That(id, Is.Not.EqualTo(Guid.Empty));
@@ -41,7 +49,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Removes_string_from_database()
         {
-            var id = _dataBase.Persist(_original);
+            var id = _dataBase.Persist(_region, _original);
             
             _dataBase.Remove(id);
 
@@ -53,7 +61,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Does_not_throw_if_delete_absent_task()
         {
-            _dataBase.Remove(Guid.NewGuid());
+            _dataBase.Remove(_region.NewIdentifier());
         }
     }
 }

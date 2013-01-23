@@ -1,4 +1,5 @@
-﻿using Castle.MicroKernel.Registration;
+﻿using Castle.Facilities.Startable;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Codestellation.DarkFlow.CastleWindsor;
 using Codestellation.DarkFlow.Execution;
@@ -41,7 +42,8 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         public void Setup()
         {
             _windsor = new WindsorContainer();
-            _windsor.AddFacility<DarkFlowFacility>(x => x.UsingInMemoryPersistence());
+            _windsor.AddFacility<StartableFacility>(x => x.DeferredStart());
+            _windsor.AddFacility<DarkFlowFacility>();
         }
 
         [TearDown]

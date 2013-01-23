@@ -4,14 +4,14 @@ using Codestellation.DarkFlow.Misc;
 using Microsoft.Isam.Esent.Collections.Generic;
 using NLog;
 
-namespace Codestellation.DarkFlow.Execution
+namespace Codestellation.DarkFlow.Database
 {
     public class ManagedEsentDatabase : Disposable, IDatabase
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly string _persistFolder;
-        private readonly PersistentDictionary<Guid, string> _database;
+        private readonly PersistentDictionary<string, string> _database;
         
         public const string DefaultTaskFolder = "PersistedTasks";
 
@@ -23,7 +23,7 @@ namespace Codestellation.DarkFlow.Execution
         public ManagedEsentDatabase(string persistFolder)
         {
             _persistFolder = persistFolder;
-            _database = new PersistentDictionary<Guid, string>(persistFolder);
+            _database = new PersistentDictionary<string, string>(persistFolder);
             if (Logger.IsDebugEnabled)
             {
                 Logger.Debug("Created managed esent task database at folder '{0}'", persistFolder);
@@ -35,10 +35,10 @@ namespace Codestellation.DarkFlow.Execution
             get { return _persistFolder; }
         }
 
-        public Guid Persist(string serializedTask)
+        public Identifier Persist(Region region, string serializedTask)
         {
-            var id = Guid.NewGuid();
-            _database[id] = serializedTask;
+            var id = region.NewIdentifier();
+            _database[id.ToString()] = serializedTask;
 
             if (Logger.IsDebugEnabled)
             {
@@ -48,10 +48,10 @@ namespace Codestellation.DarkFlow.Execution
             return id;
         }
 
-        public string Get(Guid id)
+        public string Get(Identifier id)
         {
             string result;
-            if (_database.TryGetValue(id, out result))
+            if (_database.TryGetValue(id.ToString(), out result))
             {
                 return result;
             }
@@ -59,9 +59,9 @@ namespace Codestellation.DarkFlow.Execution
             throw new InvalidOperationException(string.Format("String with id='{0}' was not found. Possible concurrency issue.", id));
         }
 
-        public void Remove(Guid id)
+        public void Remove(Identifier id)
         {
-            _database.Remove(id);
+            _database.Remove(id.ToString());
             
             if (Logger.IsDebugEnabled)
             {
@@ -69,9 +69,13 @@ namespace Codestellation.DarkFlow.Execution
             }
         }
 
-        public IEnumerable<KeyValuePair<Guid, string>> GetAll()
+        public IEnumerable<KeyValuePair<Identifier, string>> GetAll()
         {
-            return _database;
+            foreach (var kvp in _database)
+            {
+                var id = Identifier.Parse(kvp.Key);
+                yield return new KeyValuePair<Identifier, string>(id, kvp.Value);
+            }
         }
 
         protected override IEnumerable<IDisposable> Disposables

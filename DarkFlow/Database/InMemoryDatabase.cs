@@ -3,21 +3,21 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using NLog;
 
-namespace Codestellation.DarkFlow.Execution
+namespace Codestellation.DarkFlow.Database
 {
     public class InMemoryDatabase : IDatabase
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly ConcurrentDictionary<Guid, string> _tasks;
+        private readonly ConcurrentDictionary<Identifier, string> _tasks;
 
         public InMemoryDatabase()
         {
-            _tasks = new ConcurrentDictionary<Guid, string>();
+            _tasks = new ConcurrentDictionary<Identifier, string>();
         }
-        public Guid Persist(string serializedTask)
+        public Identifier Persist(Region region, string serializedTask)
         {
-            var id = Guid.NewGuid();
+            var id = region.NewIdentifier();
             _tasks[id] = serializedTask;
             
             if (Logger.IsDebugEnabled)
@@ -28,7 +28,7 @@ namespace Codestellation.DarkFlow.Execution
             return id;
         }
 
-        public string Get(Guid id)
+        public string Get(Identifier id)
         {
             string result;
             if(_tasks.TryGetValue(id, out result))
@@ -39,7 +39,7 @@ namespace Codestellation.DarkFlow.Execution
             throw new InvalidOperationException(string.Format("String with id='{0}' was not found. Possible concurrency issue.", id));
         }
 
-        public void Remove(Guid id)
+        public void Remove(Identifier id)
         {
             string value;
             _tasks.TryRemove(id, out value);
@@ -50,7 +50,7 @@ namespace Codestellation.DarkFlow.Execution
             }
         }
 
-        public IEnumerable<KeyValuePair<Guid, string>> GetAll()
+        public IEnumerable<KeyValuePair<Identifier, string>> GetAll()
         {
             return _tasks;
         }
