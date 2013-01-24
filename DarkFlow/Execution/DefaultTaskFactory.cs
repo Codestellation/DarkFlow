@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using NLog;
 
 namespace Codestellation.DarkFlow.Execution
@@ -81,17 +82,19 @@ namespace Codestellation.DarkFlow.Execution
                 return result;
             }
 
-            lock (_cachedTaskTypes)
-            {
-                if (_cachedTaskTypes.TryGetValue(taskType, out result))
-                {
-                    return result;
-                }
+            Monitor.Enter(_cachedTaskTypes);
 
-                result = string.Format("{0}, {1}", taskType.FullName, taskType.Assembly.GetName().Name);
-                _cachedTaskTypes[taskType] = result;
+            if (_cachedTaskTypes.TryGetValue(taskType, out result))
+            {
                 return result;
             }
+
+            result = string.Format("{0}, {1}", taskType.FullName, taskType.Assembly.GetName().Name);
+            _cachedTaskTypes[taskType] = result;
+
+            Monitor.Exit(_cachedTaskTypes);
+
+            return result;
         }
 
         private static IPersistentTask CreateFromParametrizedConstructor(Type taskType, object state, Type stateType)
