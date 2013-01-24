@@ -1,5 +1,4 @@
 ﻿using Codestellation.DarkFlow.Bootstrap;
-using Codestellation.DarkFlow.Database;
 using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Core.Bootstrap
@@ -7,18 +6,12 @@ namespace Codestellation.DarkFlow.Tests.Core.Bootstrap
     [TestFixture]
     public class BootstrapperTests
     {
-        [SetUp]
-        public void SetUp()
-        {
-            Utils.SafeDeleteDirectory(ManagedEsentDatabase.DefaultTaskFolder);
-        }
-
         [Test]
         public void Creates_queued_executor()
         {
             var result = Create
                 .QueuedExecutor()
-                .UsingEsent()
+                .UsingInMemoryPersistence()
                 .Build();
 
             Assert.That(result, Is.Not.Null);
