@@ -12,6 +12,7 @@ namespace Codestellation.DarkFlow.Execution
         private readonly ISerializer _serializer;
         private readonly IDatabase _dataBase;
         private int _loaded;
+        private Region _region;
 
         public TaskRepository(ISerializer serializer,  IDatabase database)
         {
@@ -30,16 +31,21 @@ namespace Codestellation.DarkFlow.Execution
             _dataBase = database;
         }
 
+        public void SetRegion(Region region)
+        {
+            _region = region;
+        }
+
         public virtual void Add(ITask task)
         {
             var envelope = new TaskEnvelope(task);
             _queue.Enqueue(envelope);
         }
 
-        public virtual void Add(IPersistentTask task, Region region)
+        public virtual void Add(IPersistentTask task)
         {
             var state = _serializer.Serialize(task);
-            var id = _dataBase.Persist(region, state);
+            var id = _dataBase.Persist(_region, state);
             var envelope = new TaskEnvelope(task,id);
             _queue.Enqueue(envelope);
         }
@@ -50,7 +56,7 @@ namespace Codestellation.DarkFlow.Execution
             
             if (loaded == 0)
             {
-                foreach (var task in TasksInDatabase())
+                foreach (var task in TasksInDatabase(_region))
                 {
                     _queue.Enqueue(task);
                 }
@@ -68,9 +74,9 @@ namespace Codestellation.DarkFlow.Execution
             return result.Task;
         }
 
-        private IEnumerable<TaskEnvelope> TasksInDatabase()
+        private IEnumerable<TaskEnvelope> TasksInDatabase(Region region)
         {
-            foreach (var serializedEnvelope  in _dataBase.GetAll())
+            foreach (var serializedEnvelope  in _dataBase.GetAll(region))
             {
                 var task = _serializer.Deserialize(serializedEnvelope.Value);
                 yield return new TaskEnvelope(task, serializedEnvelope.Key);

@@ -45,7 +45,7 @@ namespace Codestellation.DarkFlow.Database
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is Region && Equals((Region) obj);
+            return obj is Region && Equals((Region)obj);
         }
 
         public override int GetHashCode()

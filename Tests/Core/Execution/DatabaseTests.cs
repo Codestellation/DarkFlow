@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Codestellation.DarkFlow.Database;
 using NUnit.Framework;
 
@@ -53,9 +54,22 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             
             _dataBase.Remove(id);
 
-            var all = _dataBase.GetAll();
+            var all = _dataBase.GetAll(_region);
 
             Assert.That(all, Is.Empty);
+        }
+
+        [Test]
+        public void Get_all_returns_task_from_specified_region_only()
+        {
+            _dataBase.Persist(_region, _original);
+            _dataBase.Persist(new Region("Another"), "AnotherTask");
+
+            var all = _dataBase.GetAll(_region);
+
+            Assert.That(all.Count(), Is.EqualTo(1));
+
+            Assert.That(all.First().Value, Is.EqualTo(_original));
         }
 
         [Test]

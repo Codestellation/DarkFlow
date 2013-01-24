@@ -26,6 +26,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             Utils.SafeDeleteDirectory(ManagedEsentDatabase.DefaultTaskFolder);
             _database = new ManagedEsentDatabase();
             Repository = new TaskRepository(new JsonSerializer(new DefaultTaskFactory()),_database );
+            Repository.SetRegion(_region);
         }
 
         [TearDown]
@@ -60,12 +61,12 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             var original = new State {Id = 1, Name = "Test"};
             var task = new PersistedTask(original);
-            Repository.Add(task, _region);
+            Repository.Add(task);
             _database.Dispose();
             _database = new ManagedEsentDatabase();
 
             Repository = new TaskRepository(new JsonSerializer(new DefaultTaskFactory()), _database);
-
+            Repository.SetRegion(_region);
             var reloaded = (PersistedTask)Repository.TakeNext();
 
             Assert.That(reloaded, Is.InstanceOf<PersistedTask>());
@@ -80,7 +81,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             tasks.AddRange(Enumerable.Range(1, 10000).Select(x => new PersistedTask(new State { Id = x, Name = "Task" + x })));
             foreach (var task in tasks)
             {
-                Repository.Add(task, _region);
+                Repository.Add(task);
             }
         }
     }

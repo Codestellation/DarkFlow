@@ -69,11 +69,14 @@ namespace Codestellation.DarkFlow.Database
             }
         }
 
-        public IEnumerable<KeyValuePair<Identifier, string>> GetAll()
+        public IEnumerable<KeyValuePair<Identifier, string>> GetAll(Region region)
         {
             foreach (var kvp in _database)
             {
                 var id = Identifier.Parse(kvp.Key);
+                
+                if(!id.Region.Equals(region)) continue;
+
                 yield return new KeyValuePair<Identifier, string>(id, kvp.Value);
             }
         }

@@ -10,6 +10,6 @@ namespace Codestellation.DarkFlow.Database
 
         void Remove(Identifier id);
 
-        IEnumerable<KeyValuePair<Identifier, string>> GetAll();
+        IEnumerable<KeyValuePair<Identifier, string>> GetAll(Region region);
     }
 }

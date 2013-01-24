@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using NLog;
 
 namespace Codestellation.DarkFlow.Database
@@ -50,9 +51,9 @@ namespace Codestellation.DarkFlow.Database
             }
         }
 
-        public IEnumerable<KeyValuePair<Identifier, string>> GetAll()
+        public IEnumerable<KeyValuePair<Identifier, string>> GetAll(Region region)
         {
-            return _tasks;
+            return _tasks.Where(x => x.Key.Region.Equals(region));
         }
     }
 }

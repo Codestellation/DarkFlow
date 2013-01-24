@@ -25,10 +25,11 @@ namespace Codestellation.DarkFlow.Execution
             {
                 throw new ArgumentNullException("releaser");
             }
-
+            _region = new Region(GetType().Name);
             _taskRepository = taskRepository;
             _releaser = releaser;
-            _region = new Region(GetType().Name);
+
+            _taskRepository.SetRegion(_region);
         }
 
         public ITaskRepository TaskRepository
@@ -74,7 +75,7 @@ namespace Codestellation.DarkFlow.Execution
 
             EnsureNotDisposed();
 
-            TaskRepository.Add(task, _region);
+            TaskRepository.Add(task);
 
             if (Logger.IsDebugEnabled)
             {
