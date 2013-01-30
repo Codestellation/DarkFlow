@@ -2,14 +2,11 @@
 using System.Linq;
 using Codestellation.DarkFlow.Misc;
 using Codestellation.DarkFlow.Schedules;
-using NLog;
 
 namespace Codestellation.DarkFlow.Scheduling
 {
     public class Scheduler : Disposable, IScheduler 
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly IExecutor _executor;
         private readonly IClock _clock;
         private readonly TaskSource _taskSource;

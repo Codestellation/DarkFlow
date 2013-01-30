@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 
 namespace Codestellation.DarkFlow.Misc
 {
@@ -8,7 +9,12 @@ namespace Codestellation.DarkFlow.Misc
     {
         private volatile bool _disposeInProgress;
         private volatile bool _disposed;
+        protected readonly Logger Logger;
 
+        public Disposable()
+        {
+            Logger = LogManager.GetLogger(GetType().FullName);
+        }
 
         public bool Disposed
         {
@@ -41,15 +47,40 @@ namespace Codestellation.DarkFlow.Misc
             if (_disposed) return;
             _disposeInProgress = true;
 
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Dispose started.");
+            }
+
             if (disposing)
             {
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.Debug("Dispose managed resources started.");
+                }
+                
                 foreach (var disposable in Disposables)
                 {
                     disposable.Dispose();
                 }
+
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.Debug("Dispose managed resources finished.");
+                }
+            }
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Dispose unmanaged resources started.");
             }
 
             ReleaseUnmanaged();
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Dispose unmanaged resources finished.");
+            }
 
             _disposed = true;
         }
