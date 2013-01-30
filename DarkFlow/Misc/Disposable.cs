@@ -58,11 +58,8 @@ namespace Codestellation.DarkFlow.Misc
                 {
                     Logger.Debug("Dispose managed resources started.");
                 }
-                
-                foreach (var disposable in Disposables)
-                {
-                    disposable.Dispose();
-                }
+
+                DisposeManaged();
 
                 if (Logger.IsDebugEnabled)
                 {
@@ -85,14 +82,11 @@ namespace Codestellation.DarkFlow.Misc
             _disposed = true;
         }
 
+        protected abstract void DisposeManaged();
+
         protected virtual void ReleaseUnmanaged()
         {
             
-        }
-
-        protected virtual IEnumerable<IDisposable> Disposables
-        {
-            get { return Enumerable.Empty<IDisposable>(); }
         }
 
         protected void EnsureNotDisposed()

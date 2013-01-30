@@ -107,7 +107,7 @@ namespace Codestellation.DarkFlow.Execution
         }
 
 
-        protected override void ReleaseUnmanaged()
+        protected override void DisposeManaged()
         {
             if (Disposed) return;
 

@@ -104,7 +104,7 @@ namespace Codestellation.DarkFlow.Scheduling
             }
         }
 
-        protected override void ReleaseUnmanaged()
+        protected override void DisposeManaged()
         {
             var timer = _timer;
             if (timer == null) return;

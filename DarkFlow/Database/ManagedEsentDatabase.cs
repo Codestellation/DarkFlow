@@ -78,9 +78,10 @@ namespace Codestellation.DarkFlow.Database
             }
         }
 
-        protected override IEnumerable<IDisposable> Disposables
+        protected override void DisposeManaged()
         {
-            get { return new[] {_database}; }
+            _database.Flush();
+            _database.Dispose();
         }
     }
 }

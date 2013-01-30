@@ -22,10 +22,15 @@ namespace Codestellation.DarkFlow.Bootstrap
                 throw new ArgumentNullException("disposables");
             }
         }
-        protected override System.Collections.Generic.IEnumerable<IDisposable> Disposables
+
+        protected override void DisposeManaged()
         {
-            get { return _disposables; }
+            foreach (var disposable in _disposables)
+            {
+                disposable.Dispose();
+            }
         }
+
         public void Execute(ITask task)
         {
             _executor.Execute(task);
