@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using Codestellation.DarkFlow.Misc;
 using Microsoft.Isam.Esent.Collections.Generic;
-using NLog;
 
 namespace Codestellation.DarkFlow.Database
 {
     public class ManagedEsentDatabase : Disposable, IDatabase
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly string _persistFolder;
         private readonly PersistentDictionary<string, string> _database;
         
@@ -81,9 +78,10 @@ namespace Codestellation.DarkFlow.Database
             }
         }
 
-        protected override IEnumerable<IDisposable> Disposables
+        protected override void DisposeManaged()
         {
-            get { return new[] {_database}; }
+            _database.Flush();
+            _database.Dispose();
         }
     }
 }
