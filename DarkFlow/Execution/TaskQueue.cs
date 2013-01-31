@@ -8,14 +8,14 @@ namespace Codestellation.DarkFlow.Execution
     public class TaskQueue : ITaskQueue, IExecutionQueue
     {
         private readonly CanEnqueue _canEnqueue;
-        private readonly Action _onTaskEnqueued;
+        private readonly Action<int> _taskCountChanged;
         private readonly byte _priority;
         private readonly ConcurrentQueue<ITask> _queue;
 
-        public TaskQueue(CanEnqueue canEnqueue, Action onTaskEnqueued, byte priority)
+        public TaskQueue(CanEnqueue canEnqueue, Action<int> taskCountChanged, byte priority)
         {
             _canEnqueue = canEnqueue;
-            _onTaskEnqueued = onTaskEnqueued;
+            _taskCountChanged = taskCountChanged;
             _priority = priority;
             if (canEnqueue == null)
             {
@@ -34,7 +34,7 @@ namespace Codestellation.DarkFlow.Execution
             //NOTE: I don't check for null here intentionally to improve performance. 
             // The only place where such check should have place is IExecutor
             _queue.Enqueue(task);
-            _onTaskEnqueued();
+            _taskCountChanged(1);
         }
 
         public byte Priority
@@ -47,6 +47,11 @@ namespace Codestellation.DarkFlow.Execution
             ITask result = null;
             
             _queue.TryDequeue(out result);
+            
+            if (result != null)
+            {
+                _taskCountChanged(-1);    
+            }
             
             return result;
         }

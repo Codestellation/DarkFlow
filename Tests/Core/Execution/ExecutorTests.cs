@@ -10,7 +10,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test, Ignore("Not finished yet.")]
         public void Ordered_tasks_are_executed_serially()
         {
-            var executor = new Executor(new ITaskQueue[]{new TaskQueue(x => true, () => { }, 3) });
+            var executor = new Executor(new ITaskQueue[]{new TaskQueue(x => true, (a) => { }, 3) });
 
             var tasks = Enumerable.Range(1, 2).Select(x => new LongRunningTask(true) {Name = "Task" + x}).ToArray();
 
