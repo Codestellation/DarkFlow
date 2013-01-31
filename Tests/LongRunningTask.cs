@@ -6,15 +6,15 @@ namespace Codestellation.DarkFlow.Tests
     public class LongRunningTask : ITask
     {
         private int _runCount;
-        private readonly ManualResetEvent _started;
-        private readonly ManualResetEvent _finished;
-        private readonly ManualResetEvent _canFinish;
+        private readonly ManualResetEventSlim _started;
+        private readonly ManualResetEventSlim _finished;
+        private readonly ManualResetEventSlim _canFinish;
 
         public LongRunningTask(bool manualFinish)
         {
-            _started = new ManualResetEvent(false);
-            _finished = new ManualResetEvent(false);
-            _canFinish = new ManualResetEvent(!manualFinish);
+            _started = new ManualResetEventSlim(false);
+            _finished = new ManualResetEventSlim(false);
+            _canFinish = new ManualResetEventSlim(!manualFinish);
         }
 
         public bool Running { get; private set; }
@@ -30,12 +30,12 @@ namespace Codestellation.DarkFlow.Tests
 
         public bool WaitForStart(int timeout = 10)
         {
-            return _started.WaitOne(timeout);
+            return _started.Wait(timeout);
         }
 
         public bool WaitForFinish(int timeout = 10)
         {
-            return _finished.WaitOne(timeout);
+            return _finished.Wait(timeout);
         }
 
         public void Finilize()
@@ -49,7 +49,7 @@ namespace Codestellation.DarkFlow.Tests
             _started.Set();
             
             Console.WriteLine("Running task {0}, at {1}", Name, DateTime.Now);
-            _canFinish.WaitOne();
+            _canFinish.Wait();
             
             Running = false;
             Executed = true;
