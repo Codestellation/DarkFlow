@@ -65,6 +65,10 @@
     <None Include="DarkFlow.nuspec" />
     <Compile Include="Database\Identifier.cs" />
     <Compile Include="Database\Region.cs" />
+    <Compile Include="Execution\IExecutionQueue.cs" />
+    <Compile Include="Execution\TaskQueue.cs" />
+    <Compile Include="Execution\Executor.cs" />
+    <Compile Include="Execution\ITaskQueue.cs" />
     <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="Schedules\Every.cs" />
     <Compile Include="Execution\BaseExecutor.cs" />
