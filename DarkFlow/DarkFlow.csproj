@@ -69,6 +69,7 @@
     <Compile Include="Execution\TaskQueue.cs" />
     <Compile Include="Execution\Executor.cs" />
     <Compile Include="Execution\ITaskQueue.cs" />
+    <Compile Include="Execution\TaskDispatcher.cs" />
     <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="Schedules\Every.cs" />
     <Compile Include="Execution\BaseExecutor.cs" />

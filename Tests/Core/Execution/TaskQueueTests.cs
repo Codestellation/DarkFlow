@@ -52,11 +52,11 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             int dequeed = int.MinValue;
             var queue = new TaskQueue(x => true, 1);
-            queue.TaskCountChanged += x => dequeed = x;
+            
 
             var expected = new LongRunningTask(false);
             queue.Enqueue(expected);
-
+            queue.TaskCountChanged += x => dequeed = x;
             var task = queue.Dequeue();
 
             Assert.That(task, Is.SameAs(expected));
