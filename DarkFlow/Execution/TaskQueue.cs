@@ -10,15 +10,18 @@ namespace Codestellation.DarkFlow.Execution
         private readonly CanEnqueue _canEnqueue;
         private readonly byte _priority;
         private readonly ConcurrentQueue<ITask> _queue;
+        private readonly byte _maxConcurrency;
 
-        public TaskQueue(CanEnqueue canEnqueue, byte priority)
+        public TaskQueue(CanEnqueue canEnqueue, byte priority, byte maxConcurrency)
         {
-            _canEnqueue = canEnqueue;
-            _priority = priority;
             if (canEnqueue == null)
             {
                 throw new ArgumentNullException("canEnqueue");
             }
+
+            _canEnqueue = canEnqueue;
+            _priority = priority;
+            _maxConcurrency = maxConcurrency;
             _queue = new ConcurrentQueue<ITask>();
             TaskCountChanged = delegate { };
         }
@@ -41,6 +44,11 @@ namespace Codestellation.DarkFlow.Execution
         public byte Priority
         {
             get { return _priority; }
+        }
+
+        public byte MaxConcurrency
+        {
+            get { return _maxConcurrency; }
         }
 
         public ITask Dequeue()

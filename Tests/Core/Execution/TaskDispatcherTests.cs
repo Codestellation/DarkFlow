@@ -12,7 +12,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [SetUp]
         public void SetUp()
         {
-            _queue = new TaskQueue(x => true, 3);
+            _queue = new TaskQueue(x => true, 3, 1) ;
             _pool = new TaskDispatcher(1, new IExecutionQueue[] { _queue });
         }
 

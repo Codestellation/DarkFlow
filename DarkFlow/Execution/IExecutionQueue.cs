@@ -8,6 +8,8 @@ namespace Codestellation.DarkFlow.Execution
         
         byte Priority { get; }
 
+        byte MaxConcurrency { get; }
+
         ITask Dequeue();
     }
 }

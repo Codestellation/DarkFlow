@@ -12,7 +12,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [TestCase(false)]
         public void Interpret_rules_properly(bool canEnqueue)
         {
-            var queue = new TaskQueue(task => canEnqueue, 2);
+            var queue = new TaskQueue(task => canEnqueue, 2, 1);
 
             Assert.That(queue.CanEnqueue(new LongRunningTask(false)), Is.EqualTo(canEnqueue));
         }
@@ -21,7 +21,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Invoke_delegate_when_task_enqueued()
         {
-            var queue = new TaskQueue(x => true,  1);
+            var queue = new TaskQueue(x => true,  1, 1);
 
             int enqueued = int.MinValue;
             queue.TaskCountChanged += arg => enqueued = arg;
@@ -37,7 +37,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             int? dequeued = null;
 
-            var queue = new TaskQueue(x => true , 1);
+            var queue = new TaskQueue(x => true , 1, 1);
 
             queue.TaskCountChanged += x => dequeued = x;
 
@@ -51,7 +51,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void Returns_enqueued_task_if_added()
         {
             int dequeed = int.MinValue;
-            var queue = new TaskQueue(x => true, 1);
+            var queue = new TaskQueue(x => true, 1, 1);
             
 
             var expected = new LongRunningTask(false);
