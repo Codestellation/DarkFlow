@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.Contracts;
 using System.Threading;
 
 namespace Codestellation.DarkFlow.Execution
@@ -35,8 +36,8 @@ namespace Codestellation.DarkFlow.Execution
 
         public void Enqueue(ITask task)
         {
-            //NOTE: I don't check for null here intentionally to improve performance. 
-            // The only place where such check should have place is IExecutor
+            Contract.Ensures(task != null);
+
             //TODO Consider reusing wraps to decrease workload on GC. 
             var wrap = new TaskExecutionWrap(task, () => Interlocked.Decrement(ref _currentConcurrency));
             _queue.Enqueue(wrap);

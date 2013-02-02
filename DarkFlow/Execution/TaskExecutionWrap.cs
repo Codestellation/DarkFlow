@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using NLog;
 
 namespace Codestellation.DarkFlow.Execution
@@ -12,6 +13,9 @@ namespace Codestellation.DarkFlow.Execution
 
         public TaskExecutionWrap(ITask task, Action afterExecute)
         {
+            Contract.Requires(task != null);
+            Contract.Requires(afterExecute != null);
+
             _task = task;
             _afterExecute = afterExecute;
         }
@@ -26,7 +30,7 @@ namespace Codestellation.DarkFlow.Execution
             {
                 if (Logger.IsErrorEnabled)
                 {
-                    Logger.ErrorException("Task throwed exception.",ex);    
+                    Logger.ErrorException("Task failed.",ex);    
                 }
             }
             finally
