@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Codestellation.DarkFlow.Execution;
 using NUnit.Framework;
 
@@ -58,10 +59,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
             
             _queue.Enqueue(shouldRun2);
-
             _queue.Enqueue(shouldWait);
-            
-
             
             shouldRun2.WaitForStart(100);
 
@@ -84,6 +82,28 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
             Assert.That(shouldRun.Running, Is.True);
             Assert.That(shouldWait.Running, Is.False);
+        }
+
+        [Test]
+        public void Dispose_not_returns_until_all_tasks_finished()
+        {
+            var task = CreateTask("Run");
+            _queue.Enqueue(task);
+
+            Assert.That(task.WaitForStart(), Is.True);
+
+            Task.Factory.StartNew( () => 
+            {
+                while (_pool.DisposeInProgress == false)
+                {
+                    
+                }
+                task.Finilize();
+            });
+
+            _pool.Dispose();
+
+            Assert.That(task.Executed, Is.True);
         }
 
         private  LongRunningTask CreateTask( string name, bool manualFinish = true)

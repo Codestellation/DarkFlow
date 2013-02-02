@@ -1,16 +1,42 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Execution
 {
-    public class TaskDispatcher
+    public class TaskDispatcher : Disposable
     {
         private readonly byte _maxConcurrency;
         private readonly IExecutionQueue[] _executionQueues;
         private int _taskPending;
         private int _currentConcurrency;
+        private readonly ExecutionInfo[] _executionInfos;
+        private readonly object _latch;
+
+        private class ExecutionInfo
+        {
+            public volatile Task TplTask;
+
+            public volatile ITask CurrentTask;
+
+            public bool Free
+            {
+                get { return TplTask == null; }
+            }
+
+            public bool OwnedByCurrentTask
+            {
+                get
+                {
+                    var tplTask = TplTask;
+                    if (tplTask == null) return false;
+                    return tplTask.Id == Task.CurrentId;
+                }
+            }
+        }
 
         public TaskDispatcher(byte maxConcurrency, IExecutionQueue[] executionQueues)
         {
@@ -32,6 +58,13 @@ namespace Codestellation.DarkFlow.Execution
             _maxConcurrency = maxConcurrency;
             _executionQueues = executionQueues.OrderByDescending(x => x.Priority).ToArray();
 
+            _executionInfos =
+                Enumerable.Range(0, _maxConcurrency)
+                .Select(x => new ExecutionInfo())
+                .ToArray();
+
+            _latch = new object();
+
             foreach (var executionQueue in executionQueues)
             {
                 executionQueue.TaskCountChanged += OnTaskCountChanged;
@@ -40,35 +73,47 @@ namespace Codestellation.DarkFlow.Execution
 
         private void OnTaskCountChanged(int change)
         {
+            Contract.Requires(change == -1 || change == 1);
+
+            if (DisposeInProgress || Disposed)
+            {
+                return;
+            }
+            
             var pendingsNow = Interlocked.Add(ref _taskPending, change);
 
-            if (pendingsNow > 0 && _currentConcurrency < _maxConcurrency)
-            {
-                StartNewThread();
-            }
-        }
-
-        private void StartNewThread()
-        {
-            Interlocked.Increment(ref _currentConcurrency);
+            if (pendingsNow <= 0 || _currentConcurrency >= _maxConcurrency) return;
             
-            //TODO Save task so that dispose can wait for it to finish.
-            Task.Factory
-                .StartNew(PerformTasks)
-                .ContinueWith(DecrementCurrentConcurrency);
-        }
+            //Second check to ensure concurrency threshold would not be exceeded.
+            var currentConcurrency = Interlocked.Increment(ref _currentConcurrency);
+                
+            if (currentConcurrency <= _maxConcurrency)
+            {
+                var task = new Task(PerformTasks);
+                
+                //TODO Possible it better to do using Interlocked.Exchange.
 
-        private void DecrementCurrentConcurrency(Task obj)
-        {
-            Interlocked.Decrement(ref _currentConcurrency);
+                Monitor.Enter(_latch);
+                var executionInfo = _executionInfos.First(x => x.Free);
+                executionInfo.TplTask = task;
+                Monitor.Exit(_latch);
+
+                task.Start();
+            }
+            else
+            {
+                Interlocked.Decrement(ref _currentConcurrency);
+            }
         }
 
         private void PerformTasks()
         {
+            var executionInfo = _executionInfos.Single(x => x.OwnedByCurrentTask);
+
             while (true)
             {
                 var task = TakeNextTask();
-                
+                executionInfo.CurrentTask = task;
                 if (task == null)
                 {
                     break;
@@ -76,7 +121,18 @@ namespace Codestellation.DarkFlow.Execution
 
                 //TODO: try catch needed. 
                 task.Execute();
+
+                if (DisposeInProgress || Disposed)
+                {
+                    break;
+                }
+
             }
+
+            executionInfo.CurrentTask = null;
+            executionInfo.TplTask = null;
+
+            Interlocked.Decrement(ref _currentConcurrency);
         }
 
         //note: this methods suppose that execution queues already sorted, so priority already  applied.
@@ -92,8 +148,16 @@ namespace Codestellation.DarkFlow.Execution
                     break;
                 }
             }
-
             return result;
+        }
+        protected override void DisposeManaged()
+        {
+            //foreach (var info in _executionInfos)
+            //{
+            //    if(info.Free) continue;
+//
+  //              info.TplTask.Wait();
+    //        }
         }
     }
 }

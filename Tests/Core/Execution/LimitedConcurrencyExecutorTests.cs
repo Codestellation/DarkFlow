@@ -119,7 +119,6 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Do_not_executes_new_tasks_since_stopped()
         {
-            _executor.Start();
             RunAll();
             _tasks[0].WaitForStart();
             _tasks[1].WaitForStart();
