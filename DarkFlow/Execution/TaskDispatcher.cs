@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,7 +73,7 @@ namespace Codestellation.DarkFlow.Execution
 
         private void OnTaskCountChanged(int change)
         {
-            Contract.Requires(change == -1 || change == 1);
+            Debug.Assert(change == -1 || change == 1);
 
             if (DisposeInProgress || Disposed)
             {
@@ -152,12 +152,10 @@ namespace Codestellation.DarkFlow.Execution
         }
         protected override void DisposeManaged()
         {
-            //foreach (var info in _executionInfos)
-            //{
-            //    if(info.Free) continue;
-//
-  //              info.TplTask.Wait();
-    //        }
+            foreach (var info in _executionInfos.Where(info => !info.Free))
+            {
+                info.TplTask.Wait();
+            }
         }
     }
 }

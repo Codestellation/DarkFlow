@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using NLog;
 
 namespace Codestellation.DarkFlow.Execution
@@ -13,8 +13,8 @@ namespace Codestellation.DarkFlow.Execution
 
         public TaskExecutionWrap(ITask task, Action afterExecute)
         {
-            Contract.Requires(task != null);
-            Contract.Requires(afterExecute != null);
+            Debug.Assert(task != null);
+            Debug.Assert(afterExecute != null);
 
             _task = task;
             _afterExecute = afterExecute;

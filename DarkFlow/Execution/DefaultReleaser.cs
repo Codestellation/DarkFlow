@@ -8,7 +8,7 @@ namespace Codestellation.DarkFlow.Execution
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static readonly Lazy<DefaultReleaser> LazyInstance = new Lazy<DefaultReleaser>(() => new DefaultReleaser(), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<DefaultReleaser> LazyInstance = new Lazy<DefaultReleaser>(() => new DefaultReleaser());
 
         public static  ITaskReleaser Instance
         {
