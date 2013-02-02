@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using Codestellation.DarkFlow.Execution;
+﻿using Codestellation.DarkFlow.Execution;
 using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Core.Execution
@@ -61,6 +59,35 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
             Assert.That(task, Is.SameAs(expected));
             Assert.That(dequeed, Is.EqualTo(-1));
+        }
+
+        [Test]
+        public void Do_not_return_new_task_until_previous_completed()
+        {
+            var queue = new TaskQueue(x => true, 1, 1);
+            var task1 = new LongRunningTask(false);
+            var task2 = new LongRunningTask(false);
+            queue.Enqueue(task1);
+            queue.Enqueue(task2);
+
+            queue.Dequeue();
+
+            Assert.That(queue.Dequeue(), Is.Null);
+        }
+
+        [Test]
+        public void When_task_completed_allow_to_take_next_task()
+        {
+            var queue = new TaskQueue(x => true, 1, 1);
+            var task1 = new LongRunningTask(false);
+            var task2 = new LongRunningTask(false);
+            queue.Enqueue(task1);
+            queue.Enqueue(task2);
+
+            var extracted = queue.Dequeue();
+            extracted.Execute();
+
+            Assert.That(queue.Dequeue(), Is.Not.Null);
         }
     }
 }

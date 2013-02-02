@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Codestellation.DarkFlow.Execution
 {
@@ -11,6 +12,7 @@ namespace Codestellation.DarkFlow.Execution
         private readonly byte _priority;
         private readonly ConcurrentQueue<ITask> _queue;
         private readonly byte _maxConcurrency;
+        private int _currentConcurrency;
 
         public TaskQueue(CanEnqueue canEnqueue, byte priority, byte maxConcurrency)
         {
@@ -35,7 +37,9 @@ namespace Codestellation.DarkFlow.Execution
         {
             //NOTE: I don't check for null here intentionally to improve performance. 
             // The only place where such check should have place is IExecutor
-            _queue.Enqueue(task);
+            //TODO Consider reusing wraps to decrease workload on GC. 
+            var wrap = new TaskExecutionWrap(task, () => Interlocked.Decrement(ref _currentConcurrency));
+            _queue.Enqueue(wrap);
             TaskCountChanged(1);
         }
 
@@ -53,6 +57,15 @@ namespace Codestellation.DarkFlow.Execution
 
         public ITask Dequeue()
         {
+            var totalReaders = Interlocked.Increment(ref _currentConcurrency);
+
+            if (totalReaders > _maxConcurrency)
+            {
+                //Concurrency level reached. Do not return task from queue.
+                Interlocked.Decrement(ref _currentConcurrency);
+                return null;
+            }
+            
             ITask result = null;
             
             _queue.TryDequeue(out result);
@@ -60,6 +73,10 @@ namespace Codestellation.DarkFlow.Execution
             if (result != null)
             {
                 TaskCountChanged(-1);
+            }
+            else
+            {
+                Interlocked.Decrement(ref _currentConcurrency);
             }
             
             return result;

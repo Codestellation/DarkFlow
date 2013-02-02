@@ -66,6 +66,7 @@
     <Compile Include="Database\Identifier.cs" />
     <Compile Include="Database\Region.cs" />
     <Compile Include="Execution\IExecutionQueue.cs" />
+    <Compile Include="Execution\TaskExecutionWrap.cs" />
     <Compile Include="Execution\TaskQueue.cs" />
     <Compile Include="Execution\Executor.cs" />
     <Compile Include="Execution\ITaskQueue.cs" />

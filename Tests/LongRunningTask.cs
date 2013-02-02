@@ -48,7 +48,7 @@ namespace Codestellation.DarkFlow.Tests
             Running = true;
             _started.Set();
             
-            Console.WriteLine("Running task {0}, at {1}", Name, DateTime.Now);
+            Console.WriteLine("Running task {0}, at {1}. Thread {2}", Name, DateTime.Now, Thread.CurrentThread.ManagedThreadId);
             _canFinish.Wait();
             
             Running = false;
