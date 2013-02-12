@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,7 +72,7 @@ namespace Codestellation.DarkFlow.Execution
 
         private void OnTaskCountChanged(int change)
         {
-            Debug.Assert(change == -1 || change == 1);
+            Contract.Require(change == -1 || change == 1, "change == -1 || change == 1");
 
             if (DisposeInProgress || Disposed)
             {
