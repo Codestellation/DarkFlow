@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Threading;
+using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Execution
 {
@@ -35,12 +35,13 @@ namespace Codestellation.DarkFlow.Execution
 
         public void Enqueue(ITask task)
         {
-            Debug.Assert(task != null);
-            Debug.Assert(TaskCountChanged != null);
+            Contract.Require(task != null, "task != null");
+            Contract.Require(TaskCountChanged != null, "TaskCountChanged != null");
             
             //TODO Consider reusing wraps to decrease workload on GC. 
             var wrap = new TaskExecutionWrap(task, () => Interlocked.Decrement(ref _currentConcurrency));
             _queue.Enqueue(wrap);
+
             TaskCountChanged(1);
         }
 

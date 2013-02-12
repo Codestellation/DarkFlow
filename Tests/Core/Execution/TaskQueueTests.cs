@@ -50,8 +50,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             int dequeed = int.MinValue;
             var queue = new TaskQueue(x => true, 1, 1);
-            
 
+            queue.TaskCountChanged += delegate { };
             var expected = new LongRunningTask(false);
             queue.Enqueue(expected);
             queue.TaskCountChanged += x => dequeed = x;
@@ -64,6 +64,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void Do_not_return_new_task_until_previous_completed()
         {
             var queue = new TaskQueue(x => true, 1, 1);
+            queue.TaskCountChanged += delegate { };
             var task1 = new LongRunningTask(false);
             var task2 = new LongRunningTask(false);
             queue.Enqueue(task1);
@@ -78,6 +79,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void When_task_completed_allow_to_take_next_task()
         {
             var queue = new TaskQueue(x => true, 1, 1);
+            queue.TaskCountChanged += delegate { };
+
             var task1 = new LongRunningTask(false);
             var task2 = new LongRunningTask(false);
             queue.Enqueue(task1);
