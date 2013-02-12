@@ -2,7 +2,7 @@
 {
     public interface ITaskQueue
     {
-        bool CanEnqueue(ITask task);
+        string Name { get; }
 
         void Enqueue(ITask task);
     }

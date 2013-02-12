@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NLog;
 
@@ -8,15 +9,15 @@ namespace Codestellation.DarkFlow.Execution
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly ITaskQueue[] _queues;
+        private readonly  Dictionary<string, ITaskQueue> _queues;
 
-        public Executor(ITaskQueue[] queues)
+        public Executor(IEnumerable<ITaskQueue> queues)
         {
             if (queues == null)
             {
                 throw new ArgumentNullException("queues");
             }
-            _queues = queues;
+            _queues = queues.ToDictionary(x => x.Name, x => x);
         }
 
         public void Execute(ITask task)
@@ -26,7 +27,7 @@ namespace Codestellation.DarkFlow.Execution
                 throw new ArgumentNullException("task");
             }
             
-            var queue = _queues.SingleOrDefault(x => x.CanEnqueue(task));
+            var queue = FindQueue(task);
 
             if (queue == null)
             {
@@ -36,6 +37,11 @@ namespace Codestellation.DarkFlow.Execution
             {
                 queue.Enqueue(task);
             }
+        }
+
+        private ITaskQueue FindQueue(ITask task)
+        {
+            throw new NotImplementedException();
         }
 
         public void Execute(IPersistentTask task)

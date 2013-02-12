@@ -9,28 +9,28 @@ namespace Codestellation.DarkFlow.Execution
     
     public class TaskQueue : ITaskQueue, IExecutionQueue
     {
-        private readonly CanEnqueue _canEnqueue;
         private readonly byte _priority;
         private readonly ConcurrentQueue<ITask> _queue;
         private readonly byte _maxConcurrency;
+        private readonly string _name;
         private int _currentConcurrency;
-
-        public TaskQueue(CanEnqueue canEnqueue, byte priority, byte maxConcurrency)
+        
+        public TaskQueue(string name, byte priority, byte maxConcurrency)
         {
-            if (canEnqueue == null)
+            if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentNullException("canEnqueue");
+                throw new ArgumentException(string.Format("Expected not null not empty, but was '{0}'", name ?? "<null>"),"name");
             }
-
-            _canEnqueue = canEnqueue;
+            
             _priority = priority;
             _maxConcurrency = maxConcurrency;
+            _name = name;
             _queue = new ConcurrentQueue<ITask>();
         }
 
-        public bool CanEnqueue(ITask task)
+        public string Name
         {
-            return _canEnqueue(task);
+            get { return _name; }
         }
 
         public void Enqueue(ITask task)
