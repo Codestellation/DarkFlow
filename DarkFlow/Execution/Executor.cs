@@ -1,27 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NLog;
+using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Execution
 {
-    public class Executor : IExecutor
+    public class Executor : Disposable, IExecutor
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private readonly ITaskRouter _router;
+        private readonly TaskDispatcher _dispatcher;
 
         private readonly  Dictionary<string, ITaskQueue> _queues;
 
-        public Executor(IEnumerable<ITaskQueue> queues)
+        public Executor(ITaskRouter router, TaskDispatcher dispatcher, IEnumerable<ITaskQueue> queues)
         {
             if (queues == null)
             {
                 throw new ArgumentNullException("queues");
             }
+
+            if (router == null)
+            {
+                throw new ArgumentNullException("router");
+            }
+
+            if (dispatcher == null)
+            {
+                throw new ArgumentNullException("dispatcher");
+            }
+
+            _router = router;
+            _dispatcher = dispatcher;
             _queues = queues.ToDictionary(x => x.Name, x => x);
         }
 
         public void Execute(ITask task)
         {
+            EnsureNotDisposed();
+
             if (task == null)
             {
                 throw new ArgumentNullException("task");
@@ -41,12 +57,20 @@ namespace Codestellation.DarkFlow.Execution
 
         private ITaskQueue FindQueue(ITask task)
         {
-            throw new NotImplementedException();
+            //TODO: Cache this later
+            var name = _router.ResolveQueueFor(task);
+            var result = _queues[name];
+            return result;
         }
 
         public void Execute(IPersistentTask task)
         {
             throw new NotImplementedException();
+        }
+
+        protected override void DisposeManaged()
+        {
+            _dispatcher.Dispose();
         }
     }
 }

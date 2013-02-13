@@ -7,10 +7,13 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
     [TestFixture]
     public class ExecutorTests
     {
-        [Test, Ignore("Not finished yet.")]
+        [Test]
         public void Ordered_tasks_are_executed_serially()
         {
-            var executor = new Executor(new ITaskQueue[]{new TaskQueue("test", 3, 1) });
+            var taskQueue = new TaskQueue("test", 3, 1);
+            var taskRouter = new TaskRouter(new[] {new NamespaceMatcher(NamespaceMatcher.All, taskQueue.Name)});
+            var dispatcher = new TaskDispatcher(2, new IExecutionQueue[] {taskQueue});
+            var executor = new Executor(taskRouter, dispatcher, new ITaskQueue[]{taskQueue });
 
             var tasks = Enumerable.Range(1, 2).Select(x => new LongRunningTask(true) {Name = "Task" + x}).ToArray();
 
@@ -21,7 +24,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
             Assert.That(tasks[0].WaitForStart(), Is.True);
 
-            Assert.That(tasks[0].WaitForStart(), Is.False);
+            Assert.That(tasks[1].WaitForStart(), Is.False);
         }
     }
 }

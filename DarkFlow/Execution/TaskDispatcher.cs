@@ -53,8 +53,10 @@ namespace Codestellation.DarkFlow.Execution
             {
                 throw new ArgumentOutOfRangeException("executionQueues", "List of execution queues cannot be empty.");
             }
-            
-            _maxConcurrency = maxConcurrency;
+
+            var queueTotalConcurrency = (byte)executionQueues.Sum(x => x.MaxConcurrency);
+
+            _maxConcurrency = Math.Min(maxConcurrency, queueTotalConcurrency);
             _executionQueues = executionQueues.OrderByDescending(x => x.Priority).ToArray();
 
             _executionInfos =
