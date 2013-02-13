@@ -66,11 +66,15 @@
     <Compile Include="Database\Identifier.cs" />
     <Compile Include="Database\Region.cs" />
     <Compile Include="Execution\IExecutionQueue.cs" />
+    <Compile Include="Execution\IMatcher.cs" />
+    <Compile Include="Execution\ITaskRouter.cs" />
+    <Compile Include="Execution\NamespaceMatcher.cs" />
     <Compile Include="Execution\TaskExecutionWrap.cs" />
     <Compile Include="Execution\TaskQueue.cs" />
     <Compile Include="Execution\Executor.cs" />
     <Compile Include="Execution\ITaskQueue.cs" />
     <Compile Include="Execution\TaskDispatcher.cs" />
+    <Compile Include="Execution\TaskRouter.cs" />
     <Compile Include="Misc\ContractException.cs" />
     <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="Schedules\Every.cs" />
