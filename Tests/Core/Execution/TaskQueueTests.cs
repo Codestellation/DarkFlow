@@ -6,6 +6,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
     [TestFixture]
     public class TaskQueueTests
     {
+        
         [Test]
         public void Invoke_delegate_when_task_enqueued()
         {
@@ -15,7 +16,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             queue.TaskCountChanged += arg => enqueued = arg;
             
             //TODO: this task should look like that new LongRunningTask(Finish.Auto | Finish.Manual)
-            queue.Enqueue(new LongRunningTask(false));
+            queue.Enqueue(new ExecutionEnvelope(new LongRunningTask(false), DefaultReleaser.Instance));
 
             Assert.That(enqueued, Is.EqualTo(1));
         }
@@ -42,7 +43,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             var queue = new TaskQueue("test", 1, 1);
 
             queue.TaskCountChanged += delegate { };
-            var expected = new LongRunningTask(false);
+            var expected = new ExecutionEnvelope(new LongRunningTask(false), DefaultReleaser.Instance);
             queue.Enqueue(expected);
             queue.TaskCountChanged += x => dequeed = x;
             var task = queue.Dequeue();
@@ -57,8 +58,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             queue.TaskCountChanged += delegate { };
             var task1 = new LongRunningTask(false);
             var task2 = new LongRunningTask(false);
-            queue.Enqueue(task1);
-            queue.Enqueue(task2);
+            queue.Enqueue(new ExecutionEnvelope(task1, DefaultReleaser.Instance));
+            queue.Enqueue(new ExecutionEnvelope(task2, DefaultReleaser.Instance));
 
             queue.Dequeue();
 
@@ -73,11 +74,11 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
             var task1 = new LongRunningTask(false);
             var task2 = new LongRunningTask(false);
-            queue.Enqueue(task1);
-            queue.Enqueue(task2);
+            queue.Enqueue(new ExecutionEnvelope(task1, DefaultReleaser.Instance));
+            queue.Enqueue(new ExecutionEnvelope(task2, DefaultReleaser.Instance));
 
             var extracted = queue.Dequeue();
-            extracted.Execute();
+            extracted.ExecuteTask();
 
             Assert.That(queue.Dequeue(), Is.Not.Null);
         }

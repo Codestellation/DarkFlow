@@ -4,6 +4,6 @@
     {
         string Name { get; }
 
-        void Enqueue(ITask task);
+        void Enqueue(ExecutionEnvelope envelope);
     }
 }

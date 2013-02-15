@@ -19,7 +19,7 @@ namespace Codestellation.DarkFlow.Execution
         {
             public volatile Task TplTask;
 
-            public volatile ITask CurrentTask;
+            public volatile ExecutionEnvelope CurrentTask;
 
             public bool Free
             {
@@ -113,15 +113,16 @@ namespace Codestellation.DarkFlow.Execution
 
             while (true)
             {
-                var task = TakeNextTask();
-                executionInfo.CurrentTask = task;
-                if (task == null)
+                var envelope = TakeNextTask();
+                
+                executionInfo.CurrentTask = envelope;
+
+                if (envelope == null)
                 {
                     break;
                 }
 
-                //TODO: try catch needed. 
-                task.Execute();
+                envelope.ExecuteTask();
 
                 if (DisposeInProgress || Disposed)
                 {
@@ -137,9 +138,9 @@ namespace Codestellation.DarkFlow.Execution
         }
 
         //note: this methods suppose that execution queues already sorted, so priority already  applied.
-        private ITask TakeNextTask()
+        private ExecutionEnvelope TakeNextTask()
         {
-            ITask result = null;
+            ExecutionEnvelope result = null;
             
             for (int i = 0; i < _executionQueues.Length; i++)
             {

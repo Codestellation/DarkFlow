@@ -10,7 +10,7 @@ namespace Codestellation.DarkFlow.Execution
     public class TaskQueue : ITaskQueue, IExecutionQueue
     {
         private readonly byte _priority;
-        private readonly ConcurrentQueue<ITask> _queue;
+        private readonly ConcurrentQueue<ExecutionEnvelope> _queue;
         private readonly byte _maxConcurrency;
         private readonly string _name;
         private int _currentConcurrency;
@@ -25,7 +25,7 @@ namespace Codestellation.DarkFlow.Execution
             _priority = priority;
             _maxConcurrency = maxConcurrency;
             _name = name;
-            _queue = new ConcurrentQueue<ITask>();
+            _queue = new ConcurrentQueue<ExecutionEnvelope>();
         }
 
         public string Name
@@ -33,14 +33,15 @@ namespace Codestellation.DarkFlow.Execution
             get { return _name; }
         }
 
-        public void Enqueue(ITask task)
+        public void Enqueue(ExecutionEnvelope envelope)
         {
-            Contract.Require(task != null, "task != null");
+            Contract.Require(envelope != null, "envelope != null");
             Contract.Require(TaskCountChanged != null, "TaskCountChanged != null");
             
             //TODO Consider reusing wraps to decrease workload on GC. 
-            var wrap = new TaskExecutionWrap(task, () => Interlocked.Decrement(ref _currentConcurrency));
-            _queue.Enqueue(wrap);
+            envelope.AfterExecute = () => Interlocked.Decrement(ref _currentConcurrency);
+            
+            _queue.Enqueue(envelope);
 
             TaskCountChanged(1);
         }
@@ -57,18 +58,18 @@ namespace Codestellation.DarkFlow.Execution
             get { return _maxConcurrency; }
         }
 
-        public ITask Dequeue()
+        public ExecutionEnvelope Dequeue()
         {
             var totalReaders = Interlocked.Increment(ref _currentConcurrency);
 
             if (totalReaders > _maxConcurrency)
             {
-                //Concurrency level reached. Do not return task from queue.
+                //Concurrency level reached. Do not return envelope from queue.
                 Interlocked.Decrement(ref _currentConcurrency);
                 return null;
             }
             
-            ITask result = null;
+            ExecutionEnvelope result = null;
             
             _queue.TryDequeue(out result);
             

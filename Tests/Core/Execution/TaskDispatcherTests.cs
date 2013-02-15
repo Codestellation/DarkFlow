@@ -37,8 +37,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void Starts_thread_if_a_task_added()
         {
             var task = new LongRunningTask(false);
-
-            _queue.Enqueue(task);
+            var envelope = new ExecutionEnvelope(task, DefaultReleaser.Instance);
+            _queue.Enqueue(envelope);
 
             task.WaitForFinish();
 
@@ -55,17 +55,17 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
             _queue2.Enqueue(shouldRun1);
 
-            shouldRun1.WaitForStart(1000);
+            ((LongRunningTask)shouldRun1.Task).WaitForStart(1000);
 
             
             _queue.Enqueue(shouldRun2);
             _queue.Enqueue(shouldWait);
             
-            shouldRun2.WaitForStart(100);
+            ((LongRunningTask)shouldRun2.Task).WaitForStart(100);
 
-            Assert.That(shouldRun1.Running, Is.True);
-            Assert.That(shouldRun2.Running, Is.True);
-            Assert.That(shouldWait.Running, Is.False);
+            Assert.That(((LongRunningTask)shouldRun1.Task).Running, Is.True);
+            Assert.That(((LongRunningTask)shouldRun2.Task).Running, Is.True);
+            Assert.That(((LongRunningTask)shouldWait.Task).Running, Is.False);
         }
 
         [Test]
@@ -77,20 +77,20 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             _queue.Enqueue(shouldRun);
             _queue.Enqueue(shouldWait);
 
-            shouldRun.WaitForStart(100);
-            shouldWait.WaitForStart();
+            ((LongRunningTask)shouldRun.Task).WaitForStart(100);
+            ((LongRunningTask)shouldWait.Task).WaitForStart();
 
-            Assert.That(shouldRun.Running, Is.True);
-            Assert.That(shouldWait.Running, Is.False);
+            Assert.That(((LongRunningTask)shouldRun.Task).Running, Is.True);
+            Assert.That(((LongRunningTask)shouldWait.Task).Running, Is.False);
         }
 
         [Test]
         public void Dispose_not_returns_until_all_tasks_finished()
         {
-            var task = CreateTask("Run");
-            _queue.Enqueue(task);
+            var envelope = CreateTask("Run");
+            _queue.Enqueue(envelope);
 
-            Assert.That(task.WaitForStart(), Is.True);
+            Assert.That(((LongRunningTask)envelope.Task).WaitForStart(), Is.True);
 
             Task.Factory.StartNew( () => 
             {
@@ -98,19 +98,20 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
                 {
                     
                 }
-                task.Finilize();
+                ((LongRunningTask)envelope.Task).Finilize();
             });
 
             _pool.Dispose();
 
-            Assert.That(task.Executed, Is.True);
+            Assert.That(((LongRunningTask)envelope.Task).Executed, Is.True);
         }
 
-        private  LongRunningTask CreateTask( string name, bool manualFinish = true)
+        private  ExecutionEnvelope CreateTask( string name, bool manualFinish = true)
         {
             var result = new LongRunningTask(manualFinish){Name = name};
             _tasks.Add(result);
-            return result;
+
+            return new ExecutionEnvelope(result, DefaultReleaser.Instance);
         }
     }
 }

@@ -9,10 +9,11 @@ namespace Codestellation.DarkFlow.Execution
     {
         private readonly ITaskRouter _router;
         private readonly TaskDispatcher _dispatcher;
+        private readonly ITaskReleaser _releaser;
 
         private readonly  Dictionary<string, ITaskQueue> _queues;
 
-        public Executor(ITaskRouter router, TaskDispatcher dispatcher, IEnumerable<ITaskQueue> queues)
+        public Executor(ITaskRouter router, TaskDispatcher dispatcher, ITaskReleaser releaser , IEnumerable<ITaskQueue> queues)
         {
             if (queues == null)
             {
@@ -29,8 +30,14 @@ namespace Codestellation.DarkFlow.Execution
                 throw new ArgumentNullException("dispatcher");
             }
 
+            if (releaser == null)
+            {
+                throw new ArgumentNullException("releaser");
+            }
+
             _router = router;
             _dispatcher = dispatcher;
+            _releaser = releaser;
             _queues = queues.ToDictionary(x => x.Name, x => x);
         }
 
@@ -42,8 +49,10 @@ namespace Codestellation.DarkFlow.Execution
             {
                 throw new ArgumentNullException("task");
             }
-            
-            var queue = FindQueue(task);
+
+            var envelope = new ExecutionEnvelope(task, _releaser);
+
+            var queue = FindQueue(envelope);
 
             if (queue == null)
             {
@@ -51,14 +60,14 @@ namespace Codestellation.DarkFlow.Execution
             }
             else
             {
-                queue.Enqueue(task);
+                queue.Enqueue(envelope);
             }
         }
 
-        private ITaskQueue FindQueue(ITask task)
+        private ITaskQueue FindQueue(ExecutionEnvelope envelope)
         {
             //TODO: Cache this later
-            var name = _router.ResolveQueueFor(task);
+            var name = _router.ResolveQueueFor(envelope.Task);
             var result = _queues[name];
             return result;
         }

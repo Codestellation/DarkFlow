@@ -10,6 +10,6 @@ namespace Codestellation.DarkFlow.Execution
 
         byte MaxConcurrency { get; }
 
-        ITask Dequeue();
+        ExecutionEnvelope Dequeue();
     }
 }
