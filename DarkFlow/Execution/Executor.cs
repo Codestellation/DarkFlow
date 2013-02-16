@@ -74,7 +74,7 @@ namespace Codestellation.DarkFlow.Execution
 
         public void Execute(IPersistentTask task)
         {
-            throw new NotImplementedException();
+            Execute((ITask)task);
         }
 
         protected override void DisposeManaged()
