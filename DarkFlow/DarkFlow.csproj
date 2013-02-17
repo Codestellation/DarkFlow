@@ -74,6 +74,7 @@
     <Compile Include="Execution\Executor.cs" />
     <Compile Include="Execution\ITaskQueue.cs" />
     <Compile Include="Execution\TaskDispatcher.cs" />
+    <Compile Include="Execution\TaskQueueSettings.cs" />
     <Compile Include="Execution\TaskRouter.cs" />
     <Compile Include="Misc\ContractException.cs" />
     <Compile Include="Misc\ISupportStart.cs" />

@@ -14,17 +14,17 @@ namespace Codestellation.DarkFlow.Execution
         private readonly byte _maxConcurrency;
         private readonly string _name;
         private int _currentConcurrency;
-        
-        public TaskQueue(string name, byte priority, byte maxConcurrency)
+
+        public TaskQueue(TaskQueueSettings taskQueueSettings)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(taskQueueSettings.Name))
             {
-                throw new ArgumentException(string.Format("Expected not null not empty, but was '{0}'", name ?? "<null>"),"name");
+                throw new ArgumentException(string.Format("Expected not null not empty, but was '{0}'", taskQueueSettings.Name ?? "<null>"),"name");
             }
             
-            _priority = priority;
-            _maxConcurrency = maxConcurrency;
-            _name = name;
+            _priority = taskQueueSettings.Priority;
+            _maxConcurrency = taskQueueSettings.MaxConcurrency;
+            _name = taskQueueSettings.Name;
             _queue = new ConcurrentQueue<ExecutionEnvelope>();
         }
 
@@ -39,7 +39,7 @@ namespace Codestellation.DarkFlow.Execution
             Contract.Require(TaskCountChanged != null, "TaskCountChanged != null");
             
             //TODO Consider reusing wraps to decrease workload on GC. 
-            envelope.AfterExecute = () => Interlocked.Decrement(ref _currentConcurrency);
+            envelope.AfterExecute += () => Interlocked.Decrement(ref _currentConcurrency);
             
             _queue.Enqueue(envelope);
 

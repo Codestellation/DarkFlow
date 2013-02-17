@@ -19,8 +19,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void SetUp()
         {
             _tasks = new List<LongRunningTask>();
-            _queue = new TaskQueue("test", 3, 1) ;
-            _queue2 = new TaskQueue("test", 2, 1);
+            _queue = new TaskQueue(new TaskQueueSettings("test", 3, 1)) ;
+            _queue2 = new TaskQueue(new TaskQueueSettings("test", 2, 1));
             _pool = new TaskDispatcher(2, new IExecutionQueue[] { _queue, _queue2 });
         }
 

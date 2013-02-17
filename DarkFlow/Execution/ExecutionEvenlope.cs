@@ -13,7 +13,7 @@ namespace Codestellation.DarkFlow.Execution
         
         public Guid Id { get; private set; }
 
-        internal Action AfterExecute { get; set; }
+        internal event Action AfterExecute;
 
         public ExecutionEnvelope(ITask task, ITaskReleaser releaser) : this(Guid.NewGuid(), task, releaser)
         {
