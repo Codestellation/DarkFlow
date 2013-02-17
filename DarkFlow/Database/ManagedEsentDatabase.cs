@@ -35,14 +35,18 @@ namespace Codestellation.DarkFlow.Database
         public Identifier Persist(Region region, string serializedTask)
         {
             var id = region.NewIdentifier();
+            Persist(id, serializedTask);
+            return id;
+        }
+
+        public void Persist(Identifier id, string serializedTask)
+        {
             _database[id.ToString()] = serializedTask;
 
             if (Logger.IsDebugEnabled)
-            {
-                Logger.Debug("Persisted: id='{0}'; task='{1}'", id, serializedTask);
-            }
-
-            return id;
+        {
+            Logger.Debug("Persisted: id='{0}'; task='{1}'", id, serializedTask);
+        }
         }
 
         public string Get(Identifier id)

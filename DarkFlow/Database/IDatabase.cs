@@ -6,6 +6,8 @@ namespace Codestellation.DarkFlow.Database
     {
         Identifier Persist(Region region, string serializedTask);
 
+        void Persist(Identifier id, string serializedTask);
+
         string Get(Identifier id);
 
         void Remove(Identifier id);
