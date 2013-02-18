@@ -10,7 +10,6 @@ namespace Codestellation.DarkFlow.Bootstrap
         protected IDatabase Database;
         protected ITaskFactory TaskFactory;
         protected ISerializer Serializer;
-        protected ITaskRepository Repository;
         protected ITaskReleaser Releaser;
         protected IExecutor Executor;
 
@@ -38,7 +37,6 @@ namespace Codestellation.DarkFlow.Bootstrap
         {
             TaskFactory = TaskFactory ?? new DefaultTaskFactory();
             Serializer = Serializer ?? new JsonSerializer(TaskFactory);
-            Repository = Repository ?? new TaskRepository(Serializer, Database);
             Releaser = Releaser ?? new DefaultReleaser();
         }
 
@@ -46,7 +44,7 @@ namespace Codestellation.DarkFlow.Bootstrap
         {
             get
             {
-                var candidates = new object[] {Executor, Releaser, Repository, Database, Serializer, TaskFactory};
+                var candidates = new object[] {Executor, Releaser, Database, Serializer, TaskFactory};
                 return candidates.OfType<IDisposable>().ToArray();
             }
         }

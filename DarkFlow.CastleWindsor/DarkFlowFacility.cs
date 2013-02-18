@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Castle.Facilities.Startable;
 using Castle.MicroKernel.Facilities;
 using Castle.MicroKernel.Registration;
@@ -17,55 +18,54 @@ namespace Codestellation.DarkFlow.CastleWindsor
     {
         private ComponentRegistration<IDatabase> _databaseRegistration;
         private ComponentRegistration<IExecutor> _executorRegistration;
-
-        public const string OrderedExecutorName = "ordered";
-        public const string LimitedConcurrencyExecutorName = "limited";
+        private List<TaskQueue> _queues;
+        private List<IMatcher> _matchers;
 
         public string PersistedTaskFolder { get; set; }
 
-        public int? MaxThreads { get; set; }
+        public byte? MaxThreads { get; set; }
 
         protected override void Init()
         {
+            _queues = new List<TaskQueue>();
+            _matchers = new List<IMatcher>();
             Kernel.AddHandlerSelector(new TaskHandlerSelector(Kernel));
-            Kernel.Resolver.AddSubResolver(new ExecutorResolver(Kernel));
 
             RegisterSharedServices();
 
-            RegisterLimitedExecutor();
-
-            RegisterQueuedExecutor();
+            RegisterExecutor();
 
             RegisterScheduler();
         }
 
-        private void RegisterLimitedExecutor()
+        private void RegisterExecutor()
         {
-            int maxThread = MaxThreads ?? Environment.ProcessorCount;
+            byte maxConcurrency = (byte) (MaxThreads ?? Environment.ProcessorCount);
 
-            Kernel.Register(
-                _executorRegistration ??
+            if (_queues.Count == 0)
+            {
+                var settings = new TaskQueueSettings("default", 1, 1);
+                _queues.Add(new TaskQueue(settings));
+            }
+
+            Kernel.Register(Component
+                .For<IExecutor>()
+                .ImplementedBy<Executor>()
+                .DependsOn(new { queues = _queues })
+                .LifestyleSingleton(),
+                
                 Component
-                    .For<IExecutor>()
-                    .ImplementedBy<LimitedConcurrencyExecutor>()
-                    .Named(LimitedConcurrencyExecutorName)
-                    .StartUsingMethod(c => ((ISupportStart)c).Start)
-                    .StopUsingMethod(c => ((ISupportStart)c).Stop)
-                    .DependsOn(new {maxThread})
-                    .LifestyleSingleton());
+                .For<ITaskRouter>()
+                .ImplementedBy<TaskRouter>()
+                .DependsOn(new {matchers = _matchers})
+                .LifestyleSingleton(),
+                
+                Component
+                .For<TaskDispatcher>()
+                .DependsOn(new { maxConcurrency, executionQueues = _queues.ToArray()})
+                .LifestyleSingleton());
         }
 
-        private void RegisterQueuedExecutor()
-        {
-            Kernel.Register(
-                Component
-                    .For<IExecutor>()
-                    .ImplementedBy<OrderedExecutor>()
-                    .Named(OrderedExecutorName)
-                    .StartUsingMethod(c => ((ISupportStart)c).Start)
-                    .StopUsingMethod(c => ((ISupportStart)c).Stop)
-                    .LifestyleSingleton());
-        }
 
         private void RegisterSharedServices()
         {
@@ -91,12 +91,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
                     .For<IDatabase>()
                     .ImplementedBy<ManagedEsentDatabase>()
                     .DependsOn(new { persistedFolder })
-                    .LifestyleSingleton(),
-
-                Component
-                    .For<ITaskRepository>()
-                    .ImplementedBy<TaskRepository>()
-                    .LifestyleBoundTo<IExecutor>()
+                    .LifestyleSingleton()
             );
         }
 
@@ -118,6 +113,12 @@ namespace Codestellation.DarkFlow.CastleWindsor
             _databaseRegistration = Component.For<IDatabase>()
                                              .ImplementedBy<InMemoryDatabase>()
                                              .LifestyleBoundTo<IExecutor>();
+            return this;
+        }
+
+        public DarkFlowFacility WithQueue(TaskQueueSettings settings)
+        {
+            _queues.Add(new TaskQueue(settings));
             return this;
         }
 

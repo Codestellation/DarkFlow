@@ -59,8 +59,6 @@
     </Compile>
     <Compile Include="Bootstrap\ExecutorBuilder.cs" />
     <Compile Include="Bootstrap\ExecutorContainer.cs" />
-    <Compile Include="Bootstrap\LimitedConcurrencyBuilder.cs" />
-    <Compile Include="Bootstrap\QueuedExecutorBuilder.cs" />
     <Compile Include="Bootstrap\Create.cs" />
     <None Include="DarkFlow.nuspec" />
     <Compile Include="Database\Identifier.cs" />
@@ -79,7 +77,6 @@
     <Compile Include="Misc\ContractException.cs" />
     <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="Schedules\Every.cs" />
-    <Compile Include="Execution\BaseExecutor.cs" />
     <Compile Include="Execution\DefaultReleaser.cs" />
     <Compile Include="Execution\DefaultTaskFactory.cs" />
     <Compile Include="Database\InMemoryDatabase.cs" />
@@ -87,12 +84,8 @@
     <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Execution\ITaskFactory.cs" />
     <Compile Include="Execution\ITaskReleaser.cs" />
-    <Compile Include="Execution\ITaskRepository.cs" />
     <Compile Include="Execution\JsonSerializer.cs" />
-    <Compile Include="Execution\LimitedConcurrencyExecutor.cs" />
     <Compile Include="Database\ManagedEsentDatabase.cs" />
-    <Compile Include="Execution\OrderedExecutor.cs" />
-    <Compile Include="Execution\TaskRepository.cs" />
     <Compile Include="IPersistentTask.cs" />
     <Compile Include="IScheduler.cs" />
     <Compile Include="IExecutor.cs" />

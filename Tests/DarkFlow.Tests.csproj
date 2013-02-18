@@ -70,7 +70,6 @@
     <Compile Include="Core\Execution\TaskDispatcherTests.cs" />
     <Compile Include="Core\Execution\TaskRouterTests.cs" />
     <Compile Include="DisposableTask.cs" />
-    <Compile Include="Core\Execution\LimitedConcurrencyExecutorTests.cs" />
     <Compile Include="Core\Execution\DatabaseTests.cs" />
     <Compile Include="Core\Execution\TaskRepositoryTests.cs" />
     <Compile Include="LongRunningTask.cs" />
