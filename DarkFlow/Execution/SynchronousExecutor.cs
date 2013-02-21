@@ -6,10 +6,5 @@
         {
             task.Execute();
         }
-
-        public void Execute(IPersistentTask task)
-        {
-            task.Execute();
-        }
     }
 }

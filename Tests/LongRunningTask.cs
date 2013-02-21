@@ -58,7 +58,7 @@ namespace Codestellation.DarkFlow.Tests
         }
     }
 
-    public class PersistentLongRunningTask : LongRunningTask, IPersistentTask
+    public class PersistentLongRunningTask : LongRunningTask, ITask
     {
         public PersistentLongRunningTask(bool manualFinish) : base(manualFinish)
         {

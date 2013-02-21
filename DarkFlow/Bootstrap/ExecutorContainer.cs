@@ -35,10 +35,5 @@ namespace Codestellation.DarkFlow.Bootstrap
         {
             _executor.Execute(task);
         }
-
-        public void Execute(IPersistentTask task)
-        {
-            _executor.Execute((ITask) task);
-        }
     }
 }

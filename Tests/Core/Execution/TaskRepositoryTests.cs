@@ -2,7 +2,7 @@
 
 namespace Codestellation.DarkFlow.Tests.Core.Execution
 {
-    public class PersistedTask : IPersistentTask
+    public class PersistedTask : ITask
     {
         private readonly State _state;
 

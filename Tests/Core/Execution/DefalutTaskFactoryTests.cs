@@ -1,5 +1,4 @@
-﻿using System;
-using Codestellation.DarkFlow.Execution;
+﻿using Codestellation.DarkFlow.Execution;
 using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Core.Execution
@@ -7,91 +6,61 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
     [TestFixture]
     public class DefalutTaskFactoryTests
     {
-        private State _state;
         private DefaultTaskFactory _factory;
+        private PersistentTask _persistentTask;
 
         [SetUp]
         public void SetUp()
         {
-            _state = new State {Id = 1, Name = "Test"};
             _factory = new DefaultTaskFactory();
+            _persistentTask = new PersistentTask(1) { TotalCount = 2 };
+        }
+
+        [Test]
+        public void Gets_task_data_properly()
+        {
+            var data = _factory.GetTaskData(_persistentTask);
+            Assert.That(data.TaskType, Is.EqualTo("Codestellation.DarkFlow.Tests.Core.Execution.PersistentTask, Codestellation.DarkFlow.Tests"));
+            Assert.That(data.Properties.Length, Is.EqualTo(2));
         }
 
         [Test]
         public void Creates_tasks_with_arguments_constructor()
         {
-            var createdTask = _factory.Create(typeof (PersistentTaskWithConstructor).AssemblyQualifiedName, _state);
+            var data = _factory.GetTaskData(_persistentTask);
 
-            Assert.That(createdTask.PersistentState, Is.EqualTo(_state));
-        }
+            var reburnishedTask = (PersistentTask)_factory.Create(data);
 
-        [Test]
-        public void Create_task_with_default_contructor_and_injects_property()
-        {
-            var createdTask = _factory.Create(typeof(PersistentTaskWithDefaultConstructorAndProperty).AssemblyQualifiedName, _state);
-
-            Assert.That(createdTask.PersistentState, Is.EqualTo(_state));
-        }
-
-        [Test]
-        public void Throws_if_cannot_create_task()
-        {
-            Assert.Throws<InvalidOperationException>(() => _factory.Create(typeof(NonSupportedTask).AssemblyQualifiedName, _state));
+            Assert.That(reburnishedTask, Is.Not.Null);
+            Assert.That(reburnishedTask.Count, Is.EqualTo(_persistentTask.Count), "Ctor argument was not supplied");
+            Assert.That(reburnishedTask.TotalCount, Is.EqualTo(_persistentTask.TotalCount), "Settable property was not set.");
         }
     }
 
-    public class PersistentTaskWithConstructor : IPersistentTask
+    public class PersistentTask : ITask
     {
-        private readonly State _state;
+        private readonly int _count;
 
-        public PersistentTaskWithConstructor(State state)
+        public PersistentTask(int count)
         {
-            _state = state;
+            _count = count;
+        }
+
+        public int Count
+        {
+            get { return _count; }
+        }
+
+        public int TotalCount { get; set; }
+        
+        public int IgnorantProperty
+        {
+            get { return Count + TotalCount; }
         }
 
         public void Execute()
         {
             
         }
-
-        public object PersistentState
-        {
-            get { return _state; }
-        }
-        public Type GetRealType { get; private set; }
-    }
-
-    public class PersistentTaskWithDefaultConstructorAndProperty : IPersistentTask
-    {
-        public PersistentTaskWithDefaultConstructorAndProperty()
-        {
-        }
-
-        public void Execute() {}
-
-        public object PersistentState { get { return State; } }
-
-        public State State { get; set; }
-
-        public Type GetRealType { get; private set; }
-    }
-
-    public class NonSupportedTask : IPersistentTask
-    {
-        private State _state;
-
-        public NonSupportedTask(int id, string name)
-        {
-            _state = new State {Id = id, Name = name};
-        }
-
-        public void Execute()
-        {
-            
-        }
-
-        public object PersistentState { get { return _state; } }
-
-        public Type GetRealType { get; private set; }
     }
 }

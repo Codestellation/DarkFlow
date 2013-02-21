@@ -17,7 +17,7 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
 
         public bool HasOpinionAbout(string key, Type service)
         {
-            return typeof(IPersistentTask).IsAssignableFrom(service) && typeof(IPersistentTask) != service;
+            return typeof(ITask).IsAssignableFrom(service) && typeof(ITask) != service;
         }
 
         public IHandler SelectHandler(string key, Type service, IHandler[] handlers)
@@ -29,7 +29,7 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
 
             if (result == null)
             {
-                result = _kernel.GetHandlers(typeof (IPersistentTask)).Single(x => x.ComponentModel.Implementation == service);
+                result = _kernel.GetHandlers(typeof (ITask)).Single(x => x.ComponentModel.Implementation == service);
             }
 
             return result;

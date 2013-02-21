@@ -2,8 +2,8 @@
 {
     public interface ISerializer
     {
-        string Serialize(IPersistentTask task);
+        string Serialize(ITask task);
 
-        IPersistentTask Deserialize(string serializedEnvelope);
+        ITask Deserialize(string serializedData);
     }
 }

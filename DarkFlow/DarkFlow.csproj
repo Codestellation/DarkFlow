@@ -86,7 +86,6 @@
     <Compile Include="Execution\ITaskReleaser.cs" />
     <Compile Include="Execution\JsonSerializer.cs" />
     <Compile Include="Database\ManagedEsentDatabase.cs" />
-    <Compile Include="IPersistentTask.cs" />
     <Compile Include="IScheduler.cs" />
     <Compile Include="IExecutor.cs" />
     <Compile Include="Execution\SynchronousExecutor.cs" />

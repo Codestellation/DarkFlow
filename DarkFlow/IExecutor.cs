@@ -3,7 +3,5 @@
     public interface IExecutor
     {
         void Execute(ITask task);
-
-        void Execute(IPersistentTask task);
     }
 }

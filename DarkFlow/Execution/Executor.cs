@@ -72,11 +72,6 @@ namespace Codestellation.DarkFlow.Execution
             return result;
         }
 
-        public void Execute(IPersistentTask task)
-        {
-            Execute((ITask)task);
-        }
-
         protected override void DisposeManaged()
         {
             _dispatcher.Dispose();

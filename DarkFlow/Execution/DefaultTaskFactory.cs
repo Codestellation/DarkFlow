@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
+using Codestellation.DarkFlow.Misc;
 using NLog;
 
 namespace Codestellation.DarkFlow.Execution
@@ -17,64 +19,53 @@ namespace Codestellation.DarkFlow.Execution
             _cachedTaskTypes = new Dictionary<Type, string>();
         }
 
-        public virtual IPersistentTask Create(string taskType, object state)
+        public virtual ITask Create(TaskData taskData)
         {
-            
-            if (taskType == null)
+            Contract.Require(taskData != null, "taskData != null");
+
+            var type = Type.GetType(taskData.TaskType);
+
+            var constructor = GetTaskConstructor(type);
+
+            var arguments = new List<object>();
+            foreach (var parameterInfo in constructor.GetParameters())
             {
-                throw new ArgumentNullException("taskType");
+                arguments.Add(
+                    taskData.Properties
+                            .Single(x =>
+                                    x.Name.Equals(parameterInfo.Name, StringComparison.OrdinalIgnoreCase) &&
+                                    x.ValueType == parameterInfo.ParameterType)
+                            .Value);
+
             }
 
-            if (state == null)
+            var settableProperties = GetSettableProperties(type);
+
+            var result = (ITask) constructor.Invoke(arguments.ToArray());
+
+            foreach (var settableProperty in settableProperties)
             {
-                throw new ArgumentNullException("state");
+                var data = taskData.Properties
+                                   .Single(x => x.Name.Equals(settableProperty.Name, StringComparison.OrdinalIgnoreCase));
+
+                settableProperty.SetValue(result, data.Value, null);
             }
 
-            var type = Type.GetType(taskType);
-            
-            var stateType = state.GetType();
-
-
-            IPersistentTask result = CreateFromParametrizedConstructor(type, state, stateType);
-            if (result != null)
-            {
-                if (Logger.IsDebugEnabled)
-                {
-                    Logger.Debug("Task of type {0} created using parameterized constructor.", type);
-                }
-                return result;
-            }
-
-            var defaultConstructor = type.GetConstructor(new Type[0]);
-
-            if (defaultConstructor == null)
-            {
-                var message = string.Format("In order to use DefaultTaskFactory task of type '{0}' should have constructor with the only argument of type '{1}' or default public constructor with public settably property of type '{2}'.",
-                                            taskType, state.GetType(), state.GetType());
-                throw new InvalidOperationException(message);
-            }
-
-            result = (IPersistentTask) defaultConstructor.Invoke(new object[0]);
-
-            var stateProperty = type.GetProperties().Where(pi => pi.PropertyType == state.GetType()).FirstOrDefault(pi => pi.CanWrite);
-
-            if (stateProperty == null)
-            {
-                return result;
-            }
-
-            stateProperty.SetValue(result, state, null);
             return result;
         }
 
-        public virtual string GetRealType(IPersistentTask task)
+        public virtual TaskData GetTaskData(ITask task)
         {
             var taskType = task.GetType();
 
-            return FormatType(taskType);
+            var type = FormatType(taskType);
+
+            var properties = GetPersistedProperties(taskType, task);
+
+            return new TaskData {TaskType = type, Properties = properties};
         }
 
-        protected virtual string FormatType(Type taskType)
+        protected string FormatType(Type taskType)
         {
             string result;
             if (_cachedTaskTypes.TryGetValue(taskType, out result))
@@ -97,15 +88,61 @@ namespace Codestellation.DarkFlow.Execution
             return result;
         }
 
-        private static IPersistentTask CreateFromParametrizedConstructor(Type taskType, object state, Type stateType)
+        protected PropertyValue[] GetPersistedProperties(Type taskType, ITask task)
         {
-            var constructor = taskType.GetConstructor(new[] {stateType});
-
-            if (constructor != null)
+            var settableProperties = GetSettableProperties(taskType);
+            
+            //takes greedy constructor
+            var constructor = GetTaskConstructor(taskType);
+            
+            if (constructor == null)
             {
-                return (IPersistentTask) constructor.Invoke(new[] {state});
+                throw new InvalidOperationException(string.Format("Not found appropriate constructor for type {0}.", taskType));
             }
-            return null;
+
+            var ctorInjectableProperties = CtorInjectableProperties(taskType, constructor);
+
+
+            var persistentProperties = settableProperties.Union(ctorInjectableProperties);
+
+            var list = new List<PropertyValue>();
+            foreach (var persistentProperty in persistentProperties)
+            {
+                var value = persistentProperty.GetValue(task, null);
+                list.Add(new PropertyValue{Name = persistentProperty.Name, Value = value, ValueType = persistentProperty.PropertyType});
+            }
+            return list.ToArray();
+        }
+
+        private static IEnumerable<PropertyInfo> GetSettableProperties(Type taskType)
+        {
+            var settableProperties = taskType
+                .GetProperties()
+                .Where(x => x.CanWrite);
+            return settableProperties;
+        }
+
+        private static IEnumerable<PropertyInfo> CtorInjectableProperties(Type taskType, ConstructorInfo constructor)
+        {
+            var ctorInjectableProperties = taskType
+                .GetProperties()
+                .Where(
+                    prop =>
+                    constructor.GetParameters()
+                               .Any(
+                                   parm =>
+                                   parm.ParameterType == prop.PropertyType &&
+                                   parm.Name.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)));
+            return ctorInjectableProperties;
+        }
+
+        private static ConstructorInfo GetTaskConstructor(Type taskType)
+        {
+            var constructor = taskType
+                .GetConstructors()
+                .OrderByDescending(x => x.GetParameters().Length)
+                .SingleOrDefault();
+            return constructor;
         }
     }
 }
