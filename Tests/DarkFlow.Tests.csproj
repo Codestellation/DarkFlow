@@ -63,7 +63,7 @@
     </Compile>
     <Compile Include="Core\Bootstrap\BootstrapperTests.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Core\Execution\DefalutTaskFactoryTests.cs" />
+    <Compile Include="Core\Execution\PersisterTests.cs" />
     <Compile Include="Core\Execution\DefaultReleaserTests.cs" />
     <Compile Include="Core\Execution\ExecutorTests.cs" />
     <Compile Include="Core\Execution\TaskQueueTests.cs" />

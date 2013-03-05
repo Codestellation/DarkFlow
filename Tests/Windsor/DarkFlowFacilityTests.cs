@@ -1,4 +1,5 @@
 ﻿using Castle.Facilities.Startable;
+using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Codestellation.DarkFlow.CastleWindsor;
 using Codestellation.DarkFlow.Execution;
@@ -6,7 +7,7 @@ using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Windsor
 {
-    [TestFixture, Ignore("Not fixed yet")]
+    [TestFixture]
     public class DarkFlowFacilityTests
     {
         private WindsorContainer _windsor;
@@ -25,6 +26,7 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         public void Setup()
         {
             _windsor = new WindsorContainer();
+            _windsor.Kernel.Resolver.AddSubResolver(new CollectionResolver(_windsor.Kernel));
             _windsor.AddFacility<StartableFacility>(x => x.DeferredStart());
             _windsor.AddFacility<DarkFlowFacility>();
         }

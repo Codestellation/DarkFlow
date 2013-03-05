@@ -54,6 +54,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
                         .For<ITaskQueue, IExecutionQueue>()
                         .ImplementedBy<TaskQueue>()
                         .Named(settings.Name)
+                        .DependsOn(new {settings})
                         .LifestyleSingleton()
                     );
             }
@@ -61,7 +62,6 @@ namespace Codestellation.DarkFlow.CastleWindsor
             Kernel.Register(Component
                 .For<IExecutor>()
                 .ImplementedBy<Executor>()
-                .DependsOn(new { queues = _queues })
                 .LifestyleSingleton(),
                 
                 Component
@@ -72,7 +72,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
                 
                 Component
                 .For<TaskDispatcher>()
-                .DependsOn(new { maxConcurrency, executionQueues = _queues.ToArray()})
+                .DependsOn(new { maxConcurrency})
                 .LifestyleSingleton());
         }
 
