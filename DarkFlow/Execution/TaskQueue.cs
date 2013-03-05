@@ -1,68 +1,77 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Execution
 {
-    public delegate bool CanEnqueue(ITask task);
-    
     public class TaskQueue : ITaskQueue, IExecutionQueue
     {
-        private readonly byte _priority;
+        private readonly IPersister _persister;
         private readonly ConcurrentQueue<ExecutionEnvelope> _queue;
-        private readonly byte _maxConcurrency;
-        private readonly string _name;
+
+        private readonly TaskQueueSettings _settings;
         private int _currentConcurrency;
 
-        public TaskQueue(TaskQueueSettings taskQueueSettings)
+        public TaskQueue(TaskQueueSettings settings, IPersister persister)
         {
-            if (string.IsNullOrWhiteSpace(taskQueueSettings.Name))
+            if (settings == null)
             {
-                throw new ArgumentException(string.Format("Expected not null not empty, but was '{0}'", taskQueueSettings.Name ?? "<null>"),"name");
+                throw new ArgumentNullException("settings");
             }
+
+            settings.Validate();
+
+            _settings = settings;
+            _persister = persister;
             
-            _priority = taskQueueSettings.Priority;
-            _maxConcurrency = taskQueueSettings.MaxConcurrency;
-            _name = taskQueueSettings.Name;
             _queue = new ConcurrentQueue<ExecutionEnvelope>();
         }
 
         public string Name
         {
-            get { return _name; }
+            get { return _settings.Name; }
         }
 
         public void Enqueue(ExecutionEnvelope envelope)
         {
             Contract.Require(envelope != null, "envelope != null");
             Contract.Require(TaskCountChanged != null, "TaskCountChanged != null");
-            
+
+            _persister.Persist(new Identifier(envelope.Id, _settings.Region), envelope.Task);
+
             //TODO Consider reusing wraps to decrease workload on GC. 
-            envelope.AfterExecute += () => Interlocked.Decrement(ref _currentConcurrency);
+            envelope.AfterExecute += AfterExecute;
             
             _queue.Enqueue(envelope);
 
             TaskCountChanged(1);
         }
 
+        private void AfterExecute(ExecutionEnvelope envelope)
+        {
+            Interlocked.Decrement(ref _currentConcurrency);
+            _persister.Delete(new Identifier(envelope.Id, _settings.Region));
+        }
+
         public event Action<int> TaskCountChanged;
 
         public byte Priority
         {
-            get { return _priority; }
+            get { return _settings.Priority; }
         }
 
         public byte MaxConcurrency
         {
-            get { return _maxConcurrency; }
+            get { return _settings.Priority; }
         }
 
         public ExecutionEnvelope Dequeue()
         {
             var totalReaders = Interlocked.Increment(ref _currentConcurrency);
 
-            if (totalReaders > _maxConcurrency)
+            if (totalReaders > _settings.MaxConcurrency)
             {
                 //Concurrency level reached. Do not return envelope from queue.
                 Interlocked.Decrement(ref _currentConcurrency);

@@ -10,7 +10,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Invoke_delegate_when_task_enqueued()
         {
-            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1));
+            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1), NullPersister.Instance);
 
             int enqueued = int.MinValue;
             queue.TaskCountChanged += arg => enqueued = arg;
@@ -26,7 +26,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             int? dequeued = null;
 
-            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1));
+            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1), NullPersister.Instance);
 
             queue.TaskCountChanged += x => dequeued = x;
 
@@ -40,7 +40,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void Returns_enqueued_task_if_added()
         {
             int dequeed = int.MinValue;
-            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1));
+            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1), NullPersister.Instance);
 
             queue.TaskCountChanged += delegate { };
             var expected = new ExecutionEnvelope(new LongRunningTask(false), DefaultReleaser.Instance);
@@ -54,7 +54,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Do_not_return_new_task_until_previous_completed()
         {
-            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1));
+            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1), NullPersister.Instance);
             queue.TaskCountChanged += delegate { };
             var task1 = new LongRunningTask(false);
             var task2 = new LongRunningTask(false);
@@ -69,7 +69,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void When_task_completed_allow_to_take_next_task()
         {
-            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1));
+            var queue = new TaskQueue(new TaskQueueSettings("test", 1, 1), NullPersister.Instance);
             queue.TaskCountChanged += delegate { };
 
             var task1 = new LongRunningTask(false);

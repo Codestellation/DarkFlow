@@ -17,7 +17,7 @@ namespace Codestellation.DarkFlow.Database
             {
                 throw new ArgumentNullException("name", "Region name should be not null not empty string.");
             }
-            _name = name;
+            _name = string.Intern(name);
         }
 
         public string Name

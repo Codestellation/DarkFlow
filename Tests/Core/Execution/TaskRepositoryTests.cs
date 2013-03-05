@@ -1,43 +1,29 @@
 ﻿using System;
+using Castle.MicroKernel;
 
 namespace Codestellation.DarkFlow.Tests.Core.Execution
 {
-    public class PersistedTask : ITask
+    public class PersistentTaskWithDependency : PersistentTask
     {
-        private readonly State _state;
+        private readonly IKernel _kernel;
 
-        public PersistedTask(State state)
+        protected PersistentTaskWithDependency() : base(0)
         {
-            _state = state;
+            
         }
 
-        public void Execute()
+        public PersistentTaskWithDependency(int count, IKernel kernel) : base(count)
         {
-            Console.WriteLine(PersistentState);
+            if (kernel == null)
+            {
+                throw new ArgumentNullException("kernel");
+            }
+            _kernel = kernel;
         }
 
-        public object PersistentState
+        public IKernel Kernel
         {
-            get { return State; }
-        }
-
-        public State State
-        {
-            get { return _state; }
-        }
-    }
-    
-    public class State
-    {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            var other = (State) obj;
-
-            return other.Id.Equals(Id) && other.Name.Equals(Name);
+            get { return _kernel; }
         }
     }
 }

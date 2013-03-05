@@ -10,10 +10,9 @@ namespace Codestellation.DarkFlow.Execution
         private readonly ITaskRouter _router;
         private readonly TaskDispatcher _dispatcher;
         private readonly ITaskReleaser _releaser;
+        private readonly Dictionary<string, ITaskQueue> _queues;
 
-        private readonly  Dictionary<string, ITaskQueue> _queues;
-
-        public Executor(ITaskRouter router, TaskDispatcher dispatcher, ITaskReleaser releaser , IEnumerable<ITaskQueue> queues)
+        public Executor(ITaskRouter router, TaskDispatcher dispatcher, ITaskReleaser releaser, IEnumerable<ITaskQueue> queues)
         {
             if (queues == null)
             {

@@ -66,8 +66,10 @@
     <Compile Include="Execution\ExecutionEvenlope.cs" />
     <Compile Include="Execution\IExecutionQueue.cs" />
     <Compile Include="Execution\IMatcher.cs" />
+    <Compile Include="Execution\IPersister.cs" />
     <Compile Include="Execution\ITaskRouter.cs" />
     <Compile Include="Execution\NamespaceMatcher.cs" />
+    <Compile Include="Execution\NullPersister.cs" />
     <Compile Include="Execution\TaskQueue.cs" />
     <Compile Include="Execution\Executor.cs" />
     <Compile Include="Execution\ITaskQueue.cs" />
@@ -78,13 +80,10 @@
     <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="Schedules\Every.cs" />
     <Compile Include="Execution\DefaultReleaser.cs" />
-    <Compile Include="Execution\DefaultTaskFactory.cs" />
     <Compile Include="Database\InMemoryDatabase.cs" />
-    <Compile Include="Execution\ISerializer.cs" />
     <Compile Include="Database\IDatabase.cs" />
-    <Compile Include="Execution\ITaskFactory.cs" />
     <Compile Include="Execution\ITaskReleaser.cs" />
-    <Compile Include="Execution\JsonSerializer.cs" />
+    <Compile Include="Execution\Persister.cs" />
     <Compile Include="Database\ManagedEsentDatabase.cs" />
     <Compile Include="IScheduler.cs" />
     <Compile Include="IExecutor.cs" />

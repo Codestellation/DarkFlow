@@ -17,8 +17,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
     public class DarkFlowFacility : AbstractFacility
     {
         private ComponentRegistration<IDatabase> _databaseRegistration;
-        private ComponentRegistration<IExecutor> _executorRegistration;
-        private List<TaskQueue> _queues;
+        private List<TaskQueueSettings> _queues;
         private List<IMatcher> _matchers;
 
         public string PersistedTaskFolder { get; set; }
@@ -27,7 +26,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
         protected override void Init()
         {
-            _queues = new List<TaskQueue>();
+            _queues = new List<TaskQueueSettings>();
             _matchers = new List<IMatcher>();
             Kernel.AddHandlerSelector(new TaskHandlerSelector(Kernel));
 
@@ -45,7 +44,18 @@ namespace Codestellation.DarkFlow.CastleWindsor
             if (_queues.Count == 0)
             {
                 var settings = new TaskQueueSettings("default", 1, 1);
-                _queues.Add(new TaskQueue(settings));
+                _queues.Add(settings);
+            }
+            
+            foreach (var settings in _queues)
+            {
+                Kernel.Register(
+                    Component
+                        .For<ITaskQueue, IExecutionQueue>()
+                        .ImplementedBy<TaskQueue>()
+                        .Named(settings.Name)
+                        .LifestyleSingleton()
+                    );
             }
 
             Kernel.Register(Component
@@ -78,13 +88,8 @@ namespace Codestellation.DarkFlow.CastleWindsor
                     .LifestyleSingleton(),
 
                 Component
-                    .For<ITaskFactory>()
-                    .ImplementedBy<WindsorTaskFactory>()
-                    .LifestyleSingleton(),
-
-                Component
-                    .For<ISerializer>()
-                    .ImplementedBy<JsonSerializer>()
+                    .For<IPersister>()
+                    .ImplementedBy<Persister>()
                     .LifestyleSingleton(),
 
                 _databaseRegistration ?? Component
@@ -118,7 +123,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
         public DarkFlowFacility WithQueue(TaskQueueSettings settings)
         {
-            _queues.Add(new TaskQueue(settings));
+            _queues.Add(settings);
             return this;
         }
 
@@ -129,15 +134,6 @@ namespace Codestellation.DarkFlow.CastleWindsor
         public DarkFlowFacility UsingCustomPersistence(ComponentRegistration<IDatabase> databaseRegistration)
         {
             _databaseRegistration = databaseRegistration;
-            return this;
-        }
-
-        public DarkFlowFacility ExecuteSynchronously()
-        {
-            _executorRegistration = Component
-                .For<IExecutor>()
-                .ImplementedBy<SynchronousExecutor>()
-                .LifestyleSingleton();
             return this;
         }
     }
