@@ -58,6 +58,7 @@
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
     <Compile Include="Impl\TaskHandlerSelector.cs" />
+    <Compile Include="Impl\WindsorPersister.cs" />
     <Compile Include="Impl\WindsorReleaser.cs" />
     <Compile Include="DarkFlowFacility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

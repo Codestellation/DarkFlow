@@ -1,7 +1,10 @@
-﻿using Castle.DynamicProxy;
+﻿using System;
+using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Codestellation.DarkFlow.CastleWindsor;
+using Codestellation.DarkFlow.Database;
+using Codestellation.DarkFlow.Execution;
 using Codestellation.DarkFlow.Tests.Core.Execution;
 using NUnit.Framework;
 
@@ -9,9 +12,11 @@ namespace Codestellation.DarkFlow.Tests.Windsor
 {
     //TODO: Remove duplication
     [TestFixture]
-    public class WindsorTaskFactoryTests
+    public class WindsorPersisterTests
     {
         private WindsorContainer _windsor;
+        private IPersister _persister;
+        private Identifier _id;
 
         [SetUp]
         public void Setup()
@@ -24,6 +29,8 @@ namespace Codestellation.DarkFlow.Tests.Windsor
                     .For<TaskInterceptor>()
                     .LifestyleTransient());
 
+            _persister = _windsor.Resolve<IPersister>();
+            _id = new Identifier(Guid.NewGuid(), new Region("test"));
         }
 
         [TearDown]
@@ -36,16 +43,6 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         {
             _windsor.Register(Component
                                   .For<PersistentTaskWithDependency>()
-                                  .Interceptors<TaskInterceptor>()
-                                  .LifestyleTransient());
-        }
-
-        private void RegisterTaskAsIPersistentTask()
-        {
-            _windsor.Register(Component
-                                  .For<ITask>()
-                                  .ImplementedBy<PersistentTaskWithDependency>()
-                                  .Interceptors<TaskInterceptor>()
                                   .LifestyleTransient());
         }
 
@@ -54,27 +51,13 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         {
             RegisterTaskAsSelf();
             
-            var task = _windsor.Resolve<PersistentTaskWithDependency>(new{count = 1});
+            var task = _windsor.Resolve<PersistentTaskWithDependency>();
 
-            //var serializedTask = _serialize.Serialize(task);
+            _persister.Persist(_id, task);
 
-            //var desialized = _serialize.Deserialize(serializedTask);
+            var loaded = _persister.Get(_id);
 
-            //Assert.That(desialized, Is.InstanceOf<IProxyTargetAccessor>());
-        }
-
-        [Test]
-        public void Can_persist_and_restore_interface_intercepted_tasks()
-        {
-            RegisterTaskAsIPersistentTask();
-
-            var task = _windsor.Resolve<ITask>(new { count = 1 });
-
-            //var serializedTask = _serialize.Serialize(task);
-
-            //var desialized = _serialize.Deserialize(serializedTask);
-
-            //Assert.That(desialized, Is.InstanceOf<IProxyTargetAccessor>());
+            Assert.That(loaded, Is.InstanceOf<PersistentTaskWithDependency>());
         }
 
         [Test]
@@ -82,11 +65,11 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         {
             var task = new PersistentTask(1);
 
-            //var serializedTask = _serialize.Serialize(task);
+            _persister.Persist(_id, task);
 
-            //var desialized = _serialize.Deserialize(serializedTask);
+            var loaded = _persister.Get(_id);
 
-            //Assert.That(desialized, Is.InstanceOf<PersistentTask>());
+            Assert.That(loaded, Is.InstanceOf<PersistentTask>());
         }
 
     }

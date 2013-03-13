@@ -33,6 +33,15 @@ namespace Codestellation.DarkFlow.Execution
                 };
         }
 
+        public ITask Get(Identifier identifier)
+        {
+            var serialized = _database.Get(identifier);
+
+            var result =  (ITask)JsonConvert.DeserializeObject(serialized, _settings);
+
+            return result;
+        }
+
         public virtual void Persist(Identifier identifier, ITask task)
         {
             Contract.Require(task != null, "task != null");

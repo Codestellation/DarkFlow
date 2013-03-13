@@ -5,6 +5,8 @@ namespace Codestellation.DarkFlow.Execution
 {
     public interface IPersister
     {
+        ITask Get(Identifier identifier);
+
         void Persist(Identifier identifier, ITask task);
 
         void Delete(Identifier identifier);

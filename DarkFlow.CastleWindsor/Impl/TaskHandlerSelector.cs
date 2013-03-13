@@ -29,7 +29,7 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
 
             if (result == null)
             {
-                result = _kernel.GetHandlers(typeof (ITask)).Single(x => x.ComponentModel.Implementation == service);
+                result = _kernel.GetHandlers(typeof (ITask)).SingleOrDefault(x => x.ComponentModel.Implementation == service);
             }
 
             return result;

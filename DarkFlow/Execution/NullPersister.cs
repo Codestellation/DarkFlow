@@ -14,6 +14,11 @@ namespace Codestellation.DarkFlow.Execution
             _empty = new KeyValuePair<Identifier, ITask>[0];
         }
 
+        public ITask Get(Identifier identifier)
+        {
+            return null;
+        }
+
         public void Persist(Identifier identifier, ITask task)
         {
             

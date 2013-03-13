@@ -83,7 +83,7 @@
     <Compile Include="Utils.cs" />
     <Compile Include="Windsor\DarkFlowFacilityTests.cs" />
     <Compile Include="Windsor\WindsorReleaserTests.cs" />
-    <Compile Include="Windsor\WindsorTaskFactoryTests.cs" />
+    <Compile Include="Windsor\WindsorPersisterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NLog.config">

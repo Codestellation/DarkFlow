@@ -3,16 +3,11 @@ using Castle.MicroKernel;
 
 namespace Codestellation.DarkFlow.Tests.Core.Execution
 {
-    public class PersistentTaskWithDependency : PersistentTask
+    public class PersistentTaskWithDependency : ITask
     {
         private readonly IKernel _kernel;
 
-        protected PersistentTaskWithDependency() : base(0)
-        {
-            
-        }
-
-        public PersistentTaskWithDependency(int count, IKernel kernel) : base(count)
+        public PersistentTaskWithDependency(IKernel kernel) 
         {
             if (kernel == null)
             {
@@ -21,9 +16,11 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             _kernel = kernel;
         }
 
-        public IKernel Kernel
+        public int Count { get; set; }
+        
+        public void Execute()
         {
-            get { return _kernel; }
+            
         }
     }
 }

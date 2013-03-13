@@ -89,7 +89,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
                 Component
                     .For<IPersister>()
-                    .ImplementedBy<Persister>()
+                    .ImplementedBy<WindsorPersister>()
                     .LifestyleSingleton(),
 
                 _databaseRegistration ?? Component
@@ -117,7 +117,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
         {
             _databaseRegistration = Component.For<IDatabase>()
                                              .ImplementedBy<InMemoryDatabase>()
-                                             .LifestyleBoundTo<IExecutor>();
+                                             .LifestyleSingleton();
             return this;
         }
 
