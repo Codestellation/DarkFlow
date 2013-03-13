@@ -1,4 +1,4 @@
-﻿namespace Codestellation.DarkFlow.Execution
+﻿namespace Codestellation.DarkFlow.Matchers
 {
     public interface IMatcher
     {

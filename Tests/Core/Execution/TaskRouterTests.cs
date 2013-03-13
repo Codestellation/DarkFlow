@@ -1,5 +1,6 @@
 ﻿using System;
 using Codestellation.DarkFlow.Execution;
+using Codestellation.DarkFlow.Matchers;
 using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Core.Execution

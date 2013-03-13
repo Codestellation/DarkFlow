@@ -6,6 +6,7 @@ using Castle.MicroKernel.Registration;
 using Codestellation.DarkFlow.CastleWindsor.Impl;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
+using Codestellation.DarkFlow.Matchers;
 using Codestellation.DarkFlow.Misc;
 using Codestellation.DarkFlow.Scheduling;
 

@@ -1,6 +1,6 @@
 ﻿using Codestellation.DarkFlow.Misc;
 
-namespace Codestellation.DarkFlow.Execution
+namespace Codestellation.DarkFlow.Matchers
 {
     public class NamespaceMatcher : IMatcher
     {

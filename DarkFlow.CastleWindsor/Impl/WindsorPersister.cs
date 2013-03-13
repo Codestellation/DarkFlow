@@ -34,7 +34,7 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
             }
 
             _database = database;
-            var converter = new Converter(kernel);
+            var converter = new WindsorConverter(kernel);
 
             _settings = new JsonSerializerSettings
                 {
@@ -106,53 +106,6 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
         {
             var results = new KeyValuePair<Identifier, ITask>(input.Key, Deserialize(input.Value));
             return results;
-        }
-    }
-
-
-    class Converter : JsonConverter
-    {
-        private readonly IKernel _kernel;
-
-        public Converter(IKernel kernel)
-        {
-            if (kernel == null)
-            {
-                throw new ArgumentNullException("kernel");
-            }
-            _kernel = kernel;
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotSupportedException("CustomCreationConverter should only be used while deserializing.");
-        }
-
-        
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-
-            var value = _kernel.Resolve(objectType);
-
-            serializer.Populate(reader, value);
-            return value;
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType.GetInterface(typeof(ITask).Name) != null && _kernel.HasComponent(objectType);
-        }
-
-        public override bool CanRead
-        {
-            get { return true; }
-        }
-
-        public override bool CanWrite
-        {
-            get { return false; }
         }
     }
 }
