@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,27 +14,33 @@ namespace Codestellation.DarkFlow.Execution
         private int _taskPending;
         private int _currentConcurrency;
         private readonly ExecutionInfo[] _executionInfos;
-        private readonly object _latch;
 
         private class ExecutionInfo
         {
+            //TODO I guess more sophisticated sync could be involved.
             public volatile Task TplTask;
-
             public volatile ExecutionEnvelope CurrentTask;
+            public volatile int OwnedCellIndex;
 
-            public bool Free
+            public ExecutionInfo()
             {
-                get { return TplTask == null; }
+                OwnedCellIndex = -1;
             }
 
-            public bool OwnedByCurrentTask
+            public void WaitTaskFinished()
             {
-                get
+                var tplTask = TplTask;
+
+                if (tplTask != null)
                 {
-                    var tplTask = TplTask;
-                    if (tplTask == null) return false;
-                    return tplTask.Id == Task.CurrentId;
+                    TplTask.Wait();
                 }
+            }
+
+            public void Release()
+            {
+                OwnedCellIndex = -1;
+                CurrentTask = null;
             }
         }
 
@@ -59,12 +66,7 @@ namespace Codestellation.DarkFlow.Execution
             _maxConcurrency = Math.Min(maxConcurrency, queueTotalConcurrency);
             _executionQueues = executionQueues.OrderByDescending(x => x.Priority).ToArray();
 
-            _executionInfos =
-                Enumerable.Range(0, _maxConcurrency)
-                .Select(x => new ExecutionInfo())
-                .ToArray();
-
-            _latch = new object();
+            _executionInfos = new ExecutionInfo[_maxConcurrency];
 
             foreach (var executionQueue in executionQueues)
             {
@@ -90,15 +92,21 @@ namespace Codestellation.DarkFlow.Execution
                 
             if (currentConcurrency <= _maxConcurrency)
             {
-                var task = new Task(PerformTasks);
-                
-                //TODO Possible it better to do using Interlocked.Exchange.
+                var executionInfo = new ExecutionInfo();
+                var task = new Task(PerformTasks, executionInfo);
 
-                Monitor.Enter(_latch);
-                var executionInfo = _executionInfos.First(x => x.Free);
-                executionInfo.TplTask = task;
-                Monitor.Exit(_latch);
+                for (int i = 0; i < _executionInfos.Length; i++)
+                {
+                    var originalValue =  Interlocked.CompareExchange(ref _executionInfos[0], executionInfo, null);
+                    var cellAlreadyOwned = originalValue != null;
 
+                    if (cellAlreadyOwned) continue;
+                    
+                    executionInfo.OwnedCellIndex = i;
+                    executionInfo.TplTask = task;
+                    
+                    break;
+                }
                 task.Start();
             }
             else
@@ -107,12 +115,17 @@ namespace Codestellation.DarkFlow.Execution
             }
         }
 
-        private void PerformTasks()
+        private void PerformTasks(object state)
         {
-            var executionInfo = _executionInfos.Single(x => x.OwnedByCurrentTask);
+            var executionInfo = (ExecutionInfo) state;
 
             while (true)
             {
+                if (DisposeInProgress || Disposed)
+                {
+                    break;
+                }
+                
                 var envelope = TakeNextTask();
                 
                 executionInfo.CurrentTask = envelope;
@@ -123,16 +136,15 @@ namespace Codestellation.DarkFlow.Execution
                 }
 
                 envelope.ExecuteTask();
-
-                if (DisposeInProgress || Disposed)
-                {
-                    break;
-                }
-
             }
 
-            executionInfo.CurrentTask = null;
-            executionInfo.TplTask = null;
+            //ExecutionInfo.Release() drops the index. So it preserved.
+            var index = executionInfo.OwnedCellIndex;
+
+            executionInfo.Release();
+
+            _executionQueues[index] = null;
+             
 
             Interlocked.Decrement(ref _currentConcurrency);
         }
@@ -154,9 +166,16 @@ namespace Codestellation.DarkFlow.Execution
         }
         protected override void DisposeManaged()
         {
-            foreach (var info in _executionInfos.Where(info => !info.Free))
+            for (int i = 0; i < _executionInfos.Length; i++)
             {
-                info.TplTask.Wait();
+                var executionInfo = _executionInfos[i];
+
+                Thread.MemoryBarrier();
+                
+                if (executionInfo != null)
+                {
+                    executionInfo.WaitTaskFinished(); 
+                }
             }
         }
     }
