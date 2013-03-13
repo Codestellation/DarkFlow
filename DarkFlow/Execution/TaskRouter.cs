@@ -9,10 +9,12 @@ namespace Codestellation.DarkFlow.Execution
     public class TaskRouter : ITaskRouter
     {
         private readonly IEnumerable<IMatcher> _matchers;
+        private readonly Dictionary<Type, string> _matchedCache;
 
         public TaskRouter(IEnumerable<IMatcher> matchers)
         {
             _matchers = matchers;
+            _matchedCache = new Dictionary<Type, string>();
             Contract.Require(matchers != null, "matchers != null");
         }
 
@@ -22,6 +24,15 @@ namespace Codestellation.DarkFlow.Execution
 
             //TODO: Caching required. 
 
+            var type = task.GetType();
+
+            var result = _matchedCache.GetOrAddThreadSafe(type, () => InternalResolveQueueFor(task));
+
+            return result;
+        }
+
+        private string InternalResolveQueueFor(ITask task)
+        {
             var matches = _matchers.Where(x => x.Match(task));
 
             if (matches.Count() > 1)
