@@ -10,7 +10,6 @@ namespace Codestellation.DarkFlow.Matchers
         private readonly string _queueName;
         private readonly Dictionary<Type, bool> _matchedCache;
         public const string All = "*";
-        
 
         public NamespaceMatcher(string @namespace, string queueName)
         {
