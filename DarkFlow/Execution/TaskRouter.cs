@@ -6,16 +6,16 @@ using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Execution
 {
+    
+    //TODO This class should take care of pushing tasks to queues, or die otherwise.
     public class TaskRouter : ITaskRouter
     {
-        private readonly IEnumerable<IMatcher> _matchers;
-        private readonly Dictionary<Type, string> _matchedCache;
+        private readonly IMatcher _matcher;
 
-        public TaskRouter(IEnumerable<IMatcher> matchers)
+        public TaskRouter(IMatcher matcher)
         {
-            _matchers = matchers;
-            _matchedCache = new Dictionary<Type, string>();
-            Contract.Require(matchers != null, "matchers != null");
+            Contract.Require(matcher != null, "matcher != null");
+            _matcher = matcher;
         }
 
         public string ResolveQueueFor(ITask task)
@@ -24,28 +24,14 @@ namespace Codestellation.DarkFlow.Execution
 
             //TODO: Caching required. 
 
-            var type = task.GetType();
+            var result = _matcher.TryMatch(task);
 
-            var result = _matchedCache.GetOrAddThreadSafe(type, () => InternalResolveQueueFor(task));
-
-            return result;
-        }
-
-        private string InternalResolveQueueFor(ITask task)
-        {
-            var matches = _matchers.Where(x => x.Match(task));
-
-            if (matches.Count() > 1)
+            if (result)
             {
-                throw new InvalidOperationException(string.Format("Task {0} matches more than one queue.", task));
+                return result.Value;
             }
 
-            if (!matches.Any())
-            {
-                throw new InvalidOperationException(string.Format("Task {0} does not match any queue", task));
-            }
-
-            return matches.Single().QueueName;
+            throw new InvalidOperationException(string.Format("Task {0} does not match any queue", task));
         }
     }
 }

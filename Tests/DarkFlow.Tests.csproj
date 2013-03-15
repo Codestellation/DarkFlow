@@ -69,6 +69,9 @@
     <Compile Include="Core\Execution\TaskQueueTests.cs" />
     <Compile Include="Core\Execution\TaskDispatcherTests.cs" />
     <Compile Include="Core\Execution\TaskRouterTests.cs" />
+    <Compile Include="Core\Matchers\AggregateMatcherTests.cs" />
+    <Compile Include="Core\Matchers\AttributeMatcherTests.cs" />
+    <Compile Include="Core\Matchers\FuncMatcherTests.cs" />
     <Compile Include="Core\Matchers\NamespaceMatcherTests.cs" />
     <Compile Include="DisposableTask.cs" />
     <Compile Include="Core\Execution\DatabaseTests.cs" />

@@ -53,6 +53,8 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
     public class PersistentTask : ITask
     {
+        public static readonly PersistentTask Instance = new PersistentTask(10);
+        
         private readonly int _count;
         private int _count2;
 

@@ -11,7 +11,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Returns_queue_name_for_matched_tasks()
         {
-            var taskRouter = new TaskRouter(new[] {new NamespaceMatcher("Codestellation.DarkFlow.Tests", "OrderedQueue")});
+            var taskRouter = new TaskRouter(new NamespaceMatcher("OrderedQueue", "Codestellation.DarkFlow.Tests"));
 
             var actualQueue = taskRouter.ResolveQueueFor(new LongRunningTask(true));
 
@@ -19,20 +19,9 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         }
 
         [Test]
-        public void Throws_if_more_than_one_matches()
-        {
-            var router = new TaskRouter(new[]
-                                            {
-                                                new NamespaceMatcher("Codestellation.DarkFlow.Tests", "OrderedQueue"),
-                                                new NamespaceMatcher("Codestellation.DarkFlow.Tests", "OrderedQueue")
-                                            });
-            Assert.Throws<InvalidOperationException>(delegate { router.ResolveQueueFor(new LongRunningTask(false)); });
-        }
-
-        [Test]
         public void Throws_if_no_one_matches()
         {
-            var router = new TaskRouter(new[] { new NamespaceMatcher("Codestellation.DarkFlow.Absent", "OrderedQueue")});
+            var router = new TaskRouter(new NamespaceMatcher("OrderedQueue", "Codestellation.DarkFlow.Absent"));
 
             Assert.Throws<InvalidOperationException>(delegate { router.ResolveQueueFor(new LongRunningTask(false)); });
         }

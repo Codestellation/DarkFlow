@@ -6,38 +6,43 @@ namespace Codestellation.DarkFlow.Matchers
 {
     public class NamespaceMatcher : IMatcher
     {
-        private readonly string _ns;
-        private readonly string _queueName;
-        private readonly Dictionary<Type, bool> _matchedCache;
-        public const string All = "*";
+        public const string AnyWildCard = "*";
 
-        public NamespaceMatcher(string @namespace, string queueName)
+        private readonly string _nameSpace;
+        private readonly Dictionary<Type, MatchResult> _cache;
+        private readonly MatchResult _matchResult;
+
+        public NamespaceMatcher(string queueName, string nameSpace) 
         {
-            Contract.Require(!string.IsNullOrWhiteSpace(@namespace), "!string.IsNullOrWhiteSpace(@namespace)");
-            Contract.Require(!string.IsNullOrWhiteSpace(queueName), "!string.IsNullOrWhiteSpace(queueName)");
-            
-            _ns = @namespace.Replace(All, string.Empty);
-            _queueName = queueName;
-            _matchedCache = new Dictionary<Type, bool>();
+            if (string.IsNullOrWhiteSpace(queueName))
+            {
+                throw new ArgumentException("Should be not empty not null string.", "queueName");
+            }
+
+            if (string.IsNullOrWhiteSpace(nameSpace))
+            {
+                throw new ArgumentException("Should be not empty not null string.", "queueName");
+            }
+
+            _nameSpace = nameSpace.Replace(AnyWildCard, string.Empty);
+            _cache = new Dictionary<Type, MatchResult>();
+            _matchResult = MatchResult.Matches(queueName);
         }
 
-        public string QueueName
-        {
-            get { return _queueName; }
-        }
-
-        public bool Match(ITask task)
+        public MatchResult TryMatch(ITask task)
         {
             Contract.Require(task != null, "task != null");
-
+            
             var type = task.GetType();
-            var result = _matchedCache.GetOrAddThreadSafe(type, () => Match(type));
-            return result;
+
+            return _cache.GetOrAddThreadSafe(type, ProbeNamespace);
         }
 
-        private bool Match(Type type)
+        private MatchResult ProbeNamespace(Type type)
         {
-            return type.FullName.StartsWith(_ns) || _ns == All;
+            var result = type.FullName.StartsWith(_nameSpace) || _nameSpace == AnyWildCard;
+            
+            return result ? _matchResult : MatchResult.NonMatched;
         }
     }
 }
