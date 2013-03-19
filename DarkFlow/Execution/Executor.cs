@@ -1,24 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Execution
 {
     public class Executor : Disposable, IExecutor
     {
-        private readonly ITaskRouter _router;
         private readonly TaskDispatcher _dispatcher;
         private readonly ITaskReleaser _releaser;
-        private readonly Dictionary<string, ITaskQueue> _queues;
+        private readonly ITaskRouter _router;
 
-        public Executor(ITaskRouter router, TaskDispatcher dispatcher, ITaskReleaser releaser, IEnumerable<ITaskQueue> queues)
+        public Executor(ITaskRouter router, TaskDispatcher dispatcher, ITaskReleaser releaser)
         {
-            if (queues == null)
-            {
-                throw new ArgumentNullException("queues");
-            }
-
             if (router == null)
             {
                 throw new ArgumentNullException("router");
@@ -37,7 +29,6 @@ namespace Codestellation.DarkFlow.Execution
             _router = router;
             _dispatcher = dispatcher;
             _releaser = releaser;
-            _queues = queues.ToDictionary(x => x.Name, x => x);
         }
 
         public void Execute(ITask task)
@@ -51,24 +42,7 @@ namespace Codestellation.DarkFlow.Execution
 
             var envelope = new ExecutionEnvelope(task, _releaser);
 
-            var queue = FindQueue(envelope);
-
-            if (queue == null)
-            {
-                Logger.Warn("Not found queue to dispatch task '{0}'", task);
-            }
-            else
-            {
-                queue.Enqueue(envelope);
-            }
-        }
-
-        private ITaskQueue FindQueue(ExecutionEnvelope envelope)
-        {
-            //TODO: Cache this later
-            var name = _router.ResolveQueueFor(envelope.Task);
-            var result = _queues[name];
-            return result;
+            _router.Route(envelope);
         }
 
         protected override void DisposeManaged()

@@ -67,6 +67,11 @@ namespace Codestellation.DarkFlow.Execution
             get { return _settings.Priority; }
         }
 
+        public int Count
+        {
+            get { return _queue.Count; }
+        }
+
         public ExecutionEnvelope Dequeue()
         {
             var totalReaders = Interlocked.Increment(ref _currentConcurrency);

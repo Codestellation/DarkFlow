@@ -2,6 +2,6 @@
 {
     public interface ITaskRouter
     {
-        string ResolveQueueFor(ITask task);
+        void Route(ExecutionEnvelope task);
     }
 }

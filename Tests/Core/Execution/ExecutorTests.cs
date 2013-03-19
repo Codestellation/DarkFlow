@@ -13,9 +13,10 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             var taskQueueSettings = new TaskQueueSettings("test", 3, 1);
             var taskQueue = new TaskQueue(taskQueueSettings, NullPersister.Instance);
-            var taskRouter = new TaskRouter(new NamespaceMatcher(taskQueue.Name, NamespaceMatcher.AnyWildCard));
+            var matcher = new NamespaceMatcher(taskQueue.Name, NamespaceMatcher.AnyWildCard);
+            var taskRouter = new TaskRouter(matcher, new ITaskQueue[]{taskQueue });
             var dispatcher = new TaskDispatcher(2, new IExecutionQueue[] {taskQueue});
-            var executor = new Executor(taskRouter, dispatcher, new DefaultReleaser(), new ITaskQueue[]{taskQueue });
+            var executor = new Executor(taskRouter, dispatcher, new DefaultReleaser());
 
             var tasks = Enumerable.Range(1, 2).Select(x => new LongRunningTask(true) {Name = "Task" + x}).ToArray();
 
