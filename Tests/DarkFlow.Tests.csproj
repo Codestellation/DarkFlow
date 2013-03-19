@@ -54,6 +54,7 @@
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -63,6 +64,7 @@
     </Compile>
     <Compile Include="Core\Bootstrap\BootstrapperTests.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Core\Config\ConfigurationTests.cs" />
     <Compile Include="Core\Execution\PersisterTests.cs" />
     <Compile Include="Core\Execution\DefaultReleaserTests.cs" />
     <Compile Include="Core\Execution\ExecutorTests.cs" />
@@ -94,6 +96,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <None Include="App.config" />
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>

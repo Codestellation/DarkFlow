@@ -21,7 +21,7 @@ namespace Codestellation.DarkFlow.Matchers
 
             if (string.IsNullOrWhiteSpace(nameSpace))
             {
-                throw new ArgumentException("Should be not empty not null string.", "queueName");
+                throw new ArgumentException("Should be not empty not null string.", "nameSpace");
             }
 
             _nameSpace = nameSpace.Replace(AnyWildCard, string.Empty);
