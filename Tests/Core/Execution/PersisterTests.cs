@@ -2,6 +2,7 @@
 using System.Linq;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
+using Codestellation.DarkFlow.Matchers;
 using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Core.Execution
@@ -17,7 +18,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         public void SetUp()
         {
             _id = new Identifier(Guid.NewGuid(), new Region("test"));
-            _persister = new Persister(new InMemoryDatabase());
+            _persister = new Persister(new InMemoryDatabase(), new FuncMatcher("no-matter" ,x => true));
             _original = new PersistentTask(1) { TotalCount = 2 };
         }
 

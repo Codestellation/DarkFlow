@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization.Formatters;
 using Codestellation.DarkFlow.Database;
+using Codestellation.DarkFlow.Matchers;
 using Codestellation.DarkFlow.Misc;
 using NLog;
 using Newtonsoft.Json;
@@ -12,18 +13,26 @@ namespace Codestellation.DarkFlow.Execution
     public class Persister : IPersister
     {
         private readonly IDatabase _database;
+        private readonly IMatcher _matcher;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly JsonSerializerSettings _settings;
 
-        public Persister(IDatabase database)
+        public Persister(IDatabase database, IMatcher matcher)
         {
             if (database == null)
             {
                 throw new ArgumentNullException("database");
             }
+
+            if (matcher == null)
+            {
+                throw new ArgumentNullException("matcher");
+            }
+
             
             _database = database;
+            _matcher = matcher;
 
             _settings = new JsonSerializerSettings
                 {
@@ -47,11 +56,18 @@ namespace Codestellation.DarkFlow.Execution
             Contract.Require(task != null, "task != null");
             Contract.Require(identifier.IsValid, "identifier.IsValid");
 
-            var serialized = JsonConvert.SerializeObject(task, _settings);
+            if (_matcher.TryMatch(task))
+            {
+                var serialized = JsonConvert.SerializeObject(task, _settings);
 
-            _database.Persist(identifier, serialized);
-            
-            Logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
+                _database.Persist(identifier, serialized);
+
+                Logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
+            }
+            else
+            {
+                Logger.Debug("Task {0} do not match persistence criteria", task);
+            }
         }
 
         public virtual void Delete(Identifier identifier)
