@@ -26,7 +26,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Config
         [Test]
         public void Correctly_reads_task_queue_settings()
         {
-            var queueElmement = _section.Queues.Cast<QueueConfigurationElement>().First<QueueConfigurationElement>();
+            var queueElmement = _section.Executors.Cast<ExecutorConfigurationElement>().First<ExecutorConfigurationElement>();
             
 
             Assert.That(queueElmement.Name, Is.EqualTo("pipeline"));

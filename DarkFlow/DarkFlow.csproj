@@ -65,8 +65,8 @@
     <None Include="DarkFlow.nuspec" />
     <Compile Include="Config\DarkFlowConfigSection.cs" />
     <Compile Include="Config\DispatcherElement.cs" />
-    <Compile Include="Config\QueueConfigurationElement.cs" />
-    <Compile Include="Config\QueueElementCollection.cs" />
+    <Compile Include="Config\ExecutorConfigurationElement.cs" />
+    <Compile Include="Config\ExecutorElementCollection.cs" />
     <Compile Include="Config\RouteConfigurationElement.cs" />
     <Compile Include="Config\RoutingElementCollection.cs" />
     <Compile Include="Database\Identifier.cs" />

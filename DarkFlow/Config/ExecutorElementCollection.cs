@@ -2,17 +2,17 @@
 
 namespace Codestellation.DarkFlow.Config
 {
-    [ConfigurationCollection(typeof(QueueConfigurationElement), AddItemName = "queue")]
-    public class QueueElementCollection : ConfigurationElementCollection
+    [ConfigurationCollection(typeof(ExecutorConfigurationElement), AddItemName = "executor")]
+    public class ExecutorElementCollection : ConfigurationElementCollection
     {
         protected override ConfigurationElement CreateNewElement()
         {
-            return new QueueConfigurationElement();
+            return new ExecutorConfigurationElement();
         }
 
         protected override object GetElementKey(ConfigurationElement element)
         {
-            var queueConfigurationElement = (QueueConfigurationElement) element;
+            var queueConfigurationElement = (ExecutorConfigurationElement) element;
             
             return queueConfigurationElement.Name;
         }

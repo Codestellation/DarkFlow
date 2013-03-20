@@ -2,7 +2,7 @@
 
 namespace Codestellation.DarkFlow.Config
 {
-    public class QueueConfigurationElement : ConfigurationElement
+    public class ExecutorConfigurationElement : ConfigurationElement
     {
         [ConfigurationProperty("name", IsKey = true, IsRequired = true)]
         public string Name
