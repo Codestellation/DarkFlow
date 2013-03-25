@@ -16,7 +16,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [SetUp]
         public void Setup()
         {
-            _taskQueueSettings = new TaskQueueSettings("test", 1, 1);
+            _taskQueueSettings = new TaskQueueSettings{Name = "test"};
             _queue = new TaskQueue(_taskQueueSettings, NullPersister.Instance);
             _queue.TaskCountChanged += delegate {  };
             _task = new LongRunningTask(true);

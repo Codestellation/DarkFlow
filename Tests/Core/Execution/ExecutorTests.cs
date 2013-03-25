@@ -11,7 +11,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         [Test]
         public void Ordered_tasks_are_executed_serially()
         {
-            var taskQueueSettings = new TaskQueueSettings("test", 3, 1);
+            var taskQueueSettings = new TaskQueueSettings{Name = "test"};
             var taskQueue = new TaskQueue(taskQueueSettings, NullPersister.Instance);
             var matcher = new NamespaceMatcher(taskQueue.Name, NamespaceMatcher.AnyWildCard);
             var taskRouter = new TaskRouter(matcher, new ITaskQueue[]{taskQueue });

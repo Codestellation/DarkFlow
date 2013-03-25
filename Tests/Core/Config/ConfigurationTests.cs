@@ -1,21 +1,20 @@
-﻿using System.Linq;
-using Codestellation.DarkFlow.Config;
-using Codestellation.DarkFlow.Matchers;
+﻿using Codestellation.DarkFlow.Config;
 using NUnit.Framework;
+using SimpleConfig;
 
 namespace Codestellation.DarkFlow.Tests.Core.Config
 {
     [TestFixture]
     public class ConfigurationTests
     {
-        private DarkFlowConfigurationSection _section;
+        private DarkFlowConfiguration _section;
 
         [SetUp]
         public void Setup()
         {
-            _section = DarkFlowConfigurationSection.GetSection();
+            _section = Configuration.Load<DarkFlowConfiguration>("darkFlow");
         }
-        
+
         [Test]
         public void Correctly_reads_dispatcher_concurrency()
         {
@@ -26,28 +25,35 @@ namespace Codestellation.DarkFlow.Tests.Core.Config
         [Test]
         public void Correctly_reads_task_queue_settings()
         {
-            var queueElmement = _section.Executors.Cast<ExecutorConfigurationElement>().First<ExecutorConfigurationElement>();
-            
+            var executorSettings = _section.Executors[0];
 
-            Assert.That(queueElmement.Name, Is.EqualTo("pipeline"));
-            Assert.That(queueElmement.Priority, Is.EqualTo(3));
-            Assert.That(queueElmement.MaxConcurrency, Is.EqualTo(4));
+            Assert.That(executorSettings.Name, Is.EqualTo("pipeline"));
+            Assert.That(executorSettings.Priority, Is.EqualTo(3));
+            Assert.That(executorSettings.MaxConcurrency, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void Correctly_reads_persistence_settings()
+        {
+            var persistence = _section.Persistence;
+
+            Assert.That(persistence, Is.Not.Null);
         }
 
         [Test]
         public void Correctly_reads_namespace_route()
         {
-            var route = _section.Routing.Cast<RouteConfigurationElement>().ToList()[0];
-            
-            Assert.That(route.RouteTo, Is.EqualTo("pipeline"));
+            var route = _section.Routes[0];
+
             Assert.That(route.Type, Is.EqualTo("namespace"));
-            Assert.That(route.NamespaceMask, Is.EqualTo("Codestellation.*"));
+            Assert.That(route.RouteTo, Is.EqualTo("pipeline"));
+            Assert.That(route.Mask, Is.EqualTo("Codestellation.*"));
         }
 
         [Test]
         public void Correctly_reads_attribute_route()
         {
-            var route = _section.Routing.Cast<RouteConfigurationElement>().ToList()[1];
+            var route = _section.Routes[1];
 
             Assert.That(route.RouteTo, Is.EqualTo("pipeline"));
 

@@ -37,6 +37,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bender">
+      <HintPath>..\packages\Bender.1.0.23.0\lib\Bender.dll</HintPath>
+    </Reference>
     <Reference Include="Esent.Collections, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\ManagedEsent.1.6\lib\net20\Esent.Collections.dll</HintPath>
@@ -51,6 +54,9 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="SimpleConfig">
+      <HintPath>..\packages\SimpleConfig.1.0.18.0\lib\SimpleConfig.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Xml" />
@@ -63,12 +69,10 @@
     <Compile Include="Bootstrap\ExecutorContainer.cs" />
     <Compile Include="Bootstrap\Create.cs" />
     <None Include="DarkFlow.nuspec" />
-    <Compile Include="Config\DarkFlowConfigSection.cs" />
-    <Compile Include="Config\DispatcherElement.cs" />
-    <Compile Include="Config\ExecutorConfigurationElement.cs" />
-    <Compile Include="Config\ExecutorElementCollection.cs" />
-    <Compile Include="Config\RouteConfigurationElement.cs" />
-    <Compile Include="Config\RoutingElementCollection.cs" />
+    <Compile Include="Config\DarkFlowConfiguration.cs" />
+    <Compile Include="Config\DispatcherSettings.cs" />
+    <Compile Include="Config\MatcherSettings.cs" />
+    <Compile Include="Config\PersistenceSettings.cs" />
     <Compile Include="Database\Identifier.cs" />
     <Compile Include="Database\Region.cs" />
     <Compile Include="Execution\ExecutionEvenlope.cs" />

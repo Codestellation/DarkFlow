@@ -5,44 +5,51 @@ namespace Codestellation.DarkFlow.Execution
 {
     public class TaskQueueSettings
     {
-        private readonly string _name;
-        private readonly byte _priority;
-        private readonly byte _maxConcurrency;
-        private readonly Region _region;
+        private string _name;
+        private  Region _region;
+        private byte _maxConcurrency;
 
-        public TaskQueueSettings(string name, byte priority, byte maxConcurrency)
+        public TaskQueueSettings()
         {
-            _name = name;
-            _priority = priority;
-            _maxConcurrency = maxConcurrency;
-            _region = new Region(name);
+            MaxConcurrency = 1;
+            Priority = 5;
         }
 
         public string Name
         {
             get { return _name; }
+            set
+            {
+                _name = value;
+                _region = new Region(value);
+            }
         }
 
-        public byte Priority
+        internal Region Region
         {
-            get { return _priority; }
+            get { return _region; }
         }
+
+        public byte Priority { get; set; }
 
         public byte MaxConcurrency
         {
             get { return _maxConcurrency; }
-        }
-
-        public Region Region
-        {
-            get { return _region; }
+            set
+            {
+                if (value == 0)
+                {
+                    throw new ArgumentOutOfRangeException("value", value, "The value should be greater than 0.");
+                }
+                _maxConcurrency = value;
+            }
         }
 
         public void Validate()
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
-                throw new ArgumentException(string.Format("Expected not null not empty, but was '{0}'", Name ?? "<null>"), "name");
+                throw new ArgumentException(string.Format("Expected not null not empty, but was '{0}'", Name ?? "<null>"), "Name");
             }
         }
     }

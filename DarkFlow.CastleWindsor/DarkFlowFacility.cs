@@ -41,7 +41,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
             if (_queues.Count == 0)
             {
-                var settings = new TaskQueueSettings("default", 1, 1);
+                var settings = new TaskQueueSettings { Name = "default" };
                 _queues.Add(settings);
             }
 
