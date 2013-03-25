@@ -65,8 +65,6 @@
     <Compile Include="..\SolutionVersion.cs">
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
-    <Compile Include="Bootstrap\ExecutorBuilder.cs" />
-    <Compile Include="Bootstrap\ExecutorContainer.cs" />
     <Compile Include="Bootstrap\Create.cs" />
     <None Include="DarkFlow.nuspec" />
     <Compile Include="Config\DarkFlowConfiguration.cs" />
