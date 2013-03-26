@@ -5,7 +5,6 @@ namespace Codestellation.DarkFlow.Execution
 {
     public class Executor : Disposable, IExecutor
     {
-        private readonly TaskDispatcher _dispatcher;
         private readonly ITaskReleaser _releaser;
         private readonly ITaskRouter _router;
 
@@ -27,7 +26,6 @@ namespace Codestellation.DarkFlow.Execution
             }
 
             _router = router;
-            _dispatcher = dispatcher;
             _releaser = releaser;
         }
 
@@ -47,7 +45,7 @@ namespace Codestellation.DarkFlow.Execution
 
         protected override void DisposeManaged()
         {
-            _dispatcher.Dispose();
+
         }
     }
 }

@@ -150,6 +150,7 @@ namespace Codestellation.DarkFlow.Execution
         }
 
         //note: this methods suppose that execution queues already sorted, so priority already  applied.
+        //TODO: Implement round robin to prevent starvation for queues with the same priority.
         private ExecutionEnvelope TakeNextTask()
         {
             ExecutionEnvelope result = null;

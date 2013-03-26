@@ -67,6 +67,7 @@
     </Compile>
     <Compile Include="Bootstrap\Create.cs" />
     <None Include="DarkFlow.nuspec" />
+    <Compile Include="Bootstrap\ExecutionContainer.cs" />
     <Compile Include="Config\DarkFlowConfiguration.cs" />
     <Compile Include="Config\DispatcherSettings.cs" />
     <Compile Include="Config\MatcherSettings.cs" />

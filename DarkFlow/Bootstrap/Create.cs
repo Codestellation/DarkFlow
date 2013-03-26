@@ -16,7 +16,7 @@ namespace Codestellation.DarkFlow.Bootstrap
         {
             var config = Configuration.Load<DarkFlowConfiguration>("darkFlow");
 
-            var queues = new QueuedExecutor[config.Executors.Count];
+            var executors = new QueuedExecutor[config.Executors.Count];
 
             var database = new ManagedEsentDatabase();
 
@@ -27,18 +27,20 @@ namespace Codestellation.DarkFlow.Bootstrap
 
             for (int i = 0; i < config.Executors.Count; i++)
             {
-                queues[i] = new QueuedExecutor(config.Executors[i], persister);
+                executors[i] = new QueuedExecutor(config.Executors[i], persister);
             }
 
             var routerMatcher = BuildMatcher(config.Routes);
 
-            var router = new TaskRouter(routerMatcher, queues);
+            var router = new TaskRouter(routerMatcher, executors);
             
-            var dispatcher = new TaskDispatcher((byte) config.Dispatcher.MaxConcurrency, queues);
+            var dispatcher = new TaskDispatcher((byte) config.Dispatcher.MaxConcurrency, executors);
 
             var result = new Executor(router, dispatcher, DefaultReleaser.Instance);
 
-            return result;
+            var container = new DisposableContainer(result, result, dispatcher, router, executors, persister, database);
+
+            return container;
         }
 
         //note - usage of default queue name is merely hach to bring things to work without refactoting matchers. (Persister does not need to know queue name)
