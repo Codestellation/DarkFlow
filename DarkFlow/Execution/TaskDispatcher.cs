@@ -107,6 +107,9 @@ namespace Codestellation.DarkFlow.Execution
                     
                     break;
                 }
+
+                Contract.Require(executionInfo.OwnedCellIndex > -1, "executionInfo.OwnedCellIndex > -1");
+
                 task.Start();
             }
             else
@@ -118,6 +121,9 @@ namespace Codestellation.DarkFlow.Execution
         private void PerformTasks(object state)
         {
             var executionInfo = (ExecutionInfo) state;
+
+            //note: thread name would be cleaned up by CLR ThreadPool when thread returns there, so it safe to name it.
+            Thread.CurrentThread.Name = "DarkFlow#" + executionInfo.OwnedCellIndex;
 
             while (true)
             {
