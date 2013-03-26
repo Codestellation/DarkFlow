@@ -1,6 +1,6 @@
 ﻿namespace Codestellation.DarkFlow.Execution
 {
-    public interface ITaskQueue
+    public interface IExecutorImplementation
     {
         string Name { get; }
 

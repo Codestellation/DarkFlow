@@ -1,4 +1,5 @@
 ﻿using System;
+using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Execution;
 using Codestellation.DarkFlow.Matchers;
 using NUnit.Framework;
@@ -8,16 +9,16 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
     [TestFixture]
     public class TaskRouterTests
     {
-        private TaskQueue _queue;
+        private QueuedExecutor _queue;
         private LongRunningTask _task;
         private ExecutionEnvelope _executionEnvelope;
-        private TaskQueueSettings _taskQueueSettings;
+        private QueuedExecutorSettings _queuedExecutorSettings;
 
         [SetUp]
         public void Setup()
         {
-            _taskQueueSettings = new TaskQueueSettings{Name = "test"};
-            _queue = new TaskQueue(_taskQueueSettings, NullPersister.Instance);
+            _queuedExecutorSettings = new QueuedExecutorSettings{Name = "test"};
+            _queue = new QueuedExecutor(_queuedExecutorSettings, NullPersister.Instance);
             _queue.TaskCountChanged += delegate {  };
             _task = new LongRunningTask(true);
             _executionEnvelope = new ExecutionEnvelope(_task, DefaultReleaser.Instance);

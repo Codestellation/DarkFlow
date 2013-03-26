@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Execution
 {
-    public class TaskQueue : ITaskQueue, IExecutionQueue
+    public class QueuedExecutor : IExecutorImplementation, IExecutionQueue
     {
         private readonly IPersister _persister;
         private readonly ConcurrentQueue<ExecutionEnvelope> _queue;
 
-        private readonly TaskQueueSettings _settings;
+        private readonly QueuedExecutorSettings _settings;
         private int _currentConcurrency;
 
-        public TaskQueue(TaskQueueSettings settings, IPersister persister)
+        public QueuedExecutor(QueuedExecutorSettings settings, IPersister persister)
         {
             if (settings == null)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Castle.MicroKernel.Facilities;
 using Castle.MicroKernel.Registration;
 using Codestellation.DarkFlow.CastleWindsor.Impl;
+using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
 using Codestellation.DarkFlow.Matchers;
@@ -16,7 +17,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
     {
         private ComponentRegistration<IDatabase> _databaseRegistration;
         private List<IMatcher> _matchers;
-        private List<TaskQueueSettings> _queues;
+        private List<QueuedExecutorSettings> _queues;
 
         public string PersistedTaskFolder { get; set; }
 
@@ -24,7 +25,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
         protected override void Init()
         {
-            _queues = new List<TaskQueueSettings>();
+            _queues = new List<QueuedExecutorSettings>();
             _matchers = new List<IMatcher>();
             Kernel.AddHandlerSelector(new TaskHandlerSelector(Kernel));
 
@@ -41,16 +42,16 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
             if (_queues.Count == 0)
             {
-                var settings = new TaskQueueSettings { Name = "default" };
+                var settings = new QueuedExecutorSettings { Name = "default" };
                 _queues.Add(settings);
             }
 
-            foreach (TaskQueueSettings settings in _queues)
+            foreach (QueuedExecutorSettings settings in _queues)
             {
                 Kernel.Register(
                     Component
-                        .For<ITaskQueue, IExecutionQueue>()
-                        .ImplementedBy<TaskQueue>()
+                        .For<IExecutorImplementation, IExecutionQueue>()
+                        .ImplementedBy<QueuedExecutor>()
                         .Named(settings.Name)
                         .DependsOn(new {settings})
                         .LifestyleSingleton()
@@ -118,7 +119,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
             return this;
         }
 
-        public DarkFlowFacility WithQueue(TaskQueueSettings settings)
+        public DarkFlowFacility WithQueue(QueuedExecutorSettings settings)
         {
             _queues.Add(settings);
             return this;

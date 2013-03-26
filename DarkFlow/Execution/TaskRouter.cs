@@ -12,9 +12,9 @@ namespace Codestellation.DarkFlow.Execution
     public class TaskRouter : ITaskRouter
     {
         private readonly IMatcher _matcher;
-        private readonly Dictionary<string, ITaskQueue> _taskQueues;
+        private readonly Dictionary<string, IExecutorImplementation> _taskQueues;
 
-        public TaskRouter(IMatcher matcher, IEnumerable<ITaskQueue> taskQueues)
+        public TaskRouter(IMatcher matcher, IEnumerable<IExecutorImplementation> taskQueues)
         {
             if (matcher == null)
             {

@@ -16,7 +16,7 @@ namespace Codestellation.DarkFlow.Bootstrap
         {
             var config = Configuration.Load<DarkFlowConfiguration>("darkFlow");
 
-            var queues = new TaskQueue[config.Executors.Count];
+            var queues = new QueuedExecutor[config.Executors.Count];
 
             var database = new ManagedEsentDatabase();
 
@@ -27,7 +27,7 @@ namespace Codestellation.DarkFlow.Bootstrap
 
             for (int i = 0; i < config.Executors.Count; i++)
             {
-                queues[i] = new TaskQueue(config.Executors[i], persister);
+                queues[i] = new QueuedExecutor(config.Executors[i], persister);
             }
 
             var routerMatcher = BuildMatcher(config.Routes);

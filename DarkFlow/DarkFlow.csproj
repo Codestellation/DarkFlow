@@ -84,11 +84,11 @@
     <Compile Include="Execution\ITaskRouter.cs" />
     <Compile Include="Matchers\NamespaceMatcher.cs" />
     <Compile Include="Execution\NullPersister.cs" />
-    <Compile Include="Execution\TaskQueue.cs" />
+    <Compile Include="Execution\QueuedExecutor.cs" />
     <Compile Include="Execution\Executor.cs" />
-    <Compile Include="Execution\ITaskQueue.cs" />
+    <Compile Include="Execution\IExecutorImplementation.cs" />
     <Compile Include="Execution\TaskDispatcher.cs" />
-    <Compile Include="Execution\TaskQueueSettings.cs" />
+    <Compile Include="Config\QueuedExecutorSettings.cs" />
     <Compile Include="Execution\TaskRouter.cs" />
     <Compile Include="Misc\ContractException.cs" />
     <Compile Include="Misc\Extensions.cs" />

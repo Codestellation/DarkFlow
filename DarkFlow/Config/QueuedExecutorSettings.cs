@@ -1,15 +1,15 @@
 ﻿using System;
 using Codestellation.DarkFlow.Database;
 
-namespace Codestellation.DarkFlow.Execution
+namespace Codestellation.DarkFlow.Config
 {
-    public class TaskQueueSettings
+    public class QueuedExecutorSettings
     {
         private string _name;
         private  Region _region;
         private byte _maxConcurrency;
 
-        public TaskQueueSettings()
+        public QueuedExecutorSettings()
         {
             MaxConcurrency = 1;
             Priority = 5;

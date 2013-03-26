@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Execution;
 using NUnit.Framework;
 
@@ -10,20 +11,20 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
     [TestFixture]
     public class TaskDispatcherTests
     {
-        private TaskQueue _queue;
+        private QueuedExecutor _queue;
         private TaskDispatcher _pool;
         private List<LongRunningTask> _tasks;
-        private TaskQueue _queue2;
+        private QueuedExecutor _queue2;
 
         [SetUp]
         public void SetUp()
         {
             _tasks = new List<LongRunningTask>();
-            var settings = new TaskQueueSettings{ Name = "test" };
-            _queue = new TaskQueue(settings, NullPersister.Instance);
+            var settings = new QueuedExecutorSettings{ Name = "test" };
+            _queue = new QueuedExecutor(settings, NullPersister.Instance);
             
-            var settings2 = new TaskQueueSettings{ Name = "test" };
-            _queue2 = new TaskQueue(settings2, NullPersister.Instance);
+            var settings2 = new QueuedExecutorSettings{ Name = "test" };
+            _queue2 = new QueuedExecutor(settings2, NullPersister.Instance);
 
             _pool = new TaskDispatcher(2, new IExecutionQueue[] { _queue, _queue2 });
         }
