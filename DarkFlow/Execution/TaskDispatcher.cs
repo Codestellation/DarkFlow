@@ -97,7 +97,7 @@ namespace Codestellation.DarkFlow.Execution
 
                 for (int i = 0; i < _executionInfos.Length; i++)
                 {
-                    var originalValue =  Interlocked.CompareExchange(ref _executionInfos[0], executionInfo, null);
+                    var originalValue =  Interlocked.CompareExchange(ref _executionInfos[i], executionInfo, null);
                     var cellAlreadyOwned = originalValue != null;
 
                     if (cellAlreadyOwned) continue;
