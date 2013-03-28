@@ -92,6 +92,7 @@
     <Compile Include="Core\Scheduling\SchedulerTests.cs" />
     <Compile Include="Core\Scheduling\TaskSourceTests.cs" />
     <Compile Include="ScratchPad.cs" />
+    <Compile Include="MarkerAttribute.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Windsor\DarkFlowFacilityTests.cs" />
     <Compile Include="Windsor\WindsorReleaserTests.cs" />
@@ -102,7 +103,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>

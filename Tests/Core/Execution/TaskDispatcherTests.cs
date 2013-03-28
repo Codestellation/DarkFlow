@@ -68,9 +68,9 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             
             ((LongRunningTask)shouldRun2.Task).WaitForStart(100);
 
-            Assert.That(((LongRunningTask)shouldRun1.Task).Running, Is.True);
-            Assert.That(((LongRunningTask)shouldRun2.Task).Running, Is.True);
-            Assert.That(((LongRunningTask)shouldWait.Task).Running, Is.False);
+            Assert.That(((LongRunningTask)shouldRun1.Task).Running, Is.True, "First task did not started");
+            Assert.That(((LongRunningTask)shouldRun2.Task).Running, Is.True, "Second task did not started");
+            Assert.That(((LongRunningTask)shouldWait.Task).Running, Is.False, "Third task started, exceed concurrency");
         }
 
         [Test]
@@ -82,11 +82,11 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             _queue.Enqueue(shouldRun);
             _queue.Enqueue(shouldWait);
 
-            ((LongRunningTask)shouldRun.Task).WaitForStart(100);
+            ((LongRunningTask)shouldRun.Task).WaitForStart(1000);
             ((LongRunningTask)shouldWait.Task).WaitForStart();
 
-            Assert.That(((LongRunningTask)shouldRun.Task).Running, Is.True);
-            Assert.That(((LongRunningTask)shouldWait.Task).Running, Is.False);
+            Assert.That(((LongRunningTask)shouldRun.Task).Running, Is.True, "First task did not started.");
+            Assert.That(((LongRunningTask)shouldWait.Task).Running, Is.False, "Second task started. Concurrency limit exceeded");
         }
 
         [Test]

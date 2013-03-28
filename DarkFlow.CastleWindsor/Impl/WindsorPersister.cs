@@ -2,26 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization.Formatters;
-using System.Text;
 using Castle.DynamicProxy;
 using Castle.MicroKernel;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
+using Codestellation.DarkFlow.Matchers;
 using Codestellation.DarkFlow.Misc;
 using NLog;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Codestellation.DarkFlow.CastleWindsor.Impl
 {
     public class WindsorPersister : IPersister
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly IDatabase _database;
+        private readonly IMatcher _matcher;
         private readonly JsonSerializerSettings _settings;
 
-        public WindsorPersister(IDatabase database, IKernel kernel)
+        public WindsorPersister(IDatabase database, IKernel kernel, IMatcher matcher)
         {
             if (database == null)
             {
@@ -33,15 +32,21 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
                 throw new ArgumentNullException("kernel");
             }
 
+            if (matcher == null)
+            {
+                throw new ArgumentNullException("matcher");
+            }
+
             _database = database;
+            _matcher = matcher;
             var converter = new WindsorConverter(kernel);
 
             _settings = new JsonSerializerSettings
                 {
                     Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.All, 
+                    TypeNameHandling = TypeNameHandling.All,
                     TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-                    Converters = new[] {converter}
+                    Converters = new[] { converter }
                 };
         }
 
@@ -57,13 +62,22 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
             Contract.Require(task != null, "task != null");
             Contract.Require(identifier.IsValid, "identifier.IsValid");
 
-            var unproxiedTask = ProxyUtil.GetUnproxiedInstance(task);
+            var matched = _matcher.TryMatch(task);
 
-            var serialized = JsonConvert.SerializeObject(unproxiedTask, _settings);
+            if (matched)
+            {
+                var unproxiedTask = ProxyUtil.GetUnproxiedInstance(task);
 
-            _database.Persist(identifier, serialized);
-            
-            Logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
+                var serialized = JsonConvert.SerializeObject(unproxiedTask, _settings);
+
+                _database.Persist(identifier, serialized);
+
+                Logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
+            }
+            else
+            {
+                Logger.Debug("{0} skipped");
+            }
         }
 
         public virtual void Delete(Identifier identifier)
@@ -73,7 +87,7 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
             _database.Remove(identifier);
         }
 
-        public virtual IEnumerable<KeyValuePair<Identifier,ITask>> LoadAll(Region region)
+        public virtual IEnumerable<KeyValuePair<Identifier, ITask>> LoadAll(Region region)
         {
             Contract.Require(region.IsValid, "region.IsValid");
 
@@ -87,7 +101,7 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
         private ITask Deserialize(string serialized)
         {
             var type = ExtractType(serialized);
-            var result = (ITask) JsonConvert.DeserializeObject(serialized, type, _settings);
+            var result = (ITask)JsonConvert.DeserializeObject(serialized, type, _settings);
             return result;
         }
 

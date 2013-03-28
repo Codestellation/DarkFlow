@@ -2,6 +2,7 @@
 using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Codestellation.DarkFlow.CastleWindsor;
+using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Execution;
 using NUnit.Framework;
 
@@ -12,23 +13,30 @@ namespace Codestellation.DarkFlow.Tests.Windsor
     {
         private WindsorContainer _windsor;
 
-        public class ConstructorOrderedExecutorTester
-        {
-            public IExecutor OrderedExecutor { get; private set; }
-
-            public ConstructorOrderedExecutorTester(IExecutor orderedExecutor)
-            {
-                OrderedExecutor = orderedExecutor;
-            }
-        }
-
         [SetUp]
         public void Setup()
         {
             _windsor = new WindsorContainer();
             _windsor.Kernel.Resolver.AddSubResolver(new CollectionResolver(_windsor.Kernel));
             _windsor.AddFacility<StartableFacility>(x => x.DeferredStart());
-            _windsor.AddFacility<DarkFlowFacility>();
+
+            var facility = new DarkFlowFacility()
+                .MaxConcurrency(4)
+                .UsingInMemoryPersistence()
+                .WithQueuedExecutor(new QueuedExecutorSettings { Name = "someExecutor" })
+                .RouteTasks(x =>
+                {
+                    x.ByNamespace("Codestellation.*").To("someExecutor");
+                    x.MarkedWith(typeof(TestAttribute)).To("someExecutor");
+                })
+                .PersistTasks(x =>
+                {
+                    //TODO: Calls to To() are ugly, because they are completely ignored. Need more elegant solution to this.
+                    x.ByNamespace("Codestellation.*").To("xx");
+                    x.MarkedWith(typeof(MarkerAttribute)).To("xx");
+                });
+
+            _windsor.AddFacility(facility);
         }
 
         [TearDown]

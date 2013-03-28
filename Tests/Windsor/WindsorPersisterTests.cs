@@ -3,6 +3,7 @@ using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Codestellation.DarkFlow.CastleWindsor;
+using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
 using Codestellation.DarkFlow.Tests.Core.Execution;
@@ -22,7 +23,17 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         public void Setup()
         {
             _windsor = new WindsorContainer();
-            _windsor.AddFacility<DarkFlowFacility>(x => x.UsingInMemoryPersistence());
+            
+
+            var facility = new DarkFlowFacility()
+                .PersistTasks(x =>
+                    {
+                        //TODO: Calls to To() are ugly, because they are completely ignored. Need more elegant solution to this.
+                        x.ByNamespace("Codestellation.*").To("xx");
+                        x.MarkedWith(typeof (MarkerAttribute)).To("xx");
+                    });
+
+            _windsor.AddFacility(facility);
 
             _windsor.Register(
                 Component
@@ -50,7 +61,7 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         public void Can_persist_and_restore_class_intercepted_tasks()
         {
             RegisterTaskAsSelf();
-            
+
             var task = _windsor.Resolve<PersistentTaskWithDependency>();
 
             _persister.Persist(_id, task);
