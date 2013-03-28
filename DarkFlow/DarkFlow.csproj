@@ -81,6 +81,7 @@
     <Compile Include="Database\Region.cs" />
     <Compile Include="Execution\ExecutionEvenlope.cs" />
     <Compile Include="Execution\IExecutionQueue.cs" />
+    <Compile Include="Execution\PersisterBase.cs" />
     <Compile Include="Matchers\AbstractMatcher.cs" />
     <Compile Include="Matchers\AggregateMatcher.cs" />
     <Compile Include="Matchers\AttributeMatcher.cs" />
