@@ -4,7 +4,7 @@ using Codestellation.DarkFlow.Execution;
 
 namespace Codestellation.DarkFlow.CastleWindsor.Impl
 {
-    public class WindsorReleaser : DefaultReleaser, ITaskReleaser
+    public class WindsorReleaser : DefaultReleaser
     {
         private readonly IKernel _kernel;
 
@@ -23,10 +23,20 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
             if (_kernel.ReleasePolicy.HasTrack(task))
             {
                 _kernel.ReleaseComponent(task);
+
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.Debug("Task {0} was tracked. Released.");
+                }
             }
             else
             {
                 base.Release(task);
+                
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.Debug("Task {0} was not tracked. Disposed.");
+                }
             }
         }
     }

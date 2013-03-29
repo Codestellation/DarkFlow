@@ -1,7 +1,11 @@
-﻿namespace Codestellation.DarkFlow.Matchers
+﻿using NLog;
+
+namespace Codestellation.DarkFlow.Matchers
 {
     public class AggregateMatcher : IMatcher
     {
+        public static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IMatcher[] _matchers;
 
         public AggregateMatcher(params IMatcher[] matchers)
@@ -17,8 +21,13 @@
             
                 var result = matcher.TryMatch(task);
 
+                Logger.Debug("Task {0} matched.");
+
                 if (result) return result;
             }
+
+            Logger.Debug("Task {0} matched.");
+
             return MatchResult.NonMatched;
         }
     }

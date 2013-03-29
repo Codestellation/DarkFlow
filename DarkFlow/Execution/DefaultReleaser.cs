@@ -1,18 +1,22 @@
 ﻿using System;
-using System.Threading;
 using NLog;
 
 namespace Codestellation.DarkFlow.Execution
 {
     public class DefaultReleaser : ITaskReleaser
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        protected readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static readonly Lazy<DefaultReleaser> LazyInstance = new Lazy<DefaultReleaser>(() => new DefaultReleaser());
+        private static readonly DefaultReleaser _instance = new DefaultReleaser();
 
-        public static  ITaskReleaser Instance
+        public DefaultReleaser()
         {
-            get { return LazyInstance.Value; }
+            Logger = LogManager.GetCurrentClassLogger(GetType());
+        }
+
+        public static ITaskReleaser Instance
+        {
+            get { return _instance; }
         }
 
         public virtual void Release(ITask task)

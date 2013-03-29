@@ -24,7 +24,6 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
         {
             Logger.Debug("Resolving task of type '{0}'", service);
 
-
             var result = handlers.SingleOrDefault(x => x.ComponentModel.Implementation == service);
 
             if (result == null)

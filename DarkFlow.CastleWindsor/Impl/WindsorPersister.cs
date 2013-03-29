@@ -21,13 +21,19 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
             Settings.Converters = new[] {converter};
         }
 
-        private static Type ExtractType(string serialized)
+        private Type ExtractType(string serialized)
         {
             const string typebegin = "\"$type\": \"";
             var startIndex = serialized.IndexOf(typebegin, StringComparison.OrdinalIgnoreCase) + typebegin.Length;
             var endIndex = serialized.IndexOf("\",", startIndex, StringComparison.OrdinalIgnoreCase);
 
             var typename = serialized.Substring(startIndex, endIndex - startIndex);
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Extraced type '{0}'", typename);
+            }
+
             var type = Type.GetType(typename);
             return type;
         }
@@ -37,6 +43,12 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
             var unproxiedTask = ProxyUtil.GetUnproxiedInstance(task);
 
             var serialized = JsonConvert.SerializeObject(unproxiedTask, Settings);
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Task {0} serialized to {1}", task, serialized);
+            }
+
             return serialized;
         }
 
@@ -45,6 +57,12 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
         {
             var type = ExtractType(serialized);
             var result = (ITask) JsonConvert.DeserializeObject(serialized, type, Settings);
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Task {0} deserialized from {1}", result, serialized);
+            }
+
             return result;
         }
     }

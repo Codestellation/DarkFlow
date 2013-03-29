@@ -15,7 +15,7 @@ namespace Codestellation.DarkFlow.Execution
         private readonly IDatabase _database;
         private readonly IMatcher _matcher;
         protected readonly JsonSerializerSettings Settings;
-        private readonly Logger _logger;
+        protected readonly Logger Logger;
 
         public PersisterBase(IDatabase database, IMatcher matcher)
         {
@@ -29,7 +29,7 @@ namespace Codestellation.DarkFlow.Execution
                 throw new ArgumentNullException("matcher");
             }
 
-            _logger = LogManager.GetCurrentClassLogger();
+            Logger = LogManager.GetCurrentClassLogger(GetType());
 
             _database = database;
             _matcher = matcher;
@@ -71,11 +71,11 @@ namespace Codestellation.DarkFlow.Execution
 
                 _database.Persist(identifier, serialized);
 
-                _logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
+                Logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
             }
             else
             {
-                _logger.Debug("Task {0} do not match persistence criteria", task);
+                Logger.Debug("Task {0} do not match persistence criteria", task);
             }
         }
 

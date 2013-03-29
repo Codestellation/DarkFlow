@@ -37,12 +37,18 @@ namespace Codestellation.DarkFlow.Execution
             try
             {
                 Task.Execute();
+                
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.Debug(string.Format("Task {0} succeeded.", Task));
+                }
             }
             catch (Exception ex)
             {
                 if (Logger.IsErrorEnabled)
                 {
-                    Logger.ErrorException("Task failed.", ex);
+                    var message = string.Format("Task {0} failed.", Task);
+                    Logger.ErrorException(message, ex);
                 }
             }
             finally

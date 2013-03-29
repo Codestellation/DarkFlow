@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,10 +60,10 @@ namespace Codestellation.DarkFlow.Execution
                 throw new ArgumentOutOfRangeException("executionQueues", "List of execution queues cannot be empty.");
             }
 
-            //if (executionQueues.All(x => x == null))
-            //{
-            //    throw new ArgumentOutOfRangeException("executionQueues", "Execution queues cannot contain null values.");
-            //}
+            if (executionQueues.All(x => x == null))
+            {
+                throw new ArgumentOutOfRangeException("executionQueues", "Execution queues cannot contain null values.");
+            }
 
             var queueTotalConcurrency = (byte)executionQueues.Sum(x => x.MaxConcurrency);
 
@@ -77,6 +76,8 @@ namespace Codestellation.DarkFlow.Execution
             {
                 executionQueue.TaskCountChanged += OnTaskCountChanged;
             }
+
+            Thread.MemoryBarrier();
         }
 
         private void OnTaskCountChanged(int change)
@@ -97,6 +98,11 @@ namespace Codestellation.DarkFlow.Execution
                 
             if (currentConcurrency <= _maxConcurrency)
             {
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.Debug("Starting new execution thread.");
+                }
+
                 var executionInfo = new ExecutionInfo();
                 var task = new Task(PerformTasks, executionInfo);
 

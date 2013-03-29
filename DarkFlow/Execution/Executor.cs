@@ -40,6 +40,11 @@ namespace Codestellation.DarkFlow.Execution
 
             var envelope = new ExecutionEnvelope(task, _releaser);
 
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Added {0}.");
+            }
+
             _router.Route(envelope);
         }
 
