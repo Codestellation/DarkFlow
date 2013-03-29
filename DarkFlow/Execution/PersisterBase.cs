@@ -29,7 +29,7 @@ namespace Codestellation.DarkFlow.Execution
                 throw new ArgumentNullException("matcher");
             }
 
-            Logger = LogManager.GetCurrentClassLogger(GetType());
+            Logger = LogManager.GetLogger(GetType().FullName);
 
             _database = database;
             _matcher = matcher;

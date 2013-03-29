@@ -5,13 +5,13 @@ namespace Codestellation.DarkFlow.Execution
 {
     public class DefaultReleaser : ITaskReleaser
     {
-        protected readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        protected readonly Logger Logger;
 
         private static readonly DefaultReleaser _instance = new DefaultReleaser();
 
         public DefaultReleaser()
         {
-            Logger = LogManager.GetCurrentClassLogger(GetType());
+            Logger = LogManager.GetLogger(GetType().FullName);
         }
 
         public static ITaskReleaser Instance
