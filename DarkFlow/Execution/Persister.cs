@@ -1,97 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization.Formatters;
-using Codestellation.DarkFlow.Database;
+﻿using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Matchers;
-using Codestellation.DarkFlow.Misc;
-using NLog;
 using Newtonsoft.Json;
 
 namespace Codestellation.DarkFlow.Execution
 {
-    public class Persister : IPersister
+    public class Persister : PersisterBase
     {
-        private readonly IDatabase _database;
-        private readonly IMatcher _matcher;
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private readonly JsonSerializerSettings _settings;
-
-        public Persister(IDatabase database, IMatcher matcher)
+        public Persister(IDatabase database, IMatcher matcher) : base(database, matcher)
         {
-            if (database == null)
-            {
-                throw new ArgumentNullException("database");
-            }
-
-            if (matcher == null)
-            {
-                throw new ArgumentNullException("matcher");
-            }
-
-            
-            _database = database;
-            _matcher = matcher;
-
-            _settings = new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented,
-                    TypeNameHandling = TypeNameHandling.All, 
-                    TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-                };
         }
 
-        public ITask Get(Identifier identifier)
+        protected override string Serialize(ITask task)
         {
-            var serialized = _database.Get(identifier);
-
-            var result =  (ITask)JsonConvert.DeserializeObject(serialized, _settings);
-
-            return result;
+            var serialized = JsonConvert.SerializeObject(task, Settings);
+            return serialized;
         }
 
-        public virtual void Persist(Identifier identifier, ITask task)
+        protected override ITask Deserialize(string serialized)
         {
-            Contract.Require(task != null, "task != null");
-            Contract.Require(identifier.IsValid, "identifier.IsValid");
-
-            if (_matcher.TryMatch(task))
-            {
-                var serialized = JsonConvert.SerializeObject(task, _settings);
-
-                _database.Persist(identifier, serialized);
-
-                Logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
-            }
-            else
-            {
-                Logger.Debug("Task {0} do not match persistence criteria", task);
-            }
-        }
-
-        public virtual void Delete(Identifier identifier)
-        {
-            Contract.Require(identifier.IsValid, "identifier.IsValid");
-
-            _database.Remove(identifier);
-        }
-
-        public virtual IEnumerable<KeyValuePair<Identifier,ITask>> LoadAll(Region region)
-        {
-            Contract.Require(region.IsValid, "region.IsValid");
-
-            var serialized = _database.GetAll(region);
-
-            var results = serialized.Select(Deserialize);
-
-            return results;
-        }
-
-        private KeyValuePair<Identifier, ITask> Deserialize(KeyValuePair<Identifier, string> input)
-        {
-            var deserialized = JsonConvert.DeserializeObject(input.Value, _settings);
-            return new KeyValuePair<Identifier, ITask>(input.Key, (ITask) deserialized);
+            var deserialized = JsonConvert.DeserializeObject(serialized, Settings);
+            return (ITask) deserialized;
         }
     }
 }
