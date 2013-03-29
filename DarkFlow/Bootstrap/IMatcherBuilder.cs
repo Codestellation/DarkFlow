@@ -4,6 +4,6 @@ namespace Codestellation.DarkFlow.Bootstrap
 {
     public interface IMatcherBuilder
     {
-        IMatcher ToMatcher();
+        IMatcher Build();
     }
 }

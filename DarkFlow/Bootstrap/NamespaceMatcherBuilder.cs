@@ -4,7 +4,7 @@ namespace Codestellation.DarkFlow.Bootstrap
 {
     public class NamespaceMatcherBuilder : StaticExecutorNameBuilder
     {
-        public override IMatcher ToMatcher()
+        public override IMatcher Build()
         {
             return new NamespaceMatcher(ExecutorName, Mask);
         }

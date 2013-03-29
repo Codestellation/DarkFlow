@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
-using Codestellation.DarkFlow.Matchers;
-using SimpleConfig;
 
 namespace Codestellation.DarkFlow.Bootstrap
 {
@@ -14,7 +10,7 @@ namespace Codestellation.DarkFlow.Bootstrap
     {
         public static IExecutor FromXmlConfig()
         {
-            var config = Configuration.Load<DarkFlowConfiguration>("darkFlow");
+            var config = DarkFlowConfiguration.Instance;
 
             var executors = new QueuedExecutor[config.Executors.Count];
 
@@ -23,7 +19,7 @@ namespace Codestellation.DarkFlow.Bootstrap
 
             var persisterMatcher = BuildMatcher(config.Persistence.Matchers);
 
-            var persister = new Persister(database, persisterMatcher);
+            var persister = new Persister(database, persisterMatcher.Build());
 
             for (int i = 0; i < config.Executors.Count; i++)
             {
@@ -32,7 +28,7 @@ namespace Codestellation.DarkFlow.Bootstrap
 
             var routerMatcher = BuildMatcher(config.Routes);
 
-            var router = new TaskRouter(routerMatcher, executors);
+            var router = new TaskRouter(routerMatcher.Build(), executors);
             
             var dispatcher = new TaskDispatcher((byte) config.Dispatcher.MaxConcurrency, executors);
 
@@ -44,41 +40,37 @@ namespace Codestellation.DarkFlow.Bootstrap
         }
 
         //note - usage of default queue name is merely hach to bring things to work without refactoting matchers. (Persister does not need to know queue name)
-        private static IMatcher BuildMatcher(List<MatcherSettings> matcherSettings, string executorName = "no-matter")
+        public static IMatcherBuilder BuildMatcher(IEnumerable<MatcherSettings> matcherSettings, string executorName = "no-matter")
         {
-            var matchers = new List<IMatcher>();
+            var matchers = new List<IMatcherBuilder>();
+            var result = new AggregateMatcherBuilder();
 
             foreach (var matcherSettingse in matcherSettings)
             {
-                IMatcher matcher;
+                IMatcherBuilder builder;
+                var routeTo = matcherSettingse.RouteTo ?? executorName;
                 switch (matcherSettingse.Type)
                 {
                     case "namespace" :
-                        matcher = new NamespaceMatcher(matcherSettingse.RouteTo ?? executorName, matcherSettingse.Mask);
-                        matchers.Add(matcher);
+                        builder = new NamespaceMatcherBuilder{Mask = matcherSettingse.Mask}.To(routeTo);
+                        matchers.Add(builder);
                         break;
                     case "attribute" :
-                        var assembly = Assembly.Load(matcherSettingse.Assembly);
-                        var attributeNames = matcherSettingse.Attributes.Split(',').Select(x => x.Trim()).ToArray();
 
-                        var attributeTypes = assembly.GetTypes()
-                                                    .Where(
-                                                        x =>
-                                                        attributeNames.Any(
-                                                            attrib =>
-                                                            attrib.Equals(x.Name,
-                                                                          StringComparison.InvariantCultureIgnoreCase)))
-                                                    .ToArray();
-
-                        matcher = new AttributeMatcher(executorName, attributeTypes);
-                        matchers.Add(matcher);
+                        builder = new AttributeMatcherBuilder()
+                            .Match(matcherSettingse.Attributes)
+                            .FromAssembly(matcherSettingse.Assembly)
+                            .To(executorName); 
+                        matchers.Add(builder);
                         break;
                     default:
                         throw new ArgumentException();
+
                 }
+                result.AddBuilder(builder);
             }
 
-            var result = new AggregateMatcher(matchers.ToArray());
+            
             return result;
         }
     }

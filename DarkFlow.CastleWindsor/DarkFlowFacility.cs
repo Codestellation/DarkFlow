@@ -50,7 +50,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
                 string message = "No route was registered. Use DarkFlowFacility.RouteTasks() to register at least one route.";
                 throw new InvalidOperationException(message);
             }
-            var matcher = _routerMatcherBuilder.ToMatcher();
+            var matcher = _routerMatcherBuilder.Build();
 
 
 
@@ -113,7 +113,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
         {
             string persistedFolder = PersistedTaskFolder ?? ManagedEsentDatabase.DefaultTaskFolder;
 
-            var matcher = _persisterMatchersBuilder.ToMatcher();
+            var matcher = _persisterMatchersBuilder.Build();
 
             var persisterRegistration = Component
                 .For<IPersister>()

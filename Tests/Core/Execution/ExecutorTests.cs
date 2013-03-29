@@ -26,9 +26,9 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
                 executor.Execute(task);
             }
 
-            Assert.That(tasks[0].WaitForStart(), Is.True);
+            Assert.That(tasks[0].WaitForStart(1000), Is.True, "First task should start");
 
-            Assert.That(tasks[1].WaitForStart(), Is.False);
+            Assert.That(tasks[1].WaitForStart(1000), Is.False, "Second task should not start");
         }
     }
 }

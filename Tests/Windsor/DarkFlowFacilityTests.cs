@@ -20,22 +20,33 @@ namespace Codestellation.DarkFlow.Tests.Windsor
             _windsor.Kernel.Resolver.AddSubResolver(new CollectionResolver(_windsor.Kernel));
             _windsor.AddFacility<StartableFacility>(x => x.DeferredStart());
 
+            
+        }
+
+        private void AddCodedFacility()
+        {
             var facility = new DarkFlowFacility()
                 .MaxConcurrency(4)
                 .UsingInMemoryPersistence()
-                .WithQueuedExecutor(new QueuedExecutorSettings { Name = "someExecutor" })
+                .WithQueuedExecutor(new QueuedExecutorSettings {Name = "someExecutor"})
                 .RouteTasks(x =>
-                {
-                    x.ByNamespace("Codestellation.*").To("someExecutor");
-                    x.MarkedWith(typeof(TestAttribute)).To("someExecutor");
-                })
+                    {
+                        x.ByNamespace("Codestellation.*").To("someExecutor");
+                        x.MarkedWith(typeof (TestAttribute)).To("someExecutor");
+                    })
                 .PersistTasks(x =>
-                {
-                    //TODO: Calls to To() are ugly, because they are completely ignored. Need more elegant solution to this.
-                    x.ByNamespace("Codestellation.*").To("xx");
-                    x.MarkedWith(typeof(MarkerAttribute)).To("xx");
-                });
+                    {
+                        //TODO: Calls to To() are ugly, because they are completely ignored. Need more elegant solution to this.
+                        x.ByNamespace("Codestellation.*").To("xx");
+                        x.MarkedWith(typeof (MarkerAttribute)).To("xx");
+                    });
 
+            _windsor.AddFacility(facility);
+        }
+
+        private void AddXmlConfiguredFacility()
+        {
+            var facility = new DarkFlowFacility().ConfigureFromXml();
             _windsor.AddFacility(facility);
         }
 
@@ -49,14 +60,28 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         [Test]
         public void Registers_executor_properly()
         {
+            AddCodedFacility();
+
             var executor = _windsor.Resolve<IExecutor>();
 
             Assert.That(executor, Is.InstanceOf<Executor>());
         }
 
         [Test]
+        public void Registers_executor_properly_using_xml_config()
+        {
+            AddXmlConfiguredFacility();
+
+            var executor = _windsor.Resolve<IExecutor>();
+
+            Assert.That(executor, Is.InstanceOf<Executor>());
+        }
+
+
+        [Test]
         public void Registers_scheduler_properly()
         {
+            AddCodedFacility();
             Assert.DoesNotThrow(() => _windsor.Resolve<IScheduler>());
         }
     }

@@ -26,21 +26,21 @@ namespace Codestellation.DarkFlow.Bootstrap
             return AddBuilder(builder);
         }
 
-        private TMatcherBuilder AddBuilder<TMatcherBuilder>(TMatcherBuilder builder) 
+        public TMatcherBuilder AddBuilder<TMatcherBuilder>(TMatcherBuilder builder) 
             where TMatcherBuilder : IMatcherBuilder
         {
             _builders.Add(builder);
             return builder;
         }
 
-        public IMatcher ToMatcher()
+        public IMatcher Build()
         {
             if (_builders.Count == 1)
             {
-                return _builders[0].ToMatcher();
+                return _builders[0].Build();
             }
 
-            var matchers = _builders.Select(x => x.ToMatcher()).ToArray();
+            var matchers = _builders.Select(x => x.Build()).ToArray();
 
             return new AggregateMatcher(matchers);
         }

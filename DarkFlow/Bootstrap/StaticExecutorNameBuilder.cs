@@ -6,11 +6,12 @@ namespace Codestellation.DarkFlow.Bootstrap
     {
         public string ExecutorName { get; set; }
 
-        public abstract IMatcher ToMatcher();
+        public abstract IMatcher Build();
 
-        public void To(string executorName)
+        public StaticExecutorNameBuilder To(string executorName)
         {
             ExecutorName = executorName;
+            return this;
         }
     }
 }

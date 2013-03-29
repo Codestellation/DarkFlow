@@ -36,6 +36,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             {
                 task.Finilize();
             }
+            _tasks = null;
         }
 
         [Test]
@@ -82,7 +83,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             _queue.Enqueue(shouldRun);
             _queue.Enqueue(shouldWait);
 
-            ((LongRunningTask)shouldRun.Task).WaitForStart(1000);
+            ((LongRunningTask)shouldRun.Task).WaitForStart(10000);
             ((LongRunningTask)shouldWait.Task).WaitForStart();
 
             Assert.That(((LongRunningTask)shouldRun.Task).Running, Is.True, "First task did not started.");
