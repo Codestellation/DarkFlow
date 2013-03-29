@@ -16,17 +16,14 @@ namespace Codestellation.DarkFlow.CastleWindsor
         private ComponentRegistration<IDatabase> _databaseRegistration;
         private readonly List<QueuedExecutorSettings> _queuedExecutors;
         private byte? _maxConcurrency;
-        private readonly MatchersBuilder _routerMatcherBuilder;
-        private readonly MatchersBuilder _persisterMatchersBuilder;
+        private IMatcherBuilder _routerMatcherBuilder;
+        private IMatcherBuilder _persisterMatchersBuilder;
 
         public string PersistedTaskFolder { get; set; }
 
         public DarkFlowFacility()
         {
             _queuedExecutors = new List<QueuedExecutorSettings>();
-
-            _routerMatcherBuilder = new MatchersBuilder();
-            _persisterMatchersBuilder = new MatchersBuilder();
         }
 
         protected override void Init()
@@ -48,7 +45,14 @@ namespace Codestellation.DarkFlow.CastleWindsor
 
         private void RegisterRouter()
         {
+            if (_routerMatcherBuilder == null)
+            {
+                string message = "No route was registered. Use DarkFlowFacility.RouteTasks() to register at least one route.";
+                throw new InvalidOperationException(message);
+            }
             var matcher = _routerMatcherBuilder.ToMatcher();
+
+
 
             Kernel.Register(
                 Component
@@ -174,15 +178,31 @@ namespace Codestellation.DarkFlow.CastleWindsor
             return this;
         }
 
-        public DarkFlowFacility RouteTasks(Action<MatchersBuilder> buildAction)
+        public DarkFlowFacility RouteTasks(Action<AggregateMatcherBuilder> buildAction)
         {
-            buildAction(_routerMatcherBuilder);
+            var aggregateMatcherBuilder = new AggregateMatcherBuilder();
+            _routerMatcherBuilder = aggregateMatcherBuilder;
+            buildAction(aggregateMatcherBuilder);
             return this;
         }
 
-        public DarkFlowFacility PersistTasks(Action<MatchersBuilder> buildAction)
+        public DarkFlowFacility RouteTasks(IMatcherBuilder matcherBuilder)
         {
-            buildAction(_persisterMatchersBuilder);
+            _routerMatcherBuilder = matcherBuilder;
+            return this;
+        }
+
+        public DarkFlowFacility PersistTasks(Action<AggregateMatcherBuilder> buildAction)
+        {
+            var builder = new AggregateMatcherBuilder();
+            _persisterMatchersBuilder = builder;
+            buildAction(builder);
+            return this;
+        }
+
+        public DarkFlowFacility PersistTasks(IMatcherBuilder builder)
+        {
+            _persisterMatchersBuilder = builder;
             return this;
         }
     }

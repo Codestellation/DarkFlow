@@ -5,25 +5,32 @@ using Codestellation.DarkFlow.Matchers;
 
 namespace Codestellation.DarkFlow.Bootstrap
 {
-    public class MatchersBuilder
+    public class AggregateMatcherBuilder : IMatcherBuilder
     {
-        private readonly List<IIMatcherBuilder> _builders;
+        private readonly List<IMatcherBuilder> _builders;
 
-        public MatchersBuilder()
+        public AggregateMatcherBuilder()
         {
-            _builders = new List<IIMatcherBuilder>();
+            _builders = new List<IMatcherBuilder>();
         }
 
         public NamespaceMatcherBuilder ByNamespace(string mask)
         {
             var matcherBuilder = new NamespaceMatcherBuilder {Mask = mask};
-            _builders.Add(matcherBuilder);
-            return matcherBuilder;
+            return AddBuilder(matcherBuilder);
         }
 
         public AttributeMatcherBuilder MarkedWith(params Type[] attributeTypes)
         {
-            return new AttributeMatcherBuilder {AttributeTypes = attributeTypes};
+            var builder = new AttributeMatcherBuilder {AttributeTypes = attributeTypes};
+            return AddBuilder(builder);
+        }
+
+        private TMatcherBuilder AddBuilder<TMatcherBuilder>(TMatcherBuilder builder) 
+            where TMatcherBuilder : IMatcherBuilder
+        {
+            _builders.Add(builder);
+            return builder;
         }
 
         public IMatcher ToMatcher()

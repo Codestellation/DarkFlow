@@ -2,7 +2,7 @@
 
 namespace Codestellation.DarkFlow.Bootstrap
 {
-    public interface IIMatcherBuilder
+    public interface IMatcherBuilder
     {
         IMatcher ToMatcher();
     }

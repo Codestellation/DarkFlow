@@ -23,9 +23,9 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         public void Setup()
         {
             _windsor = new WindsorContainer();
-            
 
             var facility = new DarkFlowFacility()
+                .RouteTasks(x => x.ByNamespace("Codestellation.*").To("someExecutor"))
                 .PersistTasks(x =>
                     {
                         //TODO: Calls to To() are ugly, because they are completely ignored. Need more elegant solution to this.
