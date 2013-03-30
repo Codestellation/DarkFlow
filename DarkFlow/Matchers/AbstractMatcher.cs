@@ -6,7 +6,7 @@ namespace Codestellation.DarkFlow.Matchers
     public abstract class AbstractMatcher : IMatcher
     {
         private readonly MatchResult _matchResult;
-        protected readonly Logger Logger;
+        private readonly Logger Logger;
 
         protected AbstractMatcher(string queueName)
         {
@@ -24,10 +24,10 @@ namespace Codestellation.DarkFlow.Matchers
         {
             if (Match(task))
             {
-                Logger.Debug("Task {0} matched.");
+                Logger.Debug("Task {0} matched to {1}.", task, _matchResult.Value);
                 return _matchResult;
             }
-            Logger.Debug("Task {0} not matched.");
+            Logger.Debug("Task {0} not matched.", task);
             return MatchResult.NonMatched;
         }
     }

@@ -26,7 +26,7 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
 
                 if (Logger.IsDebugEnabled)
                 {
-                    Logger.Debug("Task {0} was tracked. Released.");
+                    Logger.Debug("Task {0} was tracked. Released.", task);
                 }
             }
             else
@@ -35,7 +35,7 @@ namespace Codestellation.DarkFlow.CastleWindsor.Impl
                 
                 if (Logger.IsDebugEnabled)
                 {
-                    Logger.Debug("Task {0} was not tracked. Disposed.");
+                    Logger.Debug("Task {0} was not tracked. Disposed.", task);
                 }
             }
         }

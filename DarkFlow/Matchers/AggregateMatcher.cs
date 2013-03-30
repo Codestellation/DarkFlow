@@ -21,12 +21,12 @@ namespace Codestellation.DarkFlow.Matchers
             
                 var result = matcher.TryMatch(task);
 
-                Logger.Debug("Task {0} matched.");
+                Logger.Debug("Task {0} matched.", task);
 
                 if (result) return result;
             }
 
-            Logger.Debug("Task {0} matched.");
+            Logger.Debug("Task {0} matched.", task);
 
             return MatchResult.NonMatched;
         }

@@ -34,7 +34,7 @@ namespace Codestellation.DarkFlow.Execution
 
                 if (Logger.IsDebugEnabled)
                 {
-                    Logger.Debug("Task {0} successfully disposed.");
+                    Logger.Debug("Task {0} successfully disposed.", task);
                 }
             }
             catch (Exception ex)
