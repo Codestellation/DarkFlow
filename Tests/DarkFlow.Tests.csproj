@@ -81,6 +81,7 @@
     <Compile Include="Core\Matchers\AttributeMatcherTests.cs" />
     <Compile Include="Core\Matchers\FuncMatcherTests.cs" />
     <Compile Include="Core\Matchers\NamespaceMatcherTests.cs" />
+    <Compile Include="Core\Scheduling\SmartTimerTests.cs" />
     <Compile Include="DisposableTask.cs" />
     <Compile Include="Core\Execution\DatabaseTests.cs" />
     <Compile Include="Core\Execution\TaskRepositoryTests.cs" />
