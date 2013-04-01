@@ -42,7 +42,7 @@ namespace Codestellation.DarkFlow.Execution
 
             if (Logger.IsDebugEnabled)
             {
-                Logger.Debug("Added {0}.");
+                Logger.Debug("Added '{0}'.", task);
             }
 
             _router.Route(envelope);
