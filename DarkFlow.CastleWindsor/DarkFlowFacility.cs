@@ -52,8 +52,6 @@ namespace Codestellation.DarkFlow.CastleWindsor
             }
             var matcher = _routerMatcherBuilder.Build();
 
-
-
             Kernel.Register(
                 Component
                     .For<ITaskRouter>()
@@ -108,26 +106,36 @@ namespace Codestellation.DarkFlow.CastleWindsor
                     .LifestyleSingleton());
         }
 
-
         private void RegisterPersistenceComponents()
         {
-            string persistedFolder = PersistedTaskFolder ?? ManagedEsentDatabase.DefaultTaskFolder;
+            if (_persisterMatchersBuilder == null)
+            {
+                Kernel.Register(
+                    Component
+                        .For<IPersister>()
+                        .Instance(NullPersister.Instance)
+                        .LifestyleSingleton());
+            }
+            else
+            {
+                var matcher = _persisterMatchersBuilder.Build();
 
-            var matcher = _persisterMatchersBuilder.Build();
+                var persisterRegistration = Component
+                    .For<IPersister>()
+                    .ImplementedBy<WindsorPersister>()
+                    .DependsOn(new {matcher})
+                    .LifestyleSingleton();
 
-            var persisterRegistration = Component
-                .For<IPersister>()
-                .ImplementedBy<WindsorPersister>()
-                .DependsOn(new {matcher })
-                .LifestyleSingleton();
+                string persistedFolder = PersistedTaskFolder ?? ManagedEsentDatabase.DefaultTaskFolder;
 
-            var databaseRegistration = _databaseRegistration ?? Component
-                .For<IDatabase>()
-                .ImplementedBy<ManagedEsentDatabase>()
-                .DependsOn(new { persistedFolder })
-                .LifestyleSingleton();
+                var databaseRegistration = _databaseRegistration ?? Component
+                                                                        .For<IDatabase>()
+                                                                        .ImplementedBy<ManagedEsentDatabase>()
+                                                                        .DependsOn(new {persistedFolder})
+                                                                        .LifestyleSingleton();
 
-            Kernel.Register(persisterRegistration, databaseRegistration);
+                Kernel.Register(persisterRegistration, databaseRegistration);
+            }
         }
 
         private void RegisterScheduler()
