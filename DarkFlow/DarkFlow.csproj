@@ -69,6 +69,7 @@
     <Compile Include="Bootstrap\Create.cs" />
     <None Include="DarkFlow.nuspec" />
     <Compile Include="Bootstrap\ExecutionContainer.cs" />
+    <Compile Include="Bootstrap\ExecutorBuilder.cs" />
     <Compile Include="Bootstrap\IMatcherBuilder.cs" />
     <Compile Include="Bootstrap\AggregateMatcherBuilder.cs" />
     <Compile Include="Bootstrap\NamespaceMatcherBuilder.cs" />

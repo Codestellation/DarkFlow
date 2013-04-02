@@ -10,33 +10,32 @@ namespace Codestellation.DarkFlow.Bootstrap
     {
         public static IExecutor FromXmlConfig()
         {
+            var builder = new ExecutorBuilder();
+
             var config = DarkFlowConfiguration.Instance;
 
-            var executors = new QueuedExecutor[config.Executors.Count];
-
-            var database = new ManagedEsentDatabase();
-
-
-            var persisterMatcher = BuildMatcher(config.Persistence.Matchers);
-
-            var persister = new Persister(database, persisterMatcher.Build());
-
-            for (int i = 0; i < config.Executors.Count; i++)
+            foreach (var settings in config.Executors)
             {
-                executors[i] = new QueuedExecutor(config.Executors[i], persister);
+                builder.WithQueuedExecutors(settings);
             }
 
-            var routerMatcher = BuildMatcher(config.Routes);
+            if (config.Persistence.Matchers.Count > 0)
+            {
+                var persisterMatcherBuilder = BuildMatcher(config.Persistence.Matchers);
+                
+                builder
+                    .PersistTasks(mb => mb.AddBuilder(persisterMatcherBuilder))
+                    .UseManagedEsentDatabase();
+            }
 
-            var router = new TaskRouter(routerMatcher.Build(), executors);
-            
-            var dispatcher = new TaskDispatcher((byte) config.Dispatcher.MaxConcurrency, executors);
 
-            var result = new Executor(router, dispatcher, DefaultReleaser.Instance);
+            var routerMatcherBuilder = BuildMatcher(config.Routes);
 
-            var container = new DisposableContainer(result, result, dispatcher, router, executors, persister, database);
+            builder
+                .MaxConcurrency(config.Dispatcher.MaxConcurrency)
+                .RouteTasks(mb => mb.AddBuilder(routerMatcherBuilder));
 
-            return container;
+            return builder.Build();
         }
 
         //note - usage of default queue name is merely hach to bring things to work without refactoting matchers. (Persister does not need to know queue name)
@@ -73,5 +72,12 @@ namespace Codestellation.DarkFlow.Bootstrap
             
             return result;
         }
+
+        public static ExecutorBuilder Executor
+        {
+            get {return new ExecutorBuilder();}
+        }
+
+        
     }
 }
