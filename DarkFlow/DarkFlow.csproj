@@ -91,6 +91,7 @@
     <Compile Include="Matchers\IMatcher.cs" />
     <Compile Include="Execution\IPersister.cs" />
     <Compile Include="Execution\ITaskRouter.cs" />
+    <Compile Include="Matchers\MatchResult.cs" />
     <Compile Include="Matchers\NamespaceMatcher.cs" />
     <Compile Include="Execution\NullPersister.cs" />
     <Compile Include="Execution\QueuedExecutor.cs" />
