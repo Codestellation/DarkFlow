@@ -12,7 +12,6 @@ namespace Codestellation.DarkFlow.Scheduling
         private readonly Dictionary<DateTimeOffset, Timer> _timers;
         private readonly IClock _clock;
         private Action<DateTimeOffset> _callback;
-        private const string DateTimeLogFormat = "yyyy.MM.dd HH:mm:ss.ffff K";
 
         public SmartTimer(IClock clock)
         {
@@ -63,7 +62,7 @@ namespace Codestellation.DarkFlow.Scheduling
             {
                 if (Logger.IsWarnEnabled)
                 {
-                    Logger.Warn("Attempt to start timer in past: now '{0}', StartAt '{1}', dueTime {2}", now.ToString(DateTimeLogFormat), startAt.ToString(DateTimeLogFormat), dueTime.ToString(DateTimeLogFormat));
+                    Logger.Warn("Attempt to start timer in past: now '{0:yyyy.MM.dd HH:mm:ss.ffff K}', StartAt '{1:yyyy.MM.dd HH:mm:ss.ffff K}', dueTime {2:yyyy.MM.dd HH:mm:ss.ffff K}", now, startAt, dueTime);
                 }
                 Callback(startAt);
                 return null;
@@ -78,7 +77,7 @@ namespace Codestellation.DarkFlow.Scheduling
 
             if (Logger.IsDebugEnabled)
             {
-                Logger.Debug("Callback for timer fired at {0}", startAt.ToString(DateTimeLogFormat));
+                Logger.Debug("Callback for timer fired at {0:yyyy.MM.dd HH:mm:ss.ffff K}", startAt);
             }
 
             try
