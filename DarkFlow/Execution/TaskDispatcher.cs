@@ -84,7 +84,7 @@ namespace Codestellation.DarkFlow.Execution
         {
             Contract.Require(change == -1 || change == 1, "change == -1 || change == 1");
 
-            if (DisposeInProgress || Disposed)
+            if (Disposed)
             {
                 return;
             }
@@ -136,13 +136,8 @@ namespace Codestellation.DarkFlow.Execution
             //note: thread name would be cleaned up by CLR ThreadPool when thread returns there, so it safe to name it.
             Thread.CurrentThread.Name = "DarkFlow#" + executionInfo.OwnedCellIndex;
 
-            while (true)
+            while (!Disposed)
             {
-                if (DisposeInProgress || Disposed)
-                {
-                    break;
-                }
-                
                 var envelope = TakeNextTask();
                 
                 executionInfo.CurrentTask = envelope;

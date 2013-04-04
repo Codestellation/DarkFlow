@@ -100,7 +100,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
 
             Task.Factory.StartNew( () => 
             {
-                while (_pool.DisposeInProgress == false)
+                while (_pool.Disposed == false)
                 {
                     
                 }

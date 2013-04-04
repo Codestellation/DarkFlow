@@ -51,7 +51,6 @@ namespace Codestellation.DarkFlow.Tests.Core.Scheduling
 
             _scheduler.Schedule(_task, new PeriodicalSchedule(firstStart, TimeSpan.FromSeconds(2)));
 
-            
             ChangeTimeAndFireCallback(firstStart);
             Assert.That(_testTimer.ContainsTimepoint(firstStart));
 

@@ -5,16 +5,17 @@ using Codestellation.DarkFlow.Schedules;
 
 namespace Codestellation.DarkFlow.Scheduling
 {
-    public class Scheduler : Disposable, IScheduler 
+    public class Scheduler : Disposable, IScheduler
     {
         private readonly IExecutor _executor;
         private readonly IClock _clock;
         private readonly TaskSource _taskSource;
         private ITimer _timer;
 
-        public Scheduler(IExecutor executor) : this(executor, RealClock.Instance, new SmartTimer(RealClock.Instance))
+        public Scheduler(IExecutor executor)
+            : this(executor, RealClock.Instance, new SmartTimer(RealClock.Instance))
         {
-            
+
         }
         public Scheduler(IExecutor executor, IClock clock, ITimer timer)
         {
@@ -26,12 +27,12 @@ namespace Codestellation.DarkFlow.Scheduling
             if (clock == null)
             {
                 throw new ArgumentNullException("clock");
-            } 
+            }
 
             if (timer == null)
             {
                 throw new ArgumentNullException("timer");
-            } 
+            }
 
             _executor = executor;
             _clock = clock;
@@ -43,6 +44,7 @@ namespace Codestellation.DarkFlow.Scheduling
 
         private void OnClosestChanged(DateTimeOffset startAt)
         {
+
             var now = _clock.Now;
             if (startAt <= now)
             {
@@ -50,10 +52,13 @@ namespace Codestellation.DarkFlow.Scheduling
                 OnTimerCallback(startAt);
                 return;
             }
-            
+
             Logger.Debug("StartAt is {0}. Now is {1}. Starting new timer", startAt, now);
 
-            _timer.CallbackAt(startAt);
+            if (!Disposed)
+            {
+                _timer.CallbackAt(startAt);
+            }
         }
 
         public void Schedule(ITask task, Schedule schedule)
@@ -68,7 +73,7 @@ namespace Codestellation.DarkFlow.Scheduling
                 throw new ArgumentNullException("schedule");
             }
 
-            _taskSource.AddTask(new[]{new ScheduledTask(schedule, task) });
+            _taskSource.AddTask(new[] { new ScheduledTask(schedule, task) });
         }
 
         private void OnTimerCallback(DateTimeOffset startAt)
@@ -107,10 +112,11 @@ namespace Codestellation.DarkFlow.Scheduling
         protected override void DisposeManaged()
         {
             var timer = _timer;
-            if (timer == null) return;
 
-            _timer.Dispose();
-            _timer = null;
+            if (timer != null)
+            {
+                timer.Dispose();
+            }
         }
     }
 }

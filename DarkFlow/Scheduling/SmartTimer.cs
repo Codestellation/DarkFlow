@@ -12,6 +12,7 @@ namespace Codestellation.DarkFlow.Scheduling
         private readonly Dictionary<DateTimeOffset, Timer> _timers;
         private readonly IClock _clock;
         private Action<DateTimeOffset> _callback;
+        private volatile bool _disposed;
 
         public SmartTimer(IClock clock)
         {
@@ -21,6 +22,7 @@ namespace Codestellation.DarkFlow.Scheduling
 
         public void Dispose()
         {
+            _disposed = true;
             using (var handle = new AutoResetEvent(false))
             {
                 foreach (var timer in _timers)
@@ -33,6 +35,12 @@ namespace Codestellation.DarkFlow.Scheduling
 
         public void CallbackAt(DateTimeOffset startAt)
         {
+
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+
             var timer = BuildTimer(startAt);
             if (timer == null) return;
             lock (_timers)
