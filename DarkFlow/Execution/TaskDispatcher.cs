@@ -60,7 +60,7 @@ namespace Codestellation.DarkFlow.Execution
                 throw new ArgumentOutOfRangeException("executionQueues", "List of execution queues cannot be empty.");
             }
 
-            if (executionQueues.All(x => x == null))
+            if (executionQueues.Any(x => x == null))
             {
                 throw new ArgumentOutOfRangeException("executionQueues", "Execution queues cannot contain null values.");
             }
@@ -160,8 +160,7 @@ namespace Codestellation.DarkFlow.Execution
 
             executionInfo.Release();
 
-            _executionQueues[index] = null;
-             
+            _executionInfos[index] = null;
 
             Interlocked.Decrement(ref _currentConcurrency);
         }
