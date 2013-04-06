@@ -79,6 +79,7 @@
     <Compile Include="Core\Execution\TaskRouterTests.cs" />
     <Compile Include="Core\Matchers\AggregateMatcherTests.cs" />
     <Compile Include="Core\Matchers\AttributeMatcherTests.cs" />
+    <Compile Include="Core\Matchers\ContentMatcherTests.cs" />
     <Compile Include="Core\Matchers\FuncMatcherTests.cs" />
     <Compile Include="Core\Matchers\NamespaceMatcherTests.cs" />
     <Compile Include="Core\Scheduling\SmartTimerTests.cs" />

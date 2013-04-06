@@ -87,6 +87,7 @@
     <Compile Include="Matchers\AbstractMatcher.cs" />
     <Compile Include="Matchers\AggregateMatcher.cs" />
     <Compile Include="Matchers\AttributeMatcher.cs" />
+    <Compile Include="Matchers\ContentMatcher.cs" />
     <Compile Include="Matchers\FuncMatcher.cs" />
     <Compile Include="Matchers\IMatcher.cs" />
     <Compile Include="Execution\IPersister.cs" />
