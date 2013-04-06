@@ -20,6 +20,37 @@ namespace Codestellation.DarkFlow.Bootstrap
             return AddBuilder(matcherBuilder);
         }
 
+
+        public AttributeMatcherBuilder MarkedWith<TAttribute>()
+            where TAttribute : Attribute
+        {
+            return MarkedWith(typeof (TAttribute));
+        }
+
+        public AttributeMatcherBuilder MarkedWith<TAttribute1, TAttribute2>()
+            where TAttribute1  : Attribute
+            where TAttribute2 : Attribute
+        {
+            return MarkedWith(typeof(TAttribute1), typeof(TAttribute2));
+        }
+
+        public AttributeMatcherBuilder MarkedWith<TAttribute1, TAttribute2, TAttribute3>()
+            where TAttribute1 : Attribute
+            where TAttribute2 : Attribute
+            where TAttribute3 : Attribute
+        {
+            return MarkedWith(typeof(TAttribute1), typeof(TAttribute2), typeof(TAttribute3));
+        }
+
+        public AttributeMatcherBuilder MarkedWith<TAttribute1, TAttribute2, TAttribute3, TAttribute4>()
+            where TAttribute1 : Attribute
+            where TAttribute2 : Attribute
+            where TAttribute3 : Attribute
+            where TAttribute4 : Attribute
+        {
+            return MarkedWith(typeof(TAttribute1), typeof(TAttribute2), typeof(TAttribute3), typeof(TAttribute3));
+        }
+
         public AttributeMatcherBuilder MarkedWith(params Type[] attributeTypes)
         {
             var builder = new AttributeMatcherBuilder {AttributeTypes = attributeTypes};
