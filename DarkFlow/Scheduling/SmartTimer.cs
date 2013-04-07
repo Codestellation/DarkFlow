@@ -10,8 +10,9 @@ namespace Codestellation.DarkFlow.Scheduling
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly Dictionary<DateTimeOffset, Timer> _timers;
-        private IClock _clock;
+        private readonly IClock _clock;
         private Action<DateTimeOffset> _callback;
+        private volatile bool _disposed;
 
         public SmartTimer(IClock clock)
         {
@@ -21,6 +22,7 @@ namespace Codestellation.DarkFlow.Scheduling
 
         public void Dispose()
         {
+            _disposed = true;
             using (var handle = new AutoResetEvent(false))
             {
                 foreach (var timer in _timers)
@@ -33,6 +35,12 @@ namespace Codestellation.DarkFlow.Scheduling
 
         public void CallbackAt(DateTimeOffset startAt)
         {
+
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+
             var timer = BuildTimer(startAt);
             if (timer == null) return;
             lock (_timers)
@@ -62,7 +70,7 @@ namespace Codestellation.DarkFlow.Scheduling
             {
                 if (Logger.IsWarnEnabled)
                 {
-                    Logger.Warn("Attempt to start timer in past: now '{0}', StartAt '{1}', dueTime {2}", now, startAt, dueTime);
+                    Logger.Warn("Attempt to start timer in past: now '{0:yyyy.MM.dd HH:mm:ss.ffff K}', StartAt '{1:yyyy.MM.dd HH:mm:ss.ffff K}', dueTime {2:yyyy.MM.dd HH:mm:ss.ffff K}", now, startAt, dueTime);
                 }
                 Callback(startAt);
                 return null;
@@ -74,6 +82,12 @@ namespace Codestellation.DarkFlow.Scheduling
         private void OnTimerCallback(object state)
         {
             var startAt = (DateTimeOffset)state;
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Callback for timer fired at {0:yyyy.MM.dd HH:mm:ss.ffff K}", startAt);
+            }
+
             try
             {
                 var callback = Callback;
@@ -84,12 +98,19 @@ namespace Codestellation.DarkFlow.Scheduling
             finally
             {
                 Timer timer;
+                
                 lock (_timers)
                 {
-                    timer = _timers[startAt];
-                    _timers.Remove(startAt);
+                    if (_timers.TryGetValue(startAt, out timer))
+                    {
+                        _timers.Remove(startAt);
+                    }
                 }
-                timer.Dispose();
+
+                if (timer != null)
+                {
+                    timer.Dispose();
+                }
             }
         }
     }

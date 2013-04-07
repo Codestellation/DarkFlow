@@ -5,7 +5,6 @@ namespace Codestellation.DarkFlow.Misc
 {
     public abstract class Disposable : IDisposable
     {
-        private volatile bool _disposeInProgress;
         private volatile bool _disposed;
         protected readonly Logger Logger;
 
@@ -17,16 +16,6 @@ namespace Codestellation.DarkFlow.Misc
         public bool Disposed
         {
             get { return _disposed; }
-        }
-
-        public bool DisposeInProgress
-        {
-            get { return _disposeInProgress; }
-        }
-
-        protected bool IsNotDisposed 
-        {
-            get { return DisposeInProgress == false && Disposed == false; }
         }
 
         public void Dispose()
@@ -43,7 +32,7 @@ namespace Codestellation.DarkFlow.Misc
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed) return;
-            _disposeInProgress = true;
+            _disposed = true;
 
             if (Logger.IsDebugEnabled)
             {
@@ -76,8 +65,6 @@ namespace Codestellation.DarkFlow.Misc
             {
                 Logger.Debug("Dispose unmanaged resources finished.");
             }
-
-            _disposed = true;
         }
 
         protected abstract void DisposeManaged();
