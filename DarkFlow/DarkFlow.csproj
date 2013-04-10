@@ -66,6 +66,7 @@
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
     <Compile Include="Bootstrap\AttributeMatcherBuilder.cs" />
+    <Compile Include="Bootstrap\ContentMatcherBuilder.cs" />
     <Compile Include="Bootstrap\Create.cs" />
     <None Include="DarkFlow.nuspec" />
     <Compile Include="Bootstrap\ExecutionContainer.cs" />

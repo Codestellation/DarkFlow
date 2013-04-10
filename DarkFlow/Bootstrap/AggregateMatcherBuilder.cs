@@ -75,5 +75,10 @@ namespace Codestellation.DarkFlow.Bootstrap
 
             return new AggregateMatcher(matchers);
         }
+
+        public ContentMatcherBuilder ByContent(string template)
+        {
+            return new ContentMatcherBuilder(template);
+        }
     }
 }

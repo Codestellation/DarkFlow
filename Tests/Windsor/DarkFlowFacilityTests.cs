@@ -33,13 +33,13 @@ namespace Codestellation.DarkFlow.Tests.Windsor
                     {
                         x.ByNamespace("Codestellation.*").To("someExecutor");
                         x.MarkedWith<MarkerAttribute>().To("someExecutor");
+                        x.ByContent("executor.{Name}").CacheEnvironments();
                     })
                 .PersistTasks(x =>
                     {
                         //TODO: Calls to To() are ugly, because they are completely ignored. Need more elegant solution to this.
                         x.ByNamespace("Codestellation.*").To("xx");
                         x.MarkedWith<MarkerAttribute>().To("xx");
-
                     });
 
             _windsor.AddFacility(facility);
