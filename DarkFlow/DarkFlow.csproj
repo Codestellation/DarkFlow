@@ -104,6 +104,7 @@
     <Compile Include="Misc\ContractException.cs" />
     <Compile Include="Misc\Extensions.cs" />
     <Compile Include="Misc\ISupportStart.cs" />
+    <Compile Include="PersistentAttribute.cs" />
     <Compile Include="Schedules\Every.cs" />
     <Compile Include="Execution\DefaultReleaser.cs" />
     <Compile Include="Database\InMemoryDatabase.cs" />
