@@ -7,7 +7,6 @@ using NLog;
 
 namespace Codestellation.DarkFlow.Execution
 {
-    //TODO This class should take care of pushing tasks to queues, or die otherwise.
     public class TaskRouter : ITaskRouter
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -30,16 +29,15 @@ namespace Codestellation.DarkFlow.Execution
             _executors = taskQueues.ToDictionary(x => x.Name, x => x);
         }
 
-        public void Route(ExecutionEnvelope task)
+        public void Route(ExecutionEnvelope envelope)
         {
-            Contract.Require(task != null, "task != null");
+            Contract.Require(envelope != null, "envelope != null");
 
-            var result = _matcher.TryMatch(task.Task);
-
+            var result = _matcher.TryMatch(envelope.Task);
 
             if (!result)
             {
-                throw new InvalidOperationException(string.Format("Task {0} does not match any executor", task));
+                throw new InvalidOperationException(string.Format("Task {0} does not match any executor", envelope.Task));
             }
 
             IExecutorImplementation executor = null;
@@ -50,14 +48,14 @@ namespace Codestellation.DarkFlow.Execution
             {
                 if (Logger.IsDebugEnabled)
                 {
-                    Logger.Debug("Task {0} routed to {1}", task, executor.Name);
+                    Logger.Debug("Task {0} routed to {1}", envelope.Task, executor.Name);
                 }
 
-                executor.Enqueue(task);
+                executor.Enqueue(envelope);
             }
             else
             {
-                var message = string.Format("Not found executor '{0}' for task {1}", executorName, task);
+                var message = string.Format("Not found executor '{0}' for task {1}", executorName, envelope.Task);
                 throw new InvalidOperationException(message);
             }
         }
