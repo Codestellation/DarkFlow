@@ -77,11 +77,18 @@ namespace Codestellation.DarkFlow.Matchers
         private string GetMemberValue(ITask task, string memberName)
         {
             var getter = _cachedGetters.GetOrAddThreadSafe(Tuple.Create(task.GetType(), memberName), BuildGetter);
-            
+
             return getter(task);
         }
 
-        private Func<ITask, string> BuildGetter(Tuple<Type,string> typeAndMemberName)
+        private Func<ITask, string> BuildGetter(Tuple<Type, string> typeAndMemberName)
+        {
+            var memberInfo = GetMemberByName(typeAndMemberName);
+
+            return BuildExpression(memberInfo);
+        }
+
+        private static MemberInfo GetMemberByName(Tuple<Type, string> typeAndMemberName)
         {
             const BindingFlags bindingFlags =
                 BindingFlags.Public |
@@ -95,58 +102,32 @@ namespace Codestellation.DarkFlow.Matchers
 
             var memberInfo =
                 typeAndMemberName.Item1
-                    .GetMembers(bindingFlags)
-                    .Where(x => x.MemberType == MemberTypes.Property || x.MemberType == MemberTypes.Field)
-                    .SingleOrDefault(member => member.Name.Equals(memberName, StringComparison.OrdinalIgnoreCase));
+                                 .GetMembers(bindingFlags)
+                                 .Where(x => x.MemberType == MemberTypes.Property || x.MemberType == MemberTypes.Field)
+                                 .SingleOrDefault(member => member.Name.Equals(memberName, StringComparison.OrdinalIgnoreCase));
 
-            if (memberInfo != null)
+            if (memberInfo == null)
             {
-                switch (memberInfo.MemberType)
-                {
-                    case MemberTypes.Field:
-                        return BuildFieldGetter((FieldInfo)memberInfo);
-                    case MemberTypes.Property:
-                        return BuildPropertyGetter((PropertyInfo)memberInfo);
-                }
-                
+                var message = string.Format("Member '{0}' not found in '{1}'", memberName, typeAndMemberName.Item1);
+                throw new InvalidOperationException(message);
             }
-            var message = string.Format("Member '{0}' not found in '{1}'", memberName, typeAndMemberName.Item1);
-            throw new InvalidOperationException(message);
+            return memberInfo;
         }
 
-        private Func<ITask, string> BuildPropertyGetter(PropertyInfo property)
+        private static Func<ITask, string> BuildExpression(MemberInfo memberInfo)
         {
             ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
 
-            var taskType  = property.DeclaringType;
-            var castedTarget = Expression.Convert(instanceParameter, taskType);
+            Type taskType = memberInfo.DeclaringType;
+            UnaryExpression castedTarget = Expression.Convert(instanceParameter, taskType);
 
-            MemberExpression member = Expression.Property(castedTarget, property);
+            MemberExpression member = Expression.PropertyOrField(castedTarget, memberInfo.Name);
 
-            var toStringMethodInfo = taskType.GetMethod("ToString");
+            MethodInfo toStringMethodInfo = taskType.GetMethod("ToString");
 
-            var toString = Expression.Call(member, toStringMethodInfo);
+            MethodCallExpression toString = Expression.Call(member, toStringMethodInfo);
 
-            var lambda = Expression.Lambda<Func<object, string>>(toString, instanceParameter);
-
-            return lambda.Compile();
-        }
-
-        private Func<ITask, string> BuildFieldGetter(FieldInfo field)
-        {
-            var taskType = field.DeclaringType;
-
-            ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
-            
-            var castedTarget = Expression.Convert(instanceParameter, taskType);
-
-            MemberExpression member = Expression.Field(castedTarget, field);
-
-            var toStringMethodInfo = taskType.GetMethod("ToString");
-
-            var toString = Expression.Call(member, toStringMethodInfo);
-
-            var lambda = Expression.Lambda<Func<object, string>>(toString, instanceParameter);
+            Expression<Func<object, string>> lambda = Expression.Lambda<Func<object, string>>(toString, instanceParameter);
 
             return lambda.Compile();
         }
