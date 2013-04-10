@@ -14,7 +14,7 @@ namespace Codestellation.DarkFlow.Matchers
         private readonly List<Func<ITask, string>> _orderedGetters;
         private readonly Dictionary<Tuple<Type, string>, Func<ITask, string>> _cachedGetters;
 
-        public ContentMatcher(string template)
+        public ContentMatcher(string template, bool cacheEnvrionmentVariables = true)
         {
             if (string.IsNullOrWhiteSpace(template))
             {
@@ -54,8 +54,16 @@ namespace Codestellation.DarkFlow.Matchers
                         var message = string.Format("Environment variable '{0}' from template '{1}' was not found", token, template);
                         throw new ArgumentException(message, template);
                     }
-
-                    _orderedGetters.Add(task => Environment.GetEnvironmentVariable(environmentVariable));
+                    if (cacheEnvrionmentVariables)
+                    {
+                        var value = Environment.GetEnvironmentVariable(environmentVariable);
+                        _orderedGetters.Add(task => value);
+                    }
+                    else
+                    {
+                        _orderedGetters.Add(task => Environment.GetEnvironmentVariable(environmentVariable));
+                    }
+                    
                 }
                 else
                 {
