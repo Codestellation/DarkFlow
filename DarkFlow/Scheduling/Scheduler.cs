@@ -93,12 +93,16 @@ namespace Codestellation.DarkFlow.Scheduling
                     _executor.Execute(scheduledTask.Task);
                     scheduledTask.Schedule.StartedAt(now);
                 }
+                
+                if (!Disposed)
+                {
+                    var tasksToReschedule = tasksToRun.Where(x => x.Schedule.SchedulingRequired).ToArray();
 
-                var tasksToReschedule = tasksToRun.Where(x => x.Schedule.SchedulingRequired).ToArray();
+                    Logger.Debug("{0} tasks need rescheduling.", tasksToReschedule.Length);
 
-                Logger.Debug("{0} tasks need rescheduling.", tasksToReschedule.Length);
+                    _taskSource.AddTask(tasksToReschedule);
+                }
 
-                _taskSource.AddTask(tasksToReschedule);
             }
             catch (Exception ex)
             {

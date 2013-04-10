@@ -2,6 +2,6 @@
 {
     public interface ITaskRouter
     {
-        void Route(ExecutionEnvelope task);
+        void Route(ExecutionEnvelope envelope);
     }
 }
