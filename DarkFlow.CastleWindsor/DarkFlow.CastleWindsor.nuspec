@@ -11,10 +11,7 @@
     <description>Build scripts for Codestellation projects.</description>
     <copyright>Copyright (c) 2013 Codestellation</copyright>
     <dependencies>
-      <dependency id="Codestellation.DarkFlow" version="0.1.19" />
-      <dependency id="ManagedEsent" version="1.6" />
-      <dependency id="Newtonsoft.Json" version="4.5.11" />
-      <dependency id="NLog" version="2.0.0.2000" />
+      <dependency id="Codestellation.DarkFlow" version="0.2.0" />
     </dependencies>
   </metadata>
 </package>

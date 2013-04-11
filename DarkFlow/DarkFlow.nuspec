@@ -11,9 +11,11 @@
     <description>Build scripts for Codestellation projects.</description>
     <copyright>Copyright (c) 2013 Codestellation</copyright>
     <dependencies>
+        <dependency id="Bender" version="1.0.23.0"/>
         <dependency id="ManagedEsent" version="1.6" />
         <dependency id="Newtonsoft.Json" version="4.5.11" />
         <dependency id="NLog" version="2.0.0.2000" />
+        <dependency id="SimpleConfig" version="1.0.18.0"/>
     </dependencies>
   </metadata>
 </package>
