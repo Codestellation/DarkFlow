@@ -85,6 +85,8 @@ namespace Codestellation.DarkFlow.Database
         protected override void DisposeManaged()
         {
             _database.Flush();
+            //TODO: this is commented to prevent deadlock between topshelf and managedesent. Just let finalizer do it work :(
+            // PersistentDictionary implementes correct disposable pattern, resources would be freed.
             _database.Dispose();
         }
     }
