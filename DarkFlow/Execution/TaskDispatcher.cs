@@ -6,7 +6,7 @@ using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Execution
 {
-    public class TaskDispatcher : Disposable
+    public partial class TaskDispatcher : Disposable
     {
         private readonly byte _maxConcurrency;
         private readonly IExecutionQueue[] _executionQueues;
@@ -14,34 +14,7 @@ namespace Codestellation.DarkFlow.Execution
         private int _currentConcurrency;
         private readonly ExecutionInfo[] _executionInfos;
 
-        private class ExecutionInfo
-        {
-            //TODO I guess more sophisticated sync could be involved.
-            public volatile Task TplTask;
-            public volatile ExecutionEnvelope CurrentTask;
-            public volatile int OwnedCellIndex;
 
-            public ExecutionInfo()
-            {
-                OwnedCellIndex = -1;
-            }
-
-            public void WaitTaskFinished()
-            {
-                var tplTask = TplTask;
-
-                if (tplTask != null)
-                {
-                    TplTask.Wait();
-                }
-            }
-
-            public void Release()
-            {
-                OwnedCellIndex = -1;
-                CurrentTask = null;
-            }
-        }
 
         public TaskDispatcher(byte maxConcurrency, IExecutionQueue[] executionQueues)
         {
@@ -84,18 +57,24 @@ namespace Codestellation.DarkFlow.Execution
         {
             Contract.Require(change == -1 || change == 1, "change == -1 || change == 1");
 
-            if (Disposed)
-            {
-                return;
-            }
+            if (Disposed) return;
+            
             
             var pendingsNow = Interlocked.Add(ref _taskPending, change);
 
-            if (pendingsNow <= 0 || _currentConcurrency >= _maxConcurrency) return;
+            if (pendingsNow <= 0) return;
             
+            TryStartNewThread();
+        }
+
+        private void TryStartNewThread()
+        {
+            if(Disposed) return;
+            if (_currentConcurrency >= _maxConcurrency) return;
+
             //Second check to ensure concurrency threshold would not be exceeded.
             var currentConcurrency = Interlocked.Increment(ref _currentConcurrency);
-                
+
             if (currentConcurrency <= _maxConcurrency)
             {
                 if (Logger.IsDebugEnabled)
@@ -106,20 +85,11 @@ namespace Codestellation.DarkFlow.Execution
                 var executionInfo = new ExecutionInfo();
                 var task = new Task(PerformTasks, executionInfo);
 
-                for (int i = 0; i < _executionInfos.Length; i++)
-                {
-                    var originalValue =  Interlocked.CompareExchange(ref _executionInfos[i], executionInfo, null);
-                    var cellAlreadyOwned = originalValue != null;
 
-                    if (cellAlreadyOwned) continue;
-                    
-                    executionInfo.OwnedCellIndex = i;
-                    executionInfo.TplTask = task;
-                    
-                    break;
-                }
+                executionInfo.TakeFreeCell(_executionInfos);
 
-                Contract.Require(executionInfo.OwnedCellIndex > -1, "executionInfo.OwnedCellIndex > -1");
+                
+                executionInfo.TplTask = task;
 
                 task.Start();
             }
@@ -150,14 +120,15 @@ namespace Codestellation.DarkFlow.Execution
                 envelope.ExecuteTask();
             }
 
-            //ExecutionInfo.Release() drops the index. So it preserved.
-            var index = executionInfo.OwnedCellIndex;
-
             executionInfo.Release();
 
-            _executionInfos[index] = null;
+            var currentConcurrency = Interlocked.Decrement(ref _currentConcurrency);
 
-            Interlocked.Decrement(ref _currentConcurrency);
+            //This prevents situation with a task hanging in a queue in very specific conditions 
+            if (currentConcurrency == 0 && _taskPending > 0)
+            {
+                TryStartNewThread();
+            }
         }
 
         //note: this methods suppose that execution queues already sorted, so priority already  applied.

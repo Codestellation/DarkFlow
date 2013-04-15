@@ -139,6 +139,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <Compile Include="Misc\Contract.cs" />
+    <Compile Include="Execution\TaskDispatcher.ExecutionInfo.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
