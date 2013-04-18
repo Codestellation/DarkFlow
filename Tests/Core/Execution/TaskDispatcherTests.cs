@@ -12,7 +12,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
     public class TaskDispatcherTests
     {
         private QueuedExecutor _queue;
-        private TaskDispatcher _pool;
+        private TaskDispatcher _taskDispatcher;
         private List<LongRunningTask> _tasks;
         private QueuedExecutor _queue2;
 
@@ -26,7 +26,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             var settings2 = new QueuedExecutorSettings{ Name = "test" };
             _queue2 = new QueuedExecutor(settings2, NullPersister.Instance);
 
-            _pool = new TaskDispatcher(2, new IExecutionQueue[] { _queue, _queue2 });
+            _taskDispatcher = new TaskDispatcher(2, new IExecutionQueue[] { _queue, _queue2 });
         }
 
         [TearDown]
@@ -96,20 +96,22 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
             var envelope = CreateTask("Run");
             _queue.Enqueue(envelope);
 
-            Assert.That(((LongRunningTask)envelope.Task).WaitForStart(), Is.True);
+            var longRunningTask = (LongRunningTask) envelope.Task;
 
-            Task.Factory.StartNew( () => 
-            {
-                while (_pool.Disposed == false)
-                {
-                    
-                }
-                ((LongRunningTask)envelope.Task).Finilize();
-            });
+            Assert.That(longRunningTask.WaitForStart(), Is.True);
 
-            _pool.Dispose();
+            var task = Task.Factory.StartNew( () => _taskDispatcher.Dispose());
 
-            Assert.That(((LongRunningTask)envelope.Task).Executed, Is.True);
+            Assert.IsTrue(task.Wait(TimeSpan.FromSeconds(1)));
+
+            Assert.That(longRunningTask.Running, Is.True);
+            Assert.That(longRunningTask.Executed, Is.False);
+
+            longRunningTask.Finilize();
+
+            longRunningTask.WaitForFinish();
+            
+            Assert.That(longRunningTask.Executed, Is.True);
         }
 
         private  ExecutionEnvelope CreateTask( string name, bool manualFinish = true)

@@ -9,6 +9,7 @@ namespace Codestellation.DarkFlow.Tests
         private readonly ManualResetEventSlim _started;
         private readonly ManualResetEventSlim _finished;
         private readonly ManualResetEventSlim _canFinish;
+        private int _internalBooleans;
 
         public LongRunningTask(bool manualFinish)
         {
@@ -17,9 +18,15 @@ namespace Codestellation.DarkFlow.Tests
             _canFinish = new ManualResetEventSlim(!manualFinish);
         }
 
-        public bool Running { get; private set; }
+        public bool Running
+        {
+            get { return (_internalBooleans & 1) == 1; }
+        }
 
-        public bool Executed { get; private set; }
+        public bool Executed
+        {
+            get { return (_internalBooleans & 2) == 2; }
+        }
 
         public string Name { get; set; }
 
@@ -45,14 +52,14 @@ namespace Codestellation.DarkFlow.Tests
 
         public void Execute()
         {
-            Running = true;
+            Interlocked.Exchange(ref _internalBooleans, 1);
             _started.Set();
             
             Console.WriteLine("Running task {0}, at {1}. Thread {2}-'{3}'", Name, DateTime.Now, Thread.CurrentThread.ManagedThreadId, Thread.CurrentThread.Name);
             _canFinish.Wait();
-            
-            Running = false;
-            Executed = true;
+
+            Interlocked.Exchange(ref _internalBooleans, 2);
+
             Interlocked.Increment(ref _runCount);
             _finished.Set();
         }
