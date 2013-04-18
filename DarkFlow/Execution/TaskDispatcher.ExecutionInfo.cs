@@ -12,6 +12,12 @@ namespace Codestellation.DarkFlow.Execution
           public volatile Task TplTask;
           public volatile ExecutionEnvelope CurrentTask;
           private int _ownedCellIndex;
+          private const int Free = -1;
+
+          public ExecutionInfo()
+          {
+              _ownedCellIndex = Free;
+          }
 
           public int OwnedCellIndex
           {
@@ -30,18 +36,18 @@ namespace Codestellation.DarkFlow.Execution
           {
               Contract.Require(CurrentTask != null, "CurrentTask != null");
               Contract.Require(TplTask != null, "TplTask != null");
-              Contract.Require(_ownedCellIndex > -1, "_ownedCellIndex > -1");
+              Contract.Require(_ownedCellIndex > Free, "_ownedCellIndex > Free");
 
               CurrentTask = null;
               TplTask = null;
-              _ownedCellIndex = -1;
+              _ownedCellIndex = Free;
           }
 
           public void TakeFreeCell(ExecutionInfo[] executionInfos)
           {
               Contract.Require(CurrentTask == null, "CurrentTask == null");
               Contract.Require(TplTask == null, "TplTask == null");
-              Contract.Require(_ownedCellIndex == -1, "_ownedCellIndex == -1");
+              Contract.Require(_ownedCellIndex == Free, "_ownedCellIndex == Free");
 
               for (int index = 0; index < executionInfos.Length; index++)
               {
