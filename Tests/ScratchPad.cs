@@ -2,8 +2,9 @@
 
 namespace Codestellation.DarkFlow.Tests
 {
-    [TestFixture]
+    [TestFixture, Explicit]
     public class ScratchPad
     {
+
     }
 }
