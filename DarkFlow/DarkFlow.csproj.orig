@@ -26,42 +26,6 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
-<<<<<<< HEAD
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
-    <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
-    <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
-    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
-    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
-    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
-    <CodeContractsNonNullObligations>True</CodeContractsNonNullObligations>
-    <CodeContractsBoundsObligations>True</CodeContractsBoundsObligations>
-    <CodeContractsArithmeticObligations>True</CodeContractsArithmeticObligations>
-    <CodeContractsEnumObligations>True</CodeContractsEnumObligations>
-    <CodeContractsRedundantAssumptions>True</CodeContractsRedundantAssumptions>
-    <CodeContractsInferRequires>True</CodeContractsInferRequires>
-    <CodeContractsInferEnsures>True</CodeContractsInferEnsures>
-    <CodeContractsInferObjectInvariants>True</CodeContractsInferObjectInvariants>
-    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
-    <CodeContractsSuggestRequires>True</CodeContractsSuggestRequires>
-    <CodeContractsSuggestEnsures>True</CodeContractsSuggestEnsures>
-    <CodeContractsSuggestObjectInvariants>True</CodeContractsSuggestObjectInvariants>
-    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
-    <CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
-    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
-    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
-    <CodeContractsCustomRewriterAssembly />
-    <CodeContractsCustomRewriterClass />
-    <CodeContractsLibPaths />
-    <CodeContractsExtraRewriteOptions />
-    <CodeContractsExtraAnalysisOptions />
-    <CodeContractsBaseLineFile>..\..\baseline.xml</CodeContractsBaseLineFile>
-    <CodeContractsCacheAnalysisResults>True</CodeContractsCacheAnalysisResults>
-    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
-    <CodeContractsReferenceAssembly>DoNotBuild</CodeContractsReferenceAssembly>
-    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
-=======
->>>>>>> 68a56aa6648598c446e88fc0085d1b890d8e2112
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -73,6 +37,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bender">
+      <HintPath>..\packages\Bender.1.0.23.0\lib\Bender.dll</HintPath>
+    </Reference>
     <Reference Include="Esent.Collections, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\ManagedEsent.1.6\lib\net20\Esent.Collections.dll</HintPath>
@@ -84,70 +51,102 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+    <Reference Include="NLog, Version=2.0.1.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NLog.2.0.1.2\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="SimpleConfig">
+      <HintPath>..\packages\SimpleConfig.1.0.18.0\lib\SimpleConfig.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SolutionVersion.cs">
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
-    <Compile Include="Bootstrap\ExecutorBuilder.cs" />
-    <Compile Include="Bootstrap\ExecutorContainer.cs" />
-    <Compile Include="Bootstrap\LimitedConcurrencyBuilder.cs" />
-    <Compile Include="Bootstrap\QueuedExecutorBuilder.cs" />
+    <Compile Include="Async\AsyncTask.cs" />
+    <Compile Include="Async\LeanResult.cs" />
+    <Compile Include="Bootstrap\AttributeMatcherBuilder.cs" />
+    <Compile Include="Bootstrap\ContentMatcherBuilder.cs" />
     <Compile Include="Bootstrap\Create.cs" />
+    <Compile Include="Misc\CollectionUtils.cs" />
+    <Compile Include="Scheduling\Scheduler.TriggerComparer.cs" />
+    <Compile Include="Stat\Counter.cs" />
+    <Compile Include="Stat\IMonitor.cs" />
+    <Compile Include="Stat\Monitor.cs" />
+    <Compile Include="Stat\NullMonitor.cs" />
+    <Compile Include="Triggers\OneTimeTrigger.cs" />
+    <Compile Include="Triggers\PeriodicalTrigger.cs" />
+    <Compile Include="Triggers\Start.cs" />
+    <Compile Include="Triggers\TimerBasedTrigger.cs" />
+    <Compile Include="Triggers\TriggerTemplate.cs" />
     <None Include="DarkFlow.nuspec" />
+    <Compile Include="Bootstrap\ExecutionContainer.cs" />
+    <Compile Include="Bootstrap\ExecutorBuilder.cs" />
+    <Compile Include="Bootstrap\IMatcherBuilder.cs" />
+    <Compile Include="Bootstrap\AggregateMatcherBuilder.cs" />
+    <Compile Include="Bootstrap\NamespaceMatcherBuilder.cs" />
+    <Compile Include="Bootstrap\StaticExecutorNameBuilder.cs" />
+    <Compile Include="Config\DarkFlowConfiguration.cs" />
+    <Compile Include="Config\DispatcherSettings.cs" />
+    <Compile Include="Config\MatcherSettings.cs" />
+    <Compile Include="Config\PersistenceSettings.cs" />
     <Compile Include="Database\Identifier.cs" />
     <Compile Include="Database\Region.cs" />
+    <Compile Include="Execution\ExecutionEvenlope.cs" />
+    <Compile Include="Execution\ExplicitExecutor.cs" />
     <Compile Include="Execution\IExecutionQueue.cs" />
-    <Compile Include="Execution\TaskExecutionWrap.cs" />
-    <Compile Include="Execution\TaskQueue.cs" />
+    <Compile Include="Execution\PersisterBase.cs" />
+    <Compile Include="Matchers\AbstractMatcher.cs" />
+    <Compile Include="Matchers\AggregateMatcher.cs" />
+    <Compile Include="Matchers\AttributeMatcher.cs" />
+    <Compile Include="Matchers\ContentMatcher.cs" />
+    <Compile Include="Matchers\FuncMatcher.cs" />
+    <Compile Include="Matchers\IMatcher.cs" />
+    <Compile Include="Execution\IPersister.cs" />
+    <Compile Include="Execution\ITaskRouter.cs" />
+    <Compile Include="Matchers\MatchResult.cs" />
+    <Compile Include="Matchers\NamespaceMatcher.cs" />
+    <Compile Include="Execution\NullPersister.cs" />
+    <Compile Include="Execution\QueuedExecutor.cs" />
     <Compile Include="Execution\Executor.cs" />
-    <Compile Include="Execution\ITaskQueue.cs" />
+    <Compile Include="Execution\IExecutorImplementation.cs" />
     <Compile Include="Execution\TaskDispatcher.cs" />
+    <Compile Include="Config\QueuedExecutorSettings.cs" />
+    <Compile Include="Execution\TaskRouter.cs" />
+    <Compile Include="Misc\ContractException.cs" />
+<<<<<<< HEAD
+    <Compile Include="Misc\FactoryTask.cs" />
+=======
+    <Compile Include="Misc\ExceptionExtensions.cs" />
+    <Compile Include="Misc\Extensions.cs" />
+>>>>>>> Reconfigured async tasks
     <Compile Include="Misc\ISupportStart.cs" />
-    <Compile Include="Schedules\Every.cs" />
-    <Compile Include="Execution\BaseExecutor.cs" />
+    <Compile Include="PersistentAttribute.cs" />
     <Compile Include="Execution\DefaultReleaser.cs" />
-    <Compile Include="Execution\DefaultTaskFactory.cs" />
     <Compile Include="Database\InMemoryDatabase.cs" />
-    <Compile Include="Execution\ISerializer.cs" />
     <Compile Include="Database\IDatabase.cs" />
-    <Compile Include="Execution\ITaskFactory.cs" />
     <Compile Include="Execution\ITaskReleaser.cs" />
-    <Compile Include="Execution\ITaskRepository.cs" />
-    <Compile Include="Execution\JsonSerializer.cs" />
-    <Compile Include="Execution\LimitedConcurrencyExecutor.cs" />
+    <Compile Include="Execution\Persister.cs" />
     <Compile Include="Database\ManagedEsentDatabase.cs" />
-    <Compile Include="Execution\OrderedExecutor.cs" />
-    <Compile Include="Execution\TaskRepository.cs" />
-    <Compile Include="IPersistentTask.cs" />
     <Compile Include="IScheduler.cs" />
     <Compile Include="IExecutor.cs" />
     <Compile Include="Execution\SynchronousExecutor.cs" />
     <Compile Include="ITask.cs" />
-    <Compile Include="Misc\DateTimeOffsetExtensions.cs" />
     <Compile Include="Misc\Disposable.cs" />
     <Compile Include="Misc\IClock.cs" />
     <Compile Include="Misc\RealClock.cs" />
     <Compile Include="Misc\TestClock.cs" />
-    <Compile Include="Schedules\Once.cs" />
-    <Compile Include="Schedules\OnceSchedule.cs" />
-    <Compile Include="Schedules\PeriodicalSchedule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Schedules\Schedule.cs" />
-    <Compile Include="Schedules\ScheduleComparer.cs" />
-    <Compile Include="Scheduling\ITimer.cs" />
-    <Compile Include="Scheduling\ScheduledTask.cs" />
+    <Compile Include="ITrigger.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
-    <Compile Include="Scheduling\SmartTimer.cs" />
-    <Compile Include="Scheduling\TaskSource.cs" />
-    <Compile Include="Scheduling\TestTimer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <Compile Include="Misc\Contract.cs" />
+    <Compile Include="Execution\TaskDispatcher.ExecutionInfo.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
