@@ -28,7 +28,21 @@ namespace Codestellation.DarkFlow.Tests.Core.Scheduling
             _callbackInvoked.Wait(TimeSpan.FromSeconds(5));
 
             Assert.That(_callbackInvoked.IsSet, Is.True, "Callback was not invoked");
+        }
 
+
+        [Test, Timeout(1000)]
+        public void Should_not_hang_on_dispose()
+        {
+            var clock = RealClock.Instance;
+            var timer = new SmartTimer(clock) { Callback = OnTimerCallback };
+
+            for (int i = 1; i <= 100; i++)
+            {
+                timer.CallbackAt(DateTimeOffset.Now.AddHours(i));
+            }
+
+            timer.Dispose();
         }
 
         private void OnTimerCallback(DateTimeOffset obj)

@@ -23,23 +23,29 @@ namespace Codestellation.DarkFlow.Scheduling
         public void Dispose()
         {
             _disposed = true;
-            CountdownEvent handle = null;
+            var handles = new ManualResetEvent[0];
+            var timersCount = 0;
 
             lock (_timers)
             {
-                if (_timers.Count > 0)
+                timersCount = _timers.Count;
+                if (timersCount > 0)
                 {
-                    handle = new CountdownEvent(_timers.Count);
-                    foreach (var timer in _timers)
+                    var timers = new Timer[timersCount];
+                    _timers.Values.CopyTo(timers,0);
+                    handles = new ManualResetEvent[timersCount];
+                    for (int timerIndex = 0; timerIndex < timersCount; timerIndex++)
                     {
-                        timer.Value.Dispose(handle.WaitHandle);
+                        var handle = new ManualResetEvent(false);
+                        handles[timerIndex] = handle;
+                        timers[timerIndex].Dispose(handle);
                     }
                 }
             }
 
-            if (handle != null)
+            foreach (var handle in handles)
             {
-                handle.Wait();
+                handle.WaitOne();
             }
         }
 
