@@ -109,14 +109,12 @@ namespace Codestellation.DarkFlow.Execution
             while (!Disposed)
             {
                 var envelope = TakeNextTask();
-                
-                executionInfo.CurrentTask = envelope;
 
                 if (envelope == null)
                 {
                     break;
                 }
-
+                executionInfo.CurrentTask = envelope;
                 envelope.ExecuteTask();
             }
 
