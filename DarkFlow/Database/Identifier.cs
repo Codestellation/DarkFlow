@@ -8,8 +8,6 @@ namespace Codestellation.DarkFlow.Database
 
         private readonly Region _region;
         
-        private readonly string _asString;
-
         public Identifier(Guid id, Region region)
         {
             if (Guid.Empty.Equals(id))
@@ -24,7 +22,6 @@ namespace Codestellation.DarkFlow.Database
 
             _id = id;
             _region = region;
-            _asString = string.Format("{0}.{1}", _region, _id);
         }
 
         public Guid Id
@@ -44,7 +41,7 @@ namespace Codestellation.DarkFlow.Database
 
         public override string ToString()
         {
-            return _asString;
+            return  string.Concat(_region.Name, ".", _id.ToString());
         }
 
         public bool Equals(Identifier other)
