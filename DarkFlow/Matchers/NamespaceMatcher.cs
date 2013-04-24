@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Matchers
@@ -9,7 +9,7 @@ namespace Codestellation.DarkFlow.Matchers
         public const string AnyWildCard = "*";
 
         private readonly string _nameSpace;
-        private readonly Dictionary<Type, MatchResult> _cache;
+        private readonly ConcurrentDictionary<Type, MatchResult> _cache;
         private readonly MatchResult _matchResult;
 
         public NamespaceMatcher(string queueName, string nameSpace) 
@@ -25,7 +25,7 @@ namespace Codestellation.DarkFlow.Matchers
             }
 
             _nameSpace = nameSpace.Replace(AnyWildCard, string.Empty);
-            _cache = new Dictionary<Type, MatchResult>();
+            _cache = new ConcurrentDictionary<Type, MatchResult>();
             _matchResult = MatchResult.Matches(queueName);
         }
 
@@ -34,8 +34,12 @@ namespace Codestellation.DarkFlow.Matchers
             Contract.Require(task != null, "task != null");
             
             var type = task.GetType();
-
-            return _cache.GetOrAddThreadSafe(type, ProbeNamespace);
+            MatchResult result;
+            if (_cache.TryGetValue(type, out result))
+            {
+                return result;
+            }
+            return _cache.GetOrAdd(type, ProbeNamespace);
         }
 
         private MatchResult ProbeNamespace(Type type)

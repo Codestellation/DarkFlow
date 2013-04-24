@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Matchers
 {
@@ -12,7 +12,7 @@ namespace Codestellation.DarkFlow.Matchers
     {
         private readonly string _template;
         private readonly List<Func<ITask, string>> _orderedGetters;
-        private readonly Dictionary<Tuple<Type, string>, Func<ITask, string>> _cachedGetters;
+        private readonly ConcurrentDictionary<Tuple<Type, string>, Func<ITask, string>> _cachedGetters;
 
         public ContentMatcher(string template, bool cacheEnvrionmentVariables = true)
         {
@@ -22,7 +22,7 @@ namespace Codestellation.DarkFlow.Matchers
             }
 
             _template = template;
-            _cachedGetters = new Dictionary<Tuple<Type, string>, Func<ITask, string>>();
+            _cachedGetters = new ConcurrentDictionary<Tuple<Type, string>, Func<ITask, string>>();
             var matches = Regex.Matches(template, @"\{([^}]*)\}");
 
             var tokens = new List<string>(matches.Count);
@@ -84,8 +84,15 @@ namespace Codestellation.DarkFlow.Matchers
 
         private string GetMemberValue(ITask task, string memberName)
         {
-            var getter = _cachedGetters.GetOrAddThreadSafe(Tuple.Create(task.GetType(), memberName), BuildGetter);
+            var tuple = Tuple.Create(task.GetType(), memberName);
+            Func<ITask, string> getter;
 
+            if(_cachedGetters.TryGetValue(tuple, out getter))
+            {
+                return getter(task);
+            }
+            
+            getter = _cachedGetters.GetOrAdd(tuple, BuildGetter);
             return getter(task);
         }
 
