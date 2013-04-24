@@ -34,7 +34,7 @@ namespace Codestellation.DarkFlow.Execution
 
           public void Release()
           {
-              Contract.Require(CurrentTask != null, "CurrentTask != null");
+              //Contract.Require(CurrentTask != null, "CurrentTask != null");
               Contract.Require(TplTask != null, "TplTask != null");
               Contract.Require(_ownedCellIndex > Free, "_ownedCellIndex > Free");
 
