@@ -19,7 +19,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Execution
         {
             _queuedExecutorSettings = new QueuedExecutorSettings{Name = "test"};
             _queue = new QueuedExecutor(_queuedExecutorSettings, NullPersister.Instance);
-            _queue.TaskCountChanged += delegate {  };
+            _queue.TaskAdded += delegate {  };
             _task = new LongRunningTask(true);
             _executionEnvelope = new ExecutionEnvelope(_task, DefaultReleaser.Instance);
         }

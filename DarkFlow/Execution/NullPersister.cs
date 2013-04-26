@@ -19,6 +19,11 @@ namespace Codestellation.DarkFlow.Execution
             return null;
         }
 
+        public bool IsPersistent(ITask task)
+        {
+            return false;
+        }
+
         public void Persist(Identifier identifier, ITask task)
         {
             

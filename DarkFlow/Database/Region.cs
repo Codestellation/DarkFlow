@@ -4,12 +4,9 @@ namespace Codestellation.DarkFlow.Database
 {
     public struct Region
     {
-        public bool Equals(Region other)
-        {
-            return string.Equals(_name, other._name);
-        }
-
         private readonly string _name;
+
+        private readonly bool _isValid;
 
         public Region(string name)
         {
@@ -18,23 +15,24 @@ namespace Codestellation.DarkFlow.Database
                 throw new ArgumentNullException("name", "Region name should be not null not empty string.");
             }
             _name = string.Intern(name);
+            _isValid = true;
         }
 
         public string Name
         {
             get
             {
-                if (!IsValid)
+                if (_isValid)
                 {
-                    throw new InvalidOperationException("Name is not set.");
+                    return _name;
                 }
-                return _name;
+                throw new InvalidOperationException("Name is not set.");
             }
         }
 
         public bool IsValid
         {
-            get { return !string.IsNullOrWhiteSpace(_name); }
+            get { return _isValid; }
         }
 
         public override string ToString()
@@ -46,6 +44,11 @@ namespace Codestellation.DarkFlow.Database
         {
             if (ReferenceEquals(null, obj)) return false;
             return obj is Region && Equals((Region)obj);
+        }
+
+        public bool Equals(Region other)
+        {
+            return string.Equals(_name, other._name);
         }
 
         public override int GetHashCode()

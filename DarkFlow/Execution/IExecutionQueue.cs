@@ -4,7 +4,7 @@ namespace Codestellation.DarkFlow.Execution
 {
     public interface IExecutionQueue
     {
-        event Action<int> TaskCountChanged;
+        event Action<IExecutionQueue> TaskAdded;
         
         byte Priority { get; }
 

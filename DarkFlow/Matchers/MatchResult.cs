@@ -40,7 +40,7 @@ namespace Codestellation.DarkFlow.Matchers
 
         public static implicit operator bool(MatchResult instance)
         {
-            return instance.Matched;
+            return instance._matched;
         }
 
         public static MatchResult Matches(string value)

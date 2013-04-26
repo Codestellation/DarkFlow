@@ -1,4 +1,5 @@
 ﻿using System;
+using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Misc;
 using NLog;
 
@@ -6,28 +7,40 @@ namespace Codestellation.DarkFlow.Execution
 {
     public class ExecutionEnvelope
     {
-        private readonly ITaskReleaser _releaser;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private readonly ITaskReleaser _releaser;
+        private Identifier? _id;
+
+        internal Region Region;
+        internal bool Persistent;
 
         public ITask Task { get; private set; }
-        
-        public Guid Id { get; private set; }
+
+        public Identifier Id
+        {
+            get
+            {
+                if (_id.HasValue)
+                {
+                    return _id.Value;
+                }
+
+                Contract.Require(Region.IsValid, "_region.IsValid");
+
+                var id = Region.NewIdentifier();
+                _id = id;
+                return id;
+            }
+        }
 
         internal event Action<ExecutionEnvelope> AfterExecute;
 
-        public ExecutionEnvelope(ITask task, ITaskReleaser releaser) : this(Guid.NewGuid(), task, releaser)
-        {
-            
-        }
-
-        internal ExecutionEnvelope(Guid id, ITask task, ITaskReleaser releaser)
+        public ExecutionEnvelope(ITask task, ITaskReleaser releaser) 
         {
             Contract.Require(task != null, "task != null");
-            Contract.Require(id != Guid.Empty, "id != Guid.Empty");
             Contract.Require(releaser != null, "releaser != null");
 
             Task = task;
-            Id = id;
             _releaser = releaser;
         }
 

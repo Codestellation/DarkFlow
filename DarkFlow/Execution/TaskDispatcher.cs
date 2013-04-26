@@ -10,15 +10,13 @@ namespace Codestellation.DarkFlow.Execution
     {
         private readonly byte _maxConcurrency;
         private readonly IExecutionQueue[] _executionQueues;
-        private int _taskPending;
         private int _currentConcurrency;
         private readonly ExecutionInfo[] _executionInfos;
-
-
+        private string[] _threadNames;
 
         public TaskDispatcher(byte maxConcurrency, IExecutionQueue[] executionQueues)
         {
-            if(maxConcurrency == 0)
+            if (maxConcurrency == 0)
             {
                 throw new ArgumentOutOfRangeException("maxConcurrency", "MaxConcurrency should be greater than zero.");
             }
@@ -44,71 +42,87 @@ namespace Codestellation.DarkFlow.Execution
             _executionQueues = executionQueues.OrderByDescending(x => x.Priority).ToArray();
 
             _executionInfos = new ExecutionInfo[_maxConcurrency];
+            _threadNames = Enumerable.Range(0, _maxConcurrency).Select(x => "DarkFlow#" + x).ToArray();
 
             foreach (var executionQueue in executionQueues)
             {
-                executionQueue.TaskCountChanged += OnTaskCountChanged;
+                executionQueue.TaskAdded += OnTaskAdded;
             }
 
             Thread.MemoryBarrier();
         }
 
-        private void OnTaskCountChanged(int change)
+        private void OnTaskAdded(IExecutionQueue executor)
         {
-            Contract.Require(change == -1 || change == 1, "change == -1 || change == 1");
+            Contract.Require(executor != null, "executor != null");
 
-            if (Disposed) return;
-            
-            
-            var pendingsNow = Interlocked.Add(ref _taskPending, change);
-
-            if (pendingsNow <= 0) return;
-            
-            TryStartNewThread();
+            TryStartNewThread(executor);
         }
 
-        private void TryStartNewThread()
+        private void TryStartNewThread(IExecutionQueue executor)
         {
-            if(Disposed) return;
-            if (_currentConcurrency >= _maxConcurrency) return;
+         BEGIN:
+            if (_disposed) return;
 
             //Second check to ensure concurrency threshold would not be exceeded.
             var currentConcurrency = Interlocked.Increment(ref _currentConcurrency);
 
-            if (currentConcurrency <= _maxConcurrency)
+            if (currentConcurrency > _maxConcurrency)
             {
-                if (Logger.IsDebugEnabled)
+                currentConcurrency = Interlocked.Decrement(ref _currentConcurrency);
+
+                if (currentConcurrency == 0)
                 {
-                    Logger.Debug("Starting new execution thread.");
+                    goto BEGIN;
                 }
 
-                var executionInfo = new ExecutionInfo();
-                var task = new Task(PerformTasks, executionInfo);
-
-
-                executionInfo.TakeFreeCell(_executionInfos);
-
-                
-                executionInfo.TplTask = task;
-
-                task.Start();
+                return;
+            }
+            ExecutionEnvelope envelope;
+            if (executor == null)
+            {
+                envelope = TakeNextTask();
             }
             else
             {
-                Interlocked.Decrement(ref _currentConcurrency);
+                envelope = executor.Dequeue();
             }
+            
+            
+            if (envelope == null)
+            {
+                Interlocked.Decrement(ref _currentConcurrency);
+                return;
+            }
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Starting new execution thread.");
+            }
+
+            var executionInfo = new ExecutionInfo { CurrentTask = envelope };
+
+            var tplTask = new Task(PerformTasks, executionInfo);
+
+            executionInfo.TakeFreeCell(_executionInfos, _threadNames);
+
+            executionInfo.TplTask = tplTask;
+
+            tplTask.Start();
         }
 
         private void PerformTasks(object state)
         {
-            var executionInfo = (ExecutionInfo) state;
+            var executionInfo = (ExecutionInfo)state;
 
             //note: thread name would be cleaned up by CLR ThreadPool when thread returns there, so it safe to name it.
-            Thread.CurrentThread.Name = "DarkFlow#" + executionInfo.OwnedCellIndex;
+            Thread.CurrentThread.Name = executionInfo.ThreadName; 
 
-            while (!Disposed)
+            while (!_disposed)
             {
-                var envelope = TakeNextTask();
+                var envelope = executionInfo.CurrentTask;
+
+                Contract.Require(envelope != null, "envelope != null");
 
                 if (envelope == null)
                 {
@@ -116,6 +130,8 @@ namespace Codestellation.DarkFlow.Execution
                 }
                 executionInfo.CurrentTask = envelope;
                 envelope.ExecuteTask();
+
+                executionInfo.CurrentTask = TakeNextTask();
             }
 
             executionInfo.Release();
@@ -123,9 +139,9 @@ namespace Codestellation.DarkFlow.Execution
             var currentConcurrency = Interlocked.Decrement(ref _currentConcurrency);
 
             //This prevents situation with a task hanging in a queue in very specific conditions 
-            if (currentConcurrency == 0 && _taskPending > 0)
+            if (currentConcurrency == 0)
             {
-                TryStartNewThread();
+                TryStartNewThread(null);
             }
         }
 
@@ -134,7 +150,7 @@ namespace Codestellation.DarkFlow.Execution
         private ExecutionEnvelope TakeNextTask()
         {
             ExecutionEnvelope result = null;
-            
+
             for (int i = 0; i < _executionQueues.Length; i++)
             {
                 result = _executionQueues[i].Dequeue();
@@ -152,10 +168,10 @@ namespace Codestellation.DarkFlow.Execution
                 var executionInfo = _executionInfos[i];
 
                 Thread.MemoryBarrier();
-                
+
                 if (executionInfo != null)
                 {
-                    executionInfo.WaitTaskFinished(); 
+                    executionInfo.WaitTaskFinished();
                 }
             }
         }

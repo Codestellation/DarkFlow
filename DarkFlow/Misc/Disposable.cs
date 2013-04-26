@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Threading;
 using NLog;
 
 namespace Codestellation.DarkFlow.Misc
 {
     public abstract class Disposable : IDisposable
     {
-        private volatile bool _disposed;
+        protected volatile bool _disposed;
+        private int _disposeCount;
         protected readonly Logger Logger;
 
         public Disposable()
@@ -32,7 +34,10 @@ namespace Codestellation.DarkFlow.Misc
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed) return;
+            
             _disposed = true;
+            if (Interlocked.Increment(ref _disposeCount) > 1) return;
+
 
             if (Logger.IsDebugEnabled)
             {

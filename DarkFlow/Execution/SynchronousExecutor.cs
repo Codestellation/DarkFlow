@@ -1,10 +1,12 @@
 ﻿using System;
+using Codestellation.DarkFlow.Database;
 
 namespace Codestellation.DarkFlow.Execution
 {
     public class SynchronousExecutor : IExecutor, IExecutorImplementation
     {
         private readonly string _name;
+        private readonly Region _region;
         public const string DefaultName = "Sync";
 
         public SynchronousExecutor() : this(DefaultName)
@@ -28,6 +30,11 @@ namespace Codestellation.DarkFlow.Execution
         public string Name
         {
             get { return _name; }
+        }
+
+        public Region Region
+        {
+            get { return _region; }
         }
 
         public void Enqueue(ExecutionEnvelope envelope)

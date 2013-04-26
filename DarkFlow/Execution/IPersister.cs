@@ -7,6 +7,8 @@ namespace Codestellation.DarkFlow.Execution
     {
         ITask Get(Identifier identifier);
 
+        bool IsPersistent(ITask task);
+
         void Persist(Identifier identifier, ITask task);
 
         void Delete(Identifier identifier);

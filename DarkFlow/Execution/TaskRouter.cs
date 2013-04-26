@@ -50,7 +50,7 @@ namespace Codestellation.DarkFlow.Execution
                 {
                     Logger.Debug("Task {0} routed to {1}", envelope.Task, executor.Name);
                 }
-
+                envelope.Region = executor.Region;
                 executor.Enqueue(envelope);
             }
             else

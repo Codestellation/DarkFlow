@@ -60,23 +60,24 @@ namespace Codestellation.DarkFlow.Execution
             return result;
         }
 
+        public bool IsPersistent(ITask task)
+        {
+            Contract.Require(task != null, "task != null");
+
+            return _matcher.TryMatch(task);
+        }
+
         public void Persist(Identifier identifier, ITask task)
         {
             Contract.Require(task != null, "task != null");
             Contract.Require(identifier.IsValid, "identifier.IsValid");
 
-            if (_matcher.TryMatch(task))
-            {
-                var serialized = Serialize(task);
+            var serialized = Serialize(task);
 
-                _database.Persist(identifier, serialized);
+            _database.Persist(identifier, serialized);
 
-                Logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
-            }
-            else
-            {
-                Logger.Debug("Task {0} do not match persistence criteria", task);
-            }
+            Logger.Debug("Serialized task:{0}{1}", Environment.NewLine, serialized);
+
         }
 
         public IEnumerable<KeyValuePair<Identifier,ITask>> LoadAll(Region region)
