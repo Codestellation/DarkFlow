@@ -11,7 +11,8 @@
     <description>Build scripts for Codestellation projects.</description>
     <copyright>Copyright (c) 2013 Codestellation</copyright>
     <dependencies>
-      <dependency id="Codestellation.DarkFlow" version="0.2.0" />
+        <dependency id="Castle.Windsor" version="3.2.0" />
+        <dependency id="Codestellation.DarkFlow" version="0.2.0" />
     </dependencies>
   </metadata>
 </package>
