@@ -105,6 +105,7 @@
     <Compile Include="Execution\TaskRouter.cs" />
     <Compile Include="Misc\ContractException.cs" />
     <Compile Include="Misc\Extensions.cs" />
+    <Compile Include="Misc\FactoryTask.cs" />
     <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="PersistentAttribute.cs" />
     <Compile Include="Schedules\Every.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Schedules\Schedule.cs" />
     <Compile Include="Schedules\ScheduleComparer.cs" />
     <Compile Include="Scheduling\ITimer.cs" />
+    <Compile Include="Scheduling\ITrigger.cs" />
     <Compile Include="Scheduling\ScheduledTask.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\SmartTimer.cs" />

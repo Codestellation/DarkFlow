@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Codestellation.DarkFlow.Misc;
 using Codestellation.DarkFlow.Schedules;
@@ -59,6 +60,26 @@ namespace Codestellation.DarkFlow.Scheduling
             {
                 _timer.CallbackAt(startAt);
             }
+        }
+
+        public IEnumerable<ITrigger> Triggers
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public void AddTrigger(ITrigger trigger)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveTrigger(ITrigger trigger)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveTrigger(string triggerId)
+        {
+            throw new NotImplementedException();
         }
 
         public void Schedule(ITask task, Schedule schedule)
