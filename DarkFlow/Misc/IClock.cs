@@ -4,6 +4,8 @@ namespace Codestellation.DarkFlow.Misc
 {
     public interface IClock
     {
-        DateTimeOffset Now { get; }
+        DateTime UtcNow { get; }
+
+        DateTime Now { get; }
     }
 }

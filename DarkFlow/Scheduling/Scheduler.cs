@@ -1,146 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using Codestellation.DarkFlow.Misc;
-using Codestellation.DarkFlow.Schedules;
 
 namespace Codestellation.DarkFlow.Scheduling
 {
-    public class Scheduler : Disposable, IScheduler
+    public class Scheduler : IScheduler, IDisposable
     {
+        private class TriggerComparer : IEqualityComparer<Trigger>
+        {
+            public bool Equals(Trigger x, Trigger y)
+            {
+                if (ReferenceEquals(x, y)) return true;
+                if (x == null || y == null) return false;
+
+                return EqualityComparer<string>.Default.Equals(x.Id, y.Id);
+            }
+
+            public int GetHashCode(Trigger trigger)
+            {
+                if (trigger == null)
+                {
+                    throw new ArgumentNullException("trigger");
+                }
+                return trigger.Id.GetHashCode();
+            }
+        }
         private readonly IExecutor _executor;
-        private readonly IClock _clock;
-        private readonly TaskSource _taskSource;
-        private ITimer _timer;
+        private HashSet<Trigger> _triggers;
 
         public Scheduler(IExecutor executor)
-            : this(executor, RealClock.Instance, new SmartTimer(RealClock.Instance))
         {
-
-        }
-        public Scheduler(IExecutor executor, IClock clock, ITimer timer)
-        {
-            if (executor == null)
-            {
-                throw new ArgumentNullException("executor");
-            }
-
-            if (clock == null)
-            {
-                throw new ArgumentNullException("clock");
-            }
-
-            if (timer == null)
-            {
-                throw new ArgumentNullException("timer");
-            }
-
             _executor = executor;
-            _clock = clock;
-            _timer = timer;
-
-            _timer.Callback = OnTimerCallback;
-            _taskSource = new TaskSource(OnClosestChanged);
+            _triggers = new HashSet<Trigger>(new TriggerComparer());
         }
 
-        private void OnClosestChanged(DateTimeOffset startAt)
+        public IEnumerable<Trigger> Triggers
         {
+            get { return _triggers; }
+        }
 
-            var now = _clock.Now;
-            if (startAt <= now)
+        public void AddTrigger(Trigger trigger)
+        {
+            if (CollectionUtils.ThreadSafeAdd(ref _triggers, trigger))
             {
-                Logger.Debug("StartAt is {0}. Now is {1}. Executing without scheduling", startAt, now);
-                OnTimerCallback(startAt);
-                return;
-            }
-
-            Logger.Debug("StartAt is {0}. Now is {1}. Starting new timer", startAt, now);
-
-            if (!Disposed)
-            {
-                _timer.CallbackAt(startAt);
+                trigger.Start(TriggerCallback);
             }
         }
 
-        public IEnumerable<ITrigger> Triggers
+        private void TriggerCallback(ITask task)
         {
-            get { throw new NotImplementedException(); }
+            _executor.Execute(task);
         }
 
-        public void AddTrigger(ITrigger trigger)
+        public void RemoveTrigger(Trigger trigger)
         {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveTrigger(ITrigger trigger)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveTrigger(string triggerId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Schedule(ITask task, Schedule schedule)
-        {
-            if (ReferenceEquals(task, null))
+            if (CollectionUtils.ThreadSafeRemove(ref _triggers, trigger))
             {
-                throw new ArgumentNullException("task");
-            }
-
-            if (ReferenceEquals(schedule, null))
-            {
-                throw new ArgumentNullException("schedule");
-            }
-
-            _taskSource.AddTask(new[] { new ScheduledTask(schedule, task) });
-        }
-
-        private void OnTimerCallback(DateTimeOffset startAt)
-        {
-            Logger.Debug("TimerCallback at {0}", startAt);
-            try
-            {
-                var tasksToRun = _taskSource.TakeOnTime(startAt);
-
-                Logger.Debug("Found {0} tasks to run at {1}", tasksToRun.Count, startAt);
-
-                var now = _clock.Now;
-                Logger.Debug("Now is {0}", now);
-
-                foreach (var scheduledTask in tasksToRun)
-                {
-                    _executor.Execute(scheduledTask.Task);
-                    scheduledTask.Schedule.StartedAt(now);
-                }
-                
-                if (!Disposed)
-                {
-                    var tasksToReschedule = tasksToRun.Where(x => x.Schedule.SchedulingRequired).ToArray();
-
-                    Logger.Debug("{0} tasks need rescheduling.", tasksToReschedule.Length);
-
-                    _taskSource.AddTask(tasksToReschedule);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                if (Logger.IsErrorEnabled)
-                {
-                    Logger.Error(ex);
-                }
+                trigger.Stop();
             }
         }
 
-        protected override void DisposeManaged()
+        public void Dispose()
         {
-            var timer = _timer;
-
-            if (timer != null)
+            foreach (var trigger in _triggers)
             {
-                timer.Dispose();
+                RemoveTrigger(trigger);
             }
         }
     }

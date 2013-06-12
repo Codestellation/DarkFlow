@@ -1,29 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Codestellation.DarkFlow
 {
-    public interface ITrigger
+    public abstract class Trigger
     {
         /// <summary>
         /// Identifier of the trigger. Should be unique across the scheduler. 
         /// </summary>
-        string Id { get; } 
+        public abstract string Id { get; } 
 
         /// <summary>
         /// Returns all attached tasks. 
         /// </summary>
-        IEnumerable<ITask> AttachedTasks { get; }
+        public abstract IEnumerable<ITask> AttachedTasks { get; }
 
         /// <summary>
         /// Attached task to trigger. 
         /// </summary>
         /// <param name="task">A task to be detached.</param>
-        void AttachTask(ITask task);
+        public abstract void AttachTask(ITask task);
 
         /// <summary>
         /// Detaches task from trigger.
         /// </summary>
         /// <param name="task"></param>
-        void DetachTask(ITask task);
+        public abstract void DetachTask(ITask task);
+
+        /// <summary>
+        /// This delegate is called when trigger fires.
+        /// </summary>
+        protected internal abstract void Start(Action<ITask> triggerCallback);
+
+        protected internal abstract void Stop();
     }
 }

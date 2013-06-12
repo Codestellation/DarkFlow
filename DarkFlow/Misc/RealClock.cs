@@ -6,9 +6,14 @@ namespace Codestellation.DarkFlow.Misc
     {
         public static readonly RealClock Instance  = new RealClock();
         
-        public DateTimeOffset Now
+        public DateTime Now
         {
-            get { return DateTimeOffset.Now; }
+            get { return DateTime.Now; }
+        }
+
+        public DateTime UtcNow
+        {
+            get { return DateTime.UtcNow; }
         }
     }
 }
