@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using Codestellation.DarkFlow.Execution;
 using Codestellation.DarkFlow.Scheduling;
@@ -8,26 +9,58 @@ using NUnit.Framework;
 namespace Codestellation.DarkFlow.Tests.Core.Triggers
 {
     [TestFixture]
-    public class PeriodicalTriggerTests
+    public class PeriodicalTriggerTests : ITask
     {
-        [Test]
-        public void TEST()
+        private PeriodicalTrigger _trigger;
+
+        [SetUp]
+        public void Setup()
         {
-            var executor = new SynchronousExecutor();
-            var task = new LongRunningTask(false) {Name = "Added task"};
+            _trigger = new PeriodicalTrigger("Test", null, TimeSpan.FromMilliseconds(10));
+        }
 
-            var scheduler = new Scheduler(executor);
-            var trigger = new PeriodicalTrigger("Test", null, TimeSpan.FromSeconds(1));
-            trigger.AttachTask(task);
+        [Test]
+        public void Attaches_tasks_properly()
+        {
+            _trigger.AttachTask(this);
+            Assert.That(_trigger.AttachedTasks, Has.Member(this));
+        }
 
-            scheduler.AddTrigger(trigger);
+        [Test]
+        public void Does_not_allow_to_attach_task_twice()
+        {
+            _trigger.AttachTask(this);
 
-            Thread.Sleep(10 *1000);
+            Assert.Throws<InvalidOperationException>(() => _trigger.AttachTask(this));
+        }
 
-            scheduler.Dispose();
+        [Test]
+        public void Detaches_task_properly()
+        {
+            _trigger.AttachTask(this);
+            _trigger.DetachTask(this);
+
+            Assert.That(_trigger.AttachedTasks, Has.No.Member(this));
+        }
+
+        [Test]
+        public void Throws_if_removes_non_attached_task()
+        {
+            Assert.Throws<InvalidOperationException>(() => _trigger.DetachTask(this));
+        }
+
+        [Test]
+        public void Throws_if_removes_attached_task_twice()
+        {
+            _trigger.AttachTask(this);
+            _trigger.DetachTask(this);
+            Assert.Throws<InvalidOperationException>(() => _trigger.DetachTask(this));
+        }
 
 
-            Thread.Sleep(10 * 1000);
+        public void Execute()
+        {
+
         }
     }
 }
