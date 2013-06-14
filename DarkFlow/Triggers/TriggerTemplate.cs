@@ -7,24 +7,24 @@ namespace Codestellation.DarkFlow.Triggers
 {
     public abstract class TriggerTemplate : Trigger
     {
-        private readonly string _id;
+        private readonly string _name;
         private Action<ITask> _callback;
         private HashSet<ITask> _tasks;
 
-        protected TriggerTemplate(string id)
+        protected TriggerTemplate(string name)
         {
-            if (string.IsNullOrWhiteSpace(id))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("Id must be not null not empty string", "id");
+                throw new ArgumentException("Name must be not null not empty string", "name");
             }
 
-            _id = id;
+            _name = name;
             _tasks = new HashSet<ITask>();
         }
 
-        public sealed override string Id
+        public sealed override string Name
         {
-            get { return _id; }
+            get { return _name; }
         }
 
         public sealed override IEnumerable<ITask> AttachedTasks
@@ -34,50 +34,20 @@ namespace Codestellation.DarkFlow.Triggers
 
         public sealed override void AttachTask(ITask task)
         {
-            ModifyTasks(SafeAttach, task);
+            EnsureNotNull(task);
+            if (!CollectionUtils.ThreadSafeAdd(ref _tasks, task)) return;
+
+            string message = string.Format("Task {0} already added to trigger {1}", task, Name);
+            throw new InvalidOperationException(message);
         }
 
         public sealed override void DetachTask(ITask task)
         {
-            ModifyTasks(SafeDetach, task);
-        }
+            EnsureNotNull(task);
+            if(!CollectionUtils.ThreadSafeRemove(ref _tasks, task)) return;
 
-        private HashSet<ITask> SafeDetach(HashSet<ITask> original, ITask task)
-        {
-            var newTasks = new HashSet<ITask>(original);
-            if (!newTasks.Remove(task))
-            {
-                string message = string.Format("Task {0} not found at trigger {1}", task, Id);
-                throw new InvalidOperationException(message);
-            }
-            return newTasks;
-        }
-
-        private HashSet<ITask> SafeAttach(HashSet<ITask> original, ITask task)
-        {
-            if (original.Contains(task))
-            {
-                string message = string.Format("Task {0} already added to trigger {1}", task, Id);
-                throw new InvalidOperationException(message);
-            }
-
-            var newTasks = new HashSet<ITask>(original) { task };
-            return newTasks;
-        }
-
-        private void ModifyTasks(Func<HashSet<ITask>, ITask, HashSet<ITask>> modifier, ITask task)
-        {
-            HashSet<ITask> afterCas;
-            HashSet<ITask> beforeCas;
-            do
-            {
-                beforeCas = _tasks;
-                Thread.MemoryBarrier();
-
-                var newTasks = modifier(beforeCas, task);
-
-                afterCas = Interlocked.CompareExchange(ref _tasks, newTasks, beforeCas);
-            } while (beforeCas != afterCas);
+            string message = string.Format("Task {0} not found at trigger {1}", task, Name);
+            throw new InvalidOperationException(message);
         }
 
         protected void ExecuteTasks()
@@ -90,15 +60,30 @@ namespace Codestellation.DarkFlow.Triggers
 
         protected sealed internal override void Start(Action<ITask> triggerCallback)
         {
-            Contract.Require(triggerCallback != null, "triggerCallback != null");
-            if (_callback != null)
+            if (triggerCallback == null)
+            {
+                throw new ArgumentNullException("triggerCallback");
+            }
+
+            var beforeCas = _callback;
+            Thread.MemoryBarrier();
+            
+            var afterCas = Interlocked.CompareExchange(ref _callback, triggerCallback, beforeCas);
+
+            if (beforeCas != afterCas)
             {
                 throw new InvalidOperationException("Method Start should be called once.");
             }
-            Interlocked.Exchange(ref _callback, triggerCallback);
+
             OnStart();
         }
 
         protected abstract void OnStart();
+
+        private static void EnsureNotNull(ITask task)
+        {
+            if (task != null) return;
+            throw new ArgumentNullException("task");
+        }
     }
 }

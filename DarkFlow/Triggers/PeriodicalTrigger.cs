@@ -7,8 +7,8 @@ namespace Codestellation.DarkFlow.Triggers
         private readonly DateTime? _firstStart;
         private readonly TimeSpan _period;
 
-        public PeriodicalTrigger(string id, DateTime? firstStart, TimeSpan period)
-            : base(id)
+        public PeriodicalTrigger(string name, DateTime? firstStart, TimeSpan period)
+            : base(name)
         {
             if (firstStart.HasValue && firstStart.Value.Kind == DateTimeKind.Unspecified)
             {

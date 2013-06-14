@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Threading;
-using Codestellation.DarkFlow.Execution;
-using Codestellation.DarkFlow.Scheduling;
 using Codestellation.DarkFlow.Triggers;
 using NUnit.Framework;
 

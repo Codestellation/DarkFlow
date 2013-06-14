@@ -6,7 +6,7 @@ namespace Codestellation.DarkFlow.Triggers
     {
         private readonly DateTime _momentToFire;
 
-        public OneTimeTrigger(string id, DateTime momentToFire) : base(id)
+        public OneTimeTrigger(string name, DateTime momentToFire) : base(name)
         {
             if (momentToFire.Kind == DateTimeKind.Unspecified)
             {

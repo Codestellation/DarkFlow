@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Codestellation.DarkFlow.Misc;
 using NLog;
 
 namespace Codestellation.DarkFlow.Triggers
@@ -10,16 +9,10 @@ namespace Codestellation.DarkFlow.Triggers
         private static readonly Logger Logger = LogManager.GetLogger(typeof (TimerBasedTrigger).FullName);
         private bool _disposed;
         private Timer _timer;
-        private IClock _clock;
+        private string _message;
 
-        protected TimerBasedTrigger(string id) : base(id)
+        protected TimerBasedTrigger(string name) : base(name)
         {
-        }
-
-        public IClock Clock
-        {
-            get { return _clock ?? RealClock.Instance; }
-            set { _clock = value; }
         }
 
         protected abstract DateTime? FirstStart { get; }
@@ -34,27 +27,23 @@ namespace Codestellation.DarkFlow.Triggers
         protected sealed override void OnStart()
         {
             Validate();
-
-            Thread.BeginCriticalRegion();
             
-            var utcNow = Clock.UtcNow;
+            var utcNow = DateTime.UtcNow;
            
-            Contract.Require(utcNow.Kind == DateTimeKind.Utc, "utcNow.Kind == DateTimeKind.Utc");
-
             var dueTime = CalculateDueTime(utcNow);
 
             var period = CalculatePeriod();
-            
+
+            Thread.BeginCriticalRegion();
+
             _timer = new Timer(OnTimerCallback, null, dueTime, period);
+
+            Thread.EndCriticalRegion();
 
             if (Logger.IsInfoEnabled)
             {
-                var startMessage = FirstStart.HasValue ? "at " + FirstStart.Value.ToString() : "immediately";
-                var periodMessage = Period.HasValue ? " Period " + Period.Value : string.Empty;
-                Logger.Info("Trigger: '{0}'. Starts {1}.{2}", Id, startMessage, periodMessage);
+                Logger.Info(ToString);
             }
-
-            Thread.EndCriticalRegion();
         }
 
         private void Validate()
@@ -85,7 +74,7 @@ namespace Codestellation.DarkFlow.Triggers
 
             if (Logger.IsInfoEnabled)
             {
-                Logger.Info("Trigger '{0}' stopped.", Id);
+                Logger.Info("Trigger '{0}' stopped.", Name);
             }
         }
 
@@ -101,6 +90,14 @@ namespace Codestellation.DarkFlow.Triggers
             }
             _disposed = true;
             Thread.EndCriticalRegion();
+        }
+
+        public override string ToString()
+        {
+            var startMessage = FirstStart.HasValue ? "at " + FirstStart.Value.ToString() : "immediately";
+            var periodMessage = Period.HasValue ? " Period " + Period.Value : string.Empty;
+            var message = string.Format("Trigger: '{0}'. Starts {1}.{2}", Name, startMessage, periodMessage);
+            return _message ?? (_message = message);
         }
     }
 }

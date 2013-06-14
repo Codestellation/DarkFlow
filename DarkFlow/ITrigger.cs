@@ -8,7 +8,7 @@ namespace Codestellation.DarkFlow
         /// <summary>
         /// Identifier of the trigger. Should be unique across the scheduler. 
         /// </summary>
-        public abstract string Id { get; } 
+        public abstract string Name { get; } 
 
         /// <summary>
         /// Returns all attached tasks. 
@@ -28,10 +28,13 @@ namespace Codestellation.DarkFlow
         public abstract void DetachTask(ITask task);
 
         /// <summary>
-        /// This delegate is called when trigger fires.
+        /// Instructs trigger to begin scheduling tasks with supplied callback. 
         /// </summary>
         protected internal abstract void Start(Action<ITask> triggerCallback);
 
+        /// <summary>
+        /// Intructs trigger to stop scheduling tasks. 
+        /// </summary>
         protected internal abstract void Stop();
     }
 }

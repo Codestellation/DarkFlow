@@ -14,14 +14,14 @@ namespace Codestellation.DarkFlow
         /// Adds new trigger to scheduler.
         /// </summary>
         /// <param name="trigger"></param>
-        /// <exception cref="InvalidOperationException">When trigger with same Id already added to scheduler.</exception>
-        void AddTrigger(Trigger trigger);
+        /// <exception cref="InvalidOperationException">When trigger with same Name already added to scheduler.</exception>
+        void AttachTrigger(Trigger trigger);
 
         /// <summary>
         /// Removes specified trigger. 
         /// </summary>
         /// <param name="trigger">Trigger to remove</param>
-        /// <exception cref="InvalidOperationException">When trigger with same Id already not found in scheduler.</exception>
-        void RemoveTrigger(Trigger trigger);
+        /// <exception cref="InvalidOperationException">When trigger with same Name not found in scheduler.</exception>
+        void DetachTrigger(Trigger trigger);
     }
 }
