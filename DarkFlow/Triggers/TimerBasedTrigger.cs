@@ -15,6 +15,8 @@ namespace Codestellation.DarkFlow.Triggers
         {
         }
 
+        public bool Started { get { return _timer != null; } }
+        
         protected abstract DateTime? FirstStart { get; }
 
         protected abstract TimeSpan? Period { get; }
@@ -81,11 +83,14 @@ namespace Codestellation.DarkFlow.Triggers
         public void Dispose()
         {
             if (_disposed) return;
-            
+
+            var timer = Interlocked.Exchange(ref _timer, null);
+            if(timer == null) return;
+
             Thread.BeginCriticalRegion();
             using (var timerStoppedEvent = new ManualResetEvent(false))
             {
-                _timer.Dispose(timerStoppedEvent);
+                timer.Dispose(timerStoppedEvent);
                 timerStoppedEvent.WaitOne();
             }
             _disposed = true;

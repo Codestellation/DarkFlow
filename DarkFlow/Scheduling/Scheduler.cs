@@ -4,27 +4,9 @@ using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Scheduling
 {
-    public class Scheduler : IScheduler, IDisposable
+    public partial class Scheduler : IScheduler, IDisposable
     {
-        private class TriggerComparer : IEqualityComparer<Trigger>
-        {
-            public bool Equals(Trigger x, Trigger y)
-            {
-                if (ReferenceEquals(x, y)) return true;
-                if (x == null || y == null) return false;
 
-                return EqualityComparer<string>.Default.Equals(x.Name, y.Name);
-            }
-
-            public int GetHashCode(Trigger trigger)
-            {
-                if (trigger == null)
-                {
-                    throw new ArgumentNullException("trigger");
-                }
-                return trigger.Name.GetHashCode();
-            }
-        }
         private readonly IExecutor _executor;
         private HashSet<Trigger> _triggers;
 

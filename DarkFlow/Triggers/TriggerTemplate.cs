@@ -35,7 +35,7 @@ namespace Codestellation.DarkFlow.Triggers
         public sealed override void AttachTask(ITask task)
         {
             EnsureNotNull(task);
-            if (!CollectionUtils.ThreadSafeAdd(ref _tasks, task)) return;
+            if (CollectionUtils.ThreadSafeAdd(ref _tasks, task)) return;
 
             string message = string.Format("Task {0} already added to trigger {1}", task, Name);
             throw new InvalidOperationException(message);
@@ -44,7 +44,7 @@ namespace Codestellation.DarkFlow.Triggers
         public sealed override void DetachTask(ITask task)
         {
             EnsureNotNull(task);
-            if(!CollectionUtils.ThreadSafeRemove(ref _tasks, task)) return;
+            if(CollectionUtils.ThreadSafeRemove(ref _tasks, task)) return;
 
             string message = string.Format("Task {0} not found at trigger {1}", task, Name);
             throw new InvalidOperationException(message);

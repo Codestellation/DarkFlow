@@ -20,6 +20,7 @@ namespace Codestellation.DarkFlow.Execution
                 throw new ArgumentException("Argument name should be not null not empty string", "name");
             }
             _name = name;
+            _region = new Region(name);
         }
 
         public void Execute(ITask task)
