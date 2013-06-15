@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using Codestellation.DarkFlow.Misc;
 
@@ -8,7 +8,7 @@ namespace Codestellation.DarkFlow.Matchers
     public class AttributeMatcher : AbstractMatcher
     {
         private readonly Type[] _attributes;
-        private ConcurrentDictionary<Type, bool> _cache;
+        private Dictionary<Type, bool> _cache;
 
         public AttributeMatcher(string queueName, params Type[] attributes) :base(queueName)
         {
@@ -17,7 +17,7 @@ namespace Codestellation.DarkFlow.Matchers
                 throw new ArgumentNullException("attributes");
             }
             _attributes = attributes;
-            _cache = new ConcurrentDictionary<Type, bool>();
+            _cache = new Dictionary<Type, bool>();
         }
 
         protected override bool Match(ITask task)
@@ -25,7 +25,8 @@ namespace Codestellation.DarkFlow.Matchers
             Contract.Require(task != null, "task != null");
             
             var type = task.GetType();
-            var result = false;
+            
+            bool result;
             
             if (_cache.TryGetValue(type, out result))
             {
@@ -33,7 +34,10 @@ namespace Codestellation.DarkFlow.Matchers
             }
             
             result = PerformAttributesMatch(type);
-            return _cache.GetOrAdd(type, result);
+
+            CollectionUtils.ThreadSafeAdd(ref _cache, type, result);
+
+            return result;
         }
 
         private bool PerformAttributesMatch(Type type)

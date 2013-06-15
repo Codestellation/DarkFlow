@@ -42,29 +42,21 @@ namespace Codestellation.DarkFlow.Misc
             return true;
         }
 
-        // Not sure I should DRY this. Duplication looks simplier.
-        //public delegate bool TryModify<TItem>(HashSet<TItem> originalSet, TItem item, out HashSet<TItem> modifiedSet);
+        public static bool ThreadSafeAdd<TKey, TValue>(ref Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            Dictionary<TKey, TValue> afterCas;
+            Dictionary<TKey, TValue> beforeCas;
+            do
+            {
+                beforeCas = dictionary;
+                Thread.MemoryBarrier();
+                if (dictionary.ContainsKey(key)) return false;
 
-        //private static bool ModifyTasks<TItem>(TryModify<TItem> modifier, ref HashSet<TItem> original, TItem task)
-        //{
-        //    HashSet<TItem> afterCas;
-        //    HashSet<TItem> beforeCas;
-        //    do
-        //    {
-        //        beforeCas = original;
-        //        Thread.MemoryBarrier();
+                var newDictionary = new Dictionary<TKey, TValue>(dictionary, dictionary.Comparer) { {key, value}};
 
-        //        HashSet<TItem> newSet;
-
-        //        if (!modifier(original, task, out newSet))
-        //        {
-        //            return false;
-        //        }
-
-                
-        //        afterCas = Interlocked.CompareExchange(ref original, newSet, beforeCas);
-        //    } while (beforeCas != afterCas);
-        //    return true;
-        //}
+                afterCas = Interlocked.CompareExchange(ref dictionary, newDictionary, beforeCas);
+            } while (beforeCas != afterCas);
+            return true;
+        }
     }
 }
