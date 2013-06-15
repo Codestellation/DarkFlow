@@ -70,7 +70,7 @@
     <Compile Include="Bootstrap\ContentMatcherBuilder.cs" />
     <Compile Include="Bootstrap\Create.cs" />
     <Compile Include="Misc\CollectionUtils.cs" />
-    <Compile Include="Scheduling\Scheduler.TriggerComaprer.cs" />
+    <Compile Include="Scheduling\Scheduler.TriggerComparer.cs" />
     <Compile Include="Triggers\OneTimeTrigger.cs" />
     <Compile Include="Triggers\PeriodicalTrigger.cs" />
     <Compile Include="Triggers\TimerBasedTrigger.cs" />
@@ -110,7 +110,6 @@
     <Compile Include="Config\QueuedExecutorSettings.cs" />
     <Compile Include="Execution\TaskRouter.cs" />
     <Compile Include="Misc\ContractException.cs" />
-    <Compile Include="Misc\Extensions.cs" />
     <Compile Include="Misc\FactoryTask.cs" />
     <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="PersistentAttribute.cs" />
