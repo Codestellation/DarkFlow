@@ -16,10 +16,10 @@ namespace Codestellation.DarkFlow.Triggers
         }
 
         public bool Started { get { return _timer != null; } }
-        
-        protected abstract DateTime? FirstStart { get; }
 
-        protected abstract TimeSpan? Period { get; }
+        public abstract DateTime? FirstStart { get; }
+
+        public abstract TimeSpan? Period { get; }
 
         private void OnTimerCallback(object state)
         {

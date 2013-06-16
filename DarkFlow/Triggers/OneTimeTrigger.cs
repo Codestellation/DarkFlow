@@ -15,12 +15,12 @@ namespace Codestellation.DarkFlow.Triggers
             _momentToFire = momentToFire;
         }
 
-        protected override DateTime? FirstStart
+        public override DateTime? FirstStart
         {
             get { return _momentToFire; }
         }
 
-        protected override TimeSpan? Period
+        public override TimeSpan? Period
         {
             get { return null; }
         }

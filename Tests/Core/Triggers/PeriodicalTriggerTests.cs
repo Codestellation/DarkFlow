@@ -38,6 +38,7 @@ namespace Codestellation.DarkFlow.Tests.Core.Triggers
 
             Assert.That(_trigger.AttachedTasks, Has.No.Member(this));
         }
+        
 
         [Test]
         public void Throws_if_removes_non_attached_task()
@@ -51,6 +52,15 @@ namespace Codestellation.DarkFlow.Tests.Core.Triggers
             _trigger.AttachTask(this);
             _trigger.DetachTask(this);
             Assert.Throws<InvalidOperationException>(() => _trigger.DetachTask(this));
+        }
+
+        [Test]
+        public void Build_extensions_tests()
+        {
+            var trigger = new PeriodicalTrigger("xxx", Start.Immediately, Repeat.Every.Minute);
+                
+            Assert.That(trigger.FirstStart, Is.EqualTo(null));
+            Assert.That(trigger.Period, Is.EqualTo(TimeSpan.FromMinutes(1)));
         }
 
 

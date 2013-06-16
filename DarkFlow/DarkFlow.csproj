@@ -73,6 +73,7 @@
     <Compile Include="Scheduling\Scheduler.TriggerComparer.cs" />
     <Compile Include="Triggers\OneTimeTrigger.cs" />
     <Compile Include="Triggers\PeriodicalTrigger.cs" />
+    <Compile Include="Triggers\Start.cs" />
     <Compile Include="Triggers\TimerBasedTrigger.cs" />
     <Compile Include="Triggers\TriggerTemplate.cs" />
     <None Include="DarkFlow.nuspec" />
@@ -123,7 +124,6 @@
     <Compile Include="IExecutor.cs" />
     <Compile Include="Execution\SynchronousExecutor.cs" />
     <Compile Include="ITask.cs" />
-    <Compile Include="Misc\DateTimeOffsetExtensions.cs" />
     <Compile Include="Misc\Disposable.cs" />
     <Compile Include="Misc\IClock.cs" />
     <Compile Include="Misc\RealClock.cs" />

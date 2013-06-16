@@ -23,14 +23,16 @@ namespace Codestellation.DarkFlow.Triggers
             _period = period;
         }
 
-        protected override DateTime? FirstStart
+        public override DateTime? FirstStart
         {
             get { return _firstStart; }
         }
 
-        protected override TimeSpan? Period
+        public override TimeSpan? Period
         {
             get { return _period; }
         }
     }
+
+    
 }
