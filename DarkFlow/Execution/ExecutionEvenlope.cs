@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Misc;
+using Codestellation.DarkFlow.Stat;
 using NLog;
 
 namespace Codestellation.DarkFlow.Execution
@@ -13,8 +15,15 @@ namespace Codestellation.DarkFlow.Execution
 
         internal Region Region;
         internal bool Persistent;
+        private IMonitor _monitor;
 
         public ITask Task { get; private set; }
+
+        public IMonitor Monitor
+        {
+            get { return _monitor ?? (_monitor = NullMonitor.Instance); }
+            set { _monitor = value; }
+        }
 
         public Identifier Id
         {
@@ -47,10 +56,23 @@ namespace Codestellation.DarkFlow.Execution
         public void ExecuteTask()
         {
             Contract.Require(AfterExecute != null, "AfterExecute != null");
+            Stopwatch stopwatch = null;
             try
             {
-                Task.Execute();
+                if (Monitor.Enabled)
+                {
+                    stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                }
+                    Task.Execute();
                 
+                if (stopwatch != null)
+                {
+                    stopwatch.Stop();
+                    Monitor.Increment(Task.GetType().FullName, stopwatch.Elapsed);
+                }
+                
+
                 if (Logger.IsDebugEnabled)
                 {
                     Logger.Debug(string.Format("Task {0} succeeded.", Task));
@@ -58,6 +80,12 @@ namespace Codestellation.DarkFlow.Execution
             }
             catch (Exception ex)
             {
+                if (stopwatch != null)
+                {
+                    stopwatch.Stop();
+                    Monitor.Increment(Task.GetType().FullName, stopwatch.Elapsed);
+                }
+
                 if (Logger.IsErrorEnabled)
                 {
                     var message = string.Format("Task {0} failed.", Task);

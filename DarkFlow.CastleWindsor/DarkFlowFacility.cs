@@ -8,6 +8,7 @@ using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Database;
 using Codestellation.DarkFlow.Execution;
 using Codestellation.DarkFlow.Scheduling;
+using Codestellation.DarkFlow.Stat;
 
 namespace Codestellation.DarkFlow.CastleWindsor
 {
@@ -18,6 +19,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
         private byte? _maxConcurrency;
         private IMatcherBuilder _routerMatcherBuilder;
         private IMatcherBuilder _persisterMatchersBuilder;
+        private bool _registerMonitor;
 
         public string PersistedTaskFolder { get; set; }
 
@@ -41,6 +43,22 @@ namespace Codestellation.DarkFlow.CastleWindsor
             RegisterExecutor();
 
             RegisterScheduler();
+
+            RegisterMonitor();
+        }
+
+        private void RegisterMonitor()
+        {
+            if (_registerMonitor)
+            {
+                Kernel.Register(
+                    Component
+                        .For<IMonitor>()
+                        .ImplementedBy<Monitor>()
+                        .LifestyleSingleton()
+                    );
+            }
+
         }
 
         private void RegisterRouter()
@@ -211,6 +229,12 @@ namespace Codestellation.DarkFlow.CastleWindsor
         public DarkFlowFacility PersistTasks(IMatcherBuilder builder)
         {
             _persisterMatchersBuilder = builder;
+            return this;
+        }
+
+        public DarkFlowFacility EnableMonitoring()
+        {
+            _registerMonitor = true;
             return this;
         }
     }

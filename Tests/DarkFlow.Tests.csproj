@@ -83,6 +83,7 @@
     <Compile Include="Core\Matchers\ContentMatcherTests.cs" />
     <Compile Include="Core\Matchers\FuncMatcherTests.cs" />
     <Compile Include="Core\Matchers\NamespaceMatcherTests.cs" />
+    <Compile Include="Core\MonitorTests.cs" />
     <Compile Include="Core\Triggers\PeriodicalTriggerTests.cs" />
     <Compile Include="DisposableTask.cs" />
     <Compile Include="Core\Execution\DatabaseTests.cs" />

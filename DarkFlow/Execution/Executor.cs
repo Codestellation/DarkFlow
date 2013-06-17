@@ -1,5 +1,6 @@
 ﻿using System;
 using Codestellation.DarkFlow.Misc;
+using Codestellation.DarkFlow.Stat;
 
 namespace Codestellation.DarkFlow.Execution
 {
@@ -7,6 +8,13 @@ namespace Codestellation.DarkFlow.Execution
     {
         private readonly ITaskReleaser _releaser;
         private readonly ITaskRouter _router;
+        private IMonitor _monitor;
+
+        public IMonitor Monitor
+        {
+            get { return _monitor ?? (_monitor = NullMonitor.Instance); }
+            set { _monitor = value; }
+        }
 
         public Executor(ITaskRouter router, TaskDispatcher dispatcher, ITaskReleaser releaser)
         {
@@ -39,6 +47,10 @@ namespace Codestellation.DarkFlow.Execution
             }
 
             var envelope = new ExecutionEnvelope(task, _releaser);
+            if (Monitor.Enabled)
+            {
+                envelope.Monitor = Monitor;
+            }
 
             if (Logger.IsDebugEnabled)
             {

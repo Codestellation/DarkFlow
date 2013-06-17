@@ -4,6 +4,7 @@ using Castle.Windsor;
 using Codestellation.DarkFlow.CastleWindsor;
 using Codestellation.DarkFlow.Config;
 using Codestellation.DarkFlow.Execution;
+using Codestellation.DarkFlow.Stat;
 using NUnit.Framework;
 
 namespace Codestellation.DarkFlow.Tests.Windsor
@@ -26,6 +27,7 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         private void AddCodedFacility()
         {
             var facility = new DarkFlowFacility()
+                .EnableMonitoring()
                 .MaxConcurrency(4)
                 .UsingInMemoryPersistence()
                 .WithQueuedExecutor(new QueuedExecutorSettings {Name = "someExecutor"})
@@ -84,6 +86,15 @@ namespace Codestellation.DarkFlow.Tests.Windsor
         {
             AddCodedFacility();
             Assert.DoesNotThrow(() => _windsor.Resolve<IScheduler>());
+        }
+
+        [Test]
+        public void Registers_monitor()
+        {
+            AddCodedFacility();
+            var executor = (Executor)_windsor.Resolve<IExecutor>();
+
+            Assert.That(executor.Monitor, Is.InstanceOf<Monitor>());
         }
     }
 }

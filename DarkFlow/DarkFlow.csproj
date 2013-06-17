@@ -71,6 +71,10 @@
     <Compile Include="Bootstrap\Create.cs" />
     <Compile Include="Misc\CollectionUtils.cs" />
     <Compile Include="Scheduling\Scheduler.TriggerComparer.cs" />
+    <Compile Include="Stat\Counter.cs" />
+    <Compile Include="Stat\IMonitor.cs" />
+    <Compile Include="Stat\Monitor.cs" />
+    <Compile Include="Stat\NullMonitor.cs" />
     <Compile Include="Triggers\OneTimeTrigger.cs" />
     <Compile Include="Triggers\PeriodicalTrigger.cs" />
     <Compile Include="Triggers\Start.cs" />
