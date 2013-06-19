@@ -95,6 +95,8 @@ namespace Codestellation.DarkFlow.Tests.Windsor
             var executor = (Executor)_windsor.Resolve<IExecutor>();
 
             Assert.That(executor.Monitor, Is.InstanceOf<Monitor>());
+
+            Assert.That(_windsor.Resolve<Monitor>(), Is.SameAs(executor.Monitor));
         }
     }
 }

@@ -53,8 +53,7 @@ namespace Codestellation.DarkFlow.CastleWindsor
             {
                 Kernel.Register(
                     Component
-                        .For<IMonitor>()
-                        .ImplementedBy<Monitor>()
+                        .For<Monitor, IMonitor>()
                         .LifestyleSingleton()
                     );
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Codestellation.DarkFlow.Misc;
 
@@ -17,6 +18,11 @@ namespace Codestellation.DarkFlow.Stat
         public bool Enabled
         {
             get { return true; }
+        }
+
+        public Counter[] Counters
+        {
+            get { return _counters.Values.ToArray(); }
         }
 
         public void Increment(string counterName, TimeSpan duration)
