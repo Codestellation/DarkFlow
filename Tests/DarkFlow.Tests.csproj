@@ -70,6 +70,7 @@
     <Compile Include="..\SolutionVersion.cs">
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
+    <Compile Include="Core\Async\AsyncTaskTests.cs" />
     <Compile Include="Core\Bootstrap\BootstrapperTests.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Core\Config\ConfigurationTests.cs" />

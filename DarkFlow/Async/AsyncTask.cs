@@ -1,84 +1,104 @@
 ﻿using System;
+using System.Threading;
+using Codestellation.DarkFlow.Misc;
 
 namespace Codestellation.DarkFlow.Async
 {
-    public abstract class AsyncTask<TResult> :  ITask
+    public abstract class AsyncTask :  ITask, IAsyncResult
     {
         private readonly AsyncCallback _callback;
-        private LeanResult<TResult> _asyncResult;
-
-        public LeanResult<TResult> AsyncResult
-        {
-            get { return _asyncResult; }
-        }
-
-        public AsyncTask(AsyncCallback callback, object asyncState) 
-        {
-            _asyncResult = GetAsyncResult(asyncState);
-            _callback = callback;
-        }
-
-        private LeanResult<TResult> GetAsyncResult(object asyncState)
-        {
-            //TODO Implement AsyncResult pool to reduce pressure on GC.
-            return new LeanResult<TResult>(asyncState);
-        }
-
-        public void Execute()
-        {
-            try
-            {
-                var result = InternalExecute();
-                _asyncResult.Succeed(result);
-            }
-            catch (Exception ex)
-            {
-                _asyncResult.Failed(ex);
-            }
-
-            _callback(_asyncResult);
-        }
-
-        protected abstract TResult InternalExecute();
-    }
-
-    public abstract class AsyncTask :  ITask
-    {
-        private readonly AsyncCallback _callback;
-        private LeanResult _asyncResult;
-
-        public LeanResult AsyncResult
-        {
-            get { return _asyncResult; }
-        }
+        private readonly object _asyncState;
+        private Exception _exception;
+        private int _completionStatus;
+        private const int NotCompleted = 0;
+        private const int RanToCompletion = 1;
+        private const int Failed = 2;
 
         public AsyncTask(AsyncCallback callback, object asyncState)
         {
-            _asyncResult = GetAsyncResult(asyncState);
             _callback = callback;
-        }
-
-        private LeanResult GetAsyncResult(object asyncState)
-        {
-            //TODO Implement AsyncResult pool to reduce pressure on GC.
-            return new LeanResult(asyncState);
+            _asyncState = asyncState;
         }
 
         public void Execute()
         {
             try
             {
-               InternalExecute();
-
+                InternalExecute();
+                Thread.VolatileWrite(ref _completionStatus, RanToCompletion);
             }
             catch (Exception ex)
             {
-                _asyncResult.Failed(ex);
+                _exception = ex;
+                Thread.VolatileWrite(ref _completionStatus, Failed);
             }
-
-            _callback(_asyncResult);
+            
+            if (_callback == null) return;
+            _callback(this);
         }
 
         protected abstract void InternalExecute();
+
+        public bool IsCompleted
+        {
+            get { return _completionStatus > NotCompleted; }
+        }
+
+        public virtual WaitHandle AsyncWaitHandle
+        {
+            get { throw new NotSupportedException("You should not use waiting for result. Use callback instead."); }
+        }
+
+        public object AsyncState
+        {
+            get { return _asyncState; }
+        }
+
+        public bool CompletedSynchronously
+        {
+            get { return false; }
+        }
+
+        public void EnsureRanToCompletion()
+        {
+            //I hope happy path would be most often. Check it first. 
+            if (_completionStatus == RanToCompletion)
+            {
+                return;
+            }
+
+            if (_completionStatus == NotCompleted)
+            {
+                throw new InvalidOperationException("Task is not completed yet. No result avaible");
+            }
+
+            if (_completionStatus != Failed) return;
+            
+            if (_exception == null)
+            {
+                throw new InvalidOperationException("Task failed but Exception is null. Looks like race condition. Please report a bug.");
+            }
+
+            throw _exception.WithPreservedStackTrace();
+        }
+    }
+
+    public abstract class AsyncTask<TResult> :  AsyncTask
+    {
+        public AsyncTask(AsyncCallback callback, object asyncState) : base(callback, asyncState)
+        {
+            
+        }
+
+        public TResult Result
+        {
+            get
+            {
+                EnsureRanToCompletion();
+                return InternalResult;
+            }
+        }
+
+        protected abstract TResult InternalResult { get; }
     }
 }
