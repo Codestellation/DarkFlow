@@ -59,7 +59,7 @@ namespace Codestellation.DarkFlow.Async
             get { return false; }
         }
 
-        public void EnsureRanToCompletion()
+        protected void EnsureRanToCompletion()
         {
             //I hope happy path would be most often. Check it first. 
             if (_completionStatus == RanToCompletion)

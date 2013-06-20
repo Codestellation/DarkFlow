@@ -67,6 +67,7 @@
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
     <Compile Include="Async\AsyncTask.cs" />
+    <Compile Include="Async\AsyncTaskWrap.cs" />
     <Compile Include="Bootstrap\AttributeMatcherBuilder.cs" />
     <Compile Include="Bootstrap\ContentMatcherBuilder.cs" />
     <Compile Include="Bootstrap\Create.cs" />
@@ -118,7 +119,6 @@
     <Compile Include="Misc\ContractException.cs" />
     <Compile Include="Misc\FactoryTask.cs" />
     <Compile Include="Misc\ExceptionExtensions.cs" />
-    <Compile Include="Misc\Extensions.cs" />
     <Compile Include="Misc\ISupportStart.cs" />
     <Compile Include="PersistentAttribute.cs" />
     <Compile Include="Execution\DefaultReleaser.cs" />
