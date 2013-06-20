@@ -67,6 +67,7 @@
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
     <Compile Include="Async\AsyncTask.cs" />
+    <Compile Include="Async\AsyncTaskWrap.cs" />
     <Compile Include="Bootstrap\AttributeMatcherBuilder.cs" />
     <Compile Include="Bootstrap\ContentMatcherBuilder.cs" />
     <Compile Include="Bootstrap\Create.cs" />

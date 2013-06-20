@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Codestellation.DarkFlow.Async;
 using NUnit.Framework;
 
@@ -11,61 +10,92 @@ namespace Codestellation.DarkFlow.Tests.Core.Async
         [Test]
         public void Calls_end_when_completed()
         {
-            var service = new AsyncService();
+            object state = new object();
+            IAsyncResult ar = null;
+            AsyncCallback callback = delegate(IAsyncResult result) { ar = result; };
 
-            var asyncResult = service.BeginTask(false, service.EndTask, null);
+            var task = new TestAsyncTask(callback, state);
 
-            asyncResult.AsyncWaitHandle.WaitOne();
+            task.Execute();
 
-            Assert.That(asyncResult.IsCompleted, Is.True);
-        }
-    }
-
-    public class AsyncService
-    {
-        public IAsyncResult BeginTask(bool throwEx, AsyncCallback callback, object state)
-        {
-            var task = new TestAsyncTask(throwEx, callback, state);
-            ThreadPool.QueueUserWorkItem(delegate { task.Execute(); });
-            return task;
+            Assert.That(ar, Is.InstanceOf<TestAsyncTask>());
+            Assert.That(ar.IsCompleted, Is.True);
+            Assert.That(ar.AsyncState, Is.EqualTo(state));
         }
 
-        public void EndTask(IAsyncResult asyncResult)
+        [Test]
+        public void Task_with_result_return_result()
         {
-            var leanResult = (AsyncTask)asyncResult;
-            leanResult.EnsureRanToCompletion();
+            object state = new object();
+            IAsyncResult ar = null;
+            AsyncCallback callback = delegate(IAsyncResult result) { ar = result; };
+            var task = new TestResultAsyncTask(false, callback, state);
+
+            task.Execute();
+
+            Assert.That(ar, Is.SameAs(task));
+            Assert.That(ar.IsCompleted, Is.True);
+            Assert.That(ar.AsyncState, Is.EqualTo(state));
+            Assert.That(task.Result, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void Task_with_result_throws_if_not_finished()
+        {
+            object state = new object();
+            IAsyncResult ar = null;
+            AsyncCallback callback = delegate(IAsyncResult result) { ar = result; };
+
+            var task = new TestResultAsyncTask(false, callback, state);
+
+            Assert.That(task.IsCompleted, Is.False);
+            Assert.Throws<InvalidOperationException>(() => { var x = task.Result; });
+        }
+
+        [Test]
+        public void Task_with_result_throws_if_failed()
+        {
+            object state = new object();
+            IAsyncResult ar = null;
+            AsyncCallback callback = delegate(IAsyncResult result) { ar = result; };
+            var task = new TestResultAsyncTask(true, callback, state);
+
+            task.Execute();
+
+            Assert.That(task.IsCompleted, Is.True);
+            Assert.Throws<ArgumentOutOfRangeException>(() => { var x = task.Result; });
         }
     }
 
     public class TestAsyncTask : AsyncTask
     {
-        private readonly bool _throwEx;
-        private readonly ManualResetEvent _event;
-
-        public TestAsyncTask(bool throwEx, AsyncCallback callback, object asyncState) : base(callback, asyncState)
+        public TestAsyncTask(AsyncCallback callback, object asyncState) : base(callback, asyncState)
         {
-            _throwEx = throwEx;
-            _event = new ManualResetEvent(false);
         }
 
         protected override void InternalExecute()
         {
-            try
-            {
-                if (_throwEx)
-                {
-                    throw new InvalidOperationException();
-                }
-            }
-            finally
-            {
-                _event.Set();
-            }
+        }
+    }
+
+    public class TestResultAsyncTask : AsyncTask<int>
+    {
+        private readonly bool _shouldThrow;
+
+        public TestResultAsyncTask(bool shouldThrow, AsyncCallback callback, object asyncState)
+            : base(callback, asyncState)
+        {
+            _shouldThrow = shouldThrow;
         }
 
-        public override WaitHandle AsyncWaitHandle
+        protected override void InternalExecute()
         {
-            get { return _event; }
-        }
+            if (_shouldThrow) throw new ArgumentOutOfRangeException();
+        }
+
+        protected override int InternalResult
+        {
+            get { return 10; }
+        }
     }
 }
