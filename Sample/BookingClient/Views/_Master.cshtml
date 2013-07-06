@@ -1,0 +1,23 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>@ViewBag.Title</title>
+    
+        <link type="text/css" rel="stylesheet" href="@Url.Content("~/Content/bootstrap.min.css")"/>
+        <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-1.9.1.js")"> </script>
+        <script type="text/javascript" src="@Url.Content("~/Scripts/bootstrap.min.js")"> </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="hero-unit">
+                @RenderBody()
+            </div>
+        </div>
+    </body>
+</html>

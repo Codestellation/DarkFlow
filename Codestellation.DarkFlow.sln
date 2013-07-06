@@ -20,6 +20,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DarkFlow.CastleWindsor", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DarkFlow.Tests", "Tests\DarkFlow.Tests.csproj", "{453A81DB-F751-45A0-8C08-1783C2848537}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{2BEF57FE-738E-4D61-9EE1-A41722406B61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingService", "Sample\BookingService\BookingService.csproj", "{F657963E-0F15-4DBB-B96F-E420BE5C72D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingContract", "Sample\BookingContract\BookingContract.csproj", "{45828401-8DE4-4E2D-9D0F-094051F5D542}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingClient", "Sample\BookingClient\BookingClient.csproj", "{B99F3DE8-47B5-43FE-A426-006F0897DB61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,8 +46,25 @@ Global
 		{453A81DB-F751-45A0-8C08-1783C2848537}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{453A81DB-F751-45A0-8C08-1783C2848537}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{453A81DB-F751-45A0-8C08-1783C2848537}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F657963E-0F15-4DBB-B96F-E420BE5C72D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F657963E-0F15-4DBB-B96F-E420BE5C72D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F657963E-0F15-4DBB-B96F-E420BE5C72D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F657963E-0F15-4DBB-B96F-E420BE5C72D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45828401-8DE4-4E2D-9D0F-094051F5D542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45828401-8DE4-4E2D-9D0F-094051F5D542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45828401-8DE4-4E2D-9D0F-094051F5D542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45828401-8DE4-4E2D-9D0F-094051F5D542}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B99F3DE8-47B5-43FE-A426-006F0897DB61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B99F3DE8-47B5-43FE-A426-006F0897DB61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B99F3DE8-47B5-43FE-A426-006F0897DB61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B99F3DE8-47B5-43FE-A426-006F0897DB61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F657963E-0F15-4DBB-B96F-E420BE5C72D7} = {2BEF57FE-738E-4D61-9EE1-A41722406B61}
+		{45828401-8DE4-4E2D-9D0F-094051F5D542} = {2BEF57FE-738E-4D61-9EE1-A41722406B61}
+		{B99F3DE8-47B5-43FE-A426-006F0897DB61} = {2BEF57FE-738E-4D61-9EE1-A41722406B61}
 	EndGlobalSection
 EndGlobal

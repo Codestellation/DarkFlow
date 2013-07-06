@@ -1,0 +1,12 @@
+﻿@model BookingClient.Models.BookingModel
+
+
+<h3>Room booked!</h3>
+<div class="container">
+    @Html.LabelFor(x => x.RoomNumber)<input type="text" readonly="" value="@Model.RoomNumber"/>
+    @Html.LabelFor(x => x.PersonName)<input type="text" readonly="" value="@Model.PersonName"/>
+    <label>Period</label> 
+    <input type="text" readonly="" value="@Model.BeginAt"/>
+    <input type="text" readonly="" value="@Model.EndAt"/>
+    <p><a class="btn-success btn-large" href="@Url.Action("Book")">Book another</a></p>
+</div>

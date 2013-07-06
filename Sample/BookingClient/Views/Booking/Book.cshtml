@@ -1,0 +1,27 @@
+﻿@model BookingClient.Models.BookingModel
+
+
+<form method="POST" class="form-horizontal">
+    <fieldset>
+        <legend>Book a room</legend>
+        <div class="control-group">
+            <label class="control-label">Desired Room Number</label>
+            <div class="controls">@Html.TextBoxFor(x => x.RoomNumber)</div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">Enter your name</label>
+            <div class="controls">@Html.TextBoxFor(x => x.PersonName)</div>
+        </div>
+                        
+        <div class="control-group">
+            <label class="control-label">From</label>
+            <div class="controls">@Html.TextBoxFor(x => x.BeginAt)</div>
+        </div>
+                        
+        <div class="control-group">
+            <label class="control-label">To</label>
+            <div class="controls">@Html.TextBoxFor(x => x.EndAt)</div>
+        </div>
+        <input class="btn-primary btn-large" type="submit" value="Book"/>
+    </fieldset>
+</form>
