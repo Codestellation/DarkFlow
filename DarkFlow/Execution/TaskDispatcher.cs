@@ -122,8 +122,6 @@ namespace Codestellation.DarkFlow.Execution
             {
                 var envelope = executionInfo.CurrentTask;
 
-                Contract.Require(envelope != null, "envelope != null");
-
                 if (envelope == null)
                 {
                     break;
