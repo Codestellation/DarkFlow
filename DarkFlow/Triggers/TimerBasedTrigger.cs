@@ -36,6 +36,7 @@ namespace Codestellation.DarkFlow.Triggers
 
             var period = CalculatePeriod();
 
+
             Thread.BeginCriticalRegion();
 
             _timer = new Timer(OnTimerCallback, null, dueTime, period);
@@ -45,6 +46,11 @@ namespace Codestellation.DarkFlow.Triggers
             if (Logger.IsInfoEnabled)
             {
                 Logger.Info(ToString);
+            }
+
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug("Trigger {0}. DueTime={1}, Period={2}", Name, dueTime, period);
             }
         }
 
@@ -64,7 +70,7 @@ namespace Codestellation.DarkFlow.Triggers
 
         private TimeSpan CalculateDueTime(DateTime utcNow)
         {
-            var dueTime = FirstStart.HasValue ? utcNow - FirstStart.Value.ToUniversalTime() : TimeSpan.FromSeconds(0);
+            var dueTime = FirstStart.HasValue ? FirstStart.Value.ToUniversalTime() - utcNow : TimeSpan.FromSeconds(0);
 
             dueTime = dueTime < TimeSpan.FromSeconds(0) ? TimeSpan.FromSeconds(0) : dueTime;
             return dueTime;
